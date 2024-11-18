@@ -1,0 +1,38 @@
+/* Additional styles in src/styles/AdminPanel.css */
+
+.stock-item, .order-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+.section input, .section select, .section button {
+  max-width: 200px;
+  margin-top: 8px;
+}
+
+.section ul {
+  list-style: none;
+  padding: 0;
+}
+
+.section ul li {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+.section ul li button {
+  background-color: #d9534f;
+  color: white;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-left: 10px;
+}
+
+.section ul li button:hover {
+  background-color: #c9302c;
+}

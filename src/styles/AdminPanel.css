@@ -1,0 +1,75 @@
+/* src/styles/AdminPanel.css */
+
+:root {
+    --sidebar-width: 250px; /* Fixed width for the sidebar */
+    --navbar-height: 60px;  /* Fixed height for the top navbar */
+  }
+  
+  /* Reset body margin and padding */
+  body, html {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow-x: hidden; /* Prevents horizontal scrolling */
+  }
+  
+  /* Main layout container */
+  .admin-panel {
+    display: flex;
+    height: 100vh;
+  }
+  
+  /* Sidebar styling */
+  .sidebar {
+    width: var(--sidebar-width);
+    height: 100vh;
+    background: linear-gradient(180deg, #2c3e50, #1a252f);
+    color: white;
+    overflow-y: auto;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 500;
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  /* Main content area */
+  .main-content {
+    margin-left: var(--sidebar-width); /* Align content next to sidebar */
+    width: calc(100% - var(--sidebar-width)); /* Remaining width after sidebar */
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+  }
+  
+  /* Top Navbar styling */
+  .top-navbar {
+    height: var(--navbar-height);
+    width: calc(100% - var(--sidebar-width));
+    background-color: #00bfa6;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    box-sizing: border-box;
+    position: fixed;
+    top: 0;
+    left: var(--sidebar-width); /* Start after sidebar */
+    z-index: 1000;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Content area below the Top Navbar */
+  .content {
+    padding: 20px;
+    margin-top: var(--navbar-height); /* Offset content below the navbar */
+    overflow-y: auto; /* Enables scrolling within the content */
+    box-sizing: border-box;
+    flex-grow: 1;
+    background-color: #f9f9f9; /* Light background for contrast */
+  }
+  

@@ -1,0 +1,58 @@
+/* src/styles/DashboardCards.css */
+
+/* Main container for dashboard cards */
+.dashboard-main {
+    margin-left: 250px; /* Offset for fixed sidebar width */
+    height: calc(100vh - 70px); /* Full height minus navbar */
+    overflow-y: auto;
+    background-color: #f9f9f9;
+  }
+  
+  /* Dashboard card grid layout */
+  .dashboard-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+    padding: 20px;
+  }
+  
+  /* Individual dashboard card styling */
+  .dashboard-card {
+    background-color: #3aafa9;
+    color: white;
+    padding: 25px;
+    border-radius: 12px;
+    text-align: center;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Center align content */
+    justify-content: space-between;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    text-decoration: none; /* Remove underline if it's a link */
+  }
+  
+  .dashboard-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+  }
+  
+  /* Icon within the dashboard card */
+  .card-main-icon {
+    font-size: 30px; /* Increase size of the icon */
+    margin-bottom: 15px; /* Space between icon and title */
+  }
+  
+  /* Card title */
+  .dashboard-card h4 {
+    font-size: 18px;
+    margin-bottom: 10px;
+  }
+  
+  /* Card description text */
+  .dashboard-card p {
+    font-size: 14px;
+    color: #d1eae8;
+  }
+  

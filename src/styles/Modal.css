@@ -1,0 +1,42 @@
+/* src/styles/Modal.css */
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: transparent; /* Ensure there’s no background */
+    z-index: 1000;
+  }
+  
+  .modal-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: 40px;
+    width: 100%;
+    max-width: 500px;
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  }
+  
+  .close-button {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    font-size: 20px;
+    background: none;
+    border: none;
+    color: #333;
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.3s ease;
+  }
+  
+  .close-button:hover {
+    color: #e74c3c; /* Red color on hover for visibility */
+  }
+  

@@ -1,0 +1,85 @@
+/* src/styles/Customers.css */
+
+.customers-page {
+    padding: 20px;
+    margin-top: var(--navbar-height); /* Offset for navbar height */
+  }
+  
+  .customers-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  .add-customer-btn {
+    background-color: #00bfa6;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .add-customer-btn:hover {
+    background-color: #008f82;
+  }
+  
+  .customers-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .customers-table th,
+  .customers-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  .edit-btn,
+  .delete-btn {
+    padding: 6px 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-right: 5px;
+  }
+  
+  .edit-btn {
+    background-color: #f1c40f;
+    color: white;
+  }
+  
+  .delete-btn {
+    background-color: #e74c3c;
+    color: white;
+  }
+  
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .modal-content {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    width: 400px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  }
+  
+  .modal-actions {
+    margin-top: 15px;
+    display: flex;
+    justify-content: space-between;
+  }
+  

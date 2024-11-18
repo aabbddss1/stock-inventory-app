@@ -1,0 +1,67 @@
+/* src/styles/AddCustomer.css */
+
+.add-customer-page {
+    width: 100%;
+    max-width: 500px;
+    padding: 0; /* Remove any padding that might be adding space around */
+    background: none; /* Remove any background if it's applied */
+  }
+  
+  .add-customer-card {
+    padding: 40px;
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    text-align: center;
+  }
+  
+  .add-customer-card h2 {
+    font-size: 24px;
+    color: #333;
+    margin-bottom: 20px;
+  }
+  
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 15px;
+    text-align: left;
+  }
+  
+  .form-group label {
+    font-size: 14px;
+    color: #555;
+    margin-bottom: 5px;
+  }
+  
+  .form-group input {
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  
+  .form-group input:focus {
+    border-color: #4CAF50;
+    box-shadow: 0 0 8px rgba(76, 175, 80, 0.2);
+  }
+  
+  .submit-button {
+    width: 100%;
+    padding: 12px;
+    background-color: #3aafa9;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .submit-button:hover {
+    background-color: #2b2f3a;
+  }
+  

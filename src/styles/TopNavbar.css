@@ -1,0 +1,63 @@
+/* src/styles/TopNavbar.css */
+
+:root {
+    --navbar-height: 60px; /* Define a consistent height for the navbar */
+  }
+  
+  .top-navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: var(--navbar-height);
+    padding: 0 20px;
+    background-color: #00bfa6;
+    color: white;
+    position: fixed;
+    top: 0;
+    left: var(--sidebar-width); /* Offset by sidebar width */
+    width: calc(100% - var(--sidebar-width)); /* Full width minus sidebar */
+    box-sizing: border-box;
+    z-index: 1000;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Title styling */
+  .title {
+    font-size: 18px;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+  }
+  
+  /* Navigation links container */
+  .nav-links {
+    display: flex;
+    gap: 15px; /* Adds space between links */
+  }
+  
+  /* Individual link styling */
+  .nav-links a {
+    color: white;
+    text-decoration: none;
+    font-size: 14px;
+    transition: color 0.3s ease;
+  }
+  
+  .nav-links a:hover {
+    color: #e0e0e0; /* Lighten color on hover */
+  }
+  
+  /* Responsive adjustments for smaller screens */
+  @media (max-width: 768px) {
+    .top-navbar {
+      padding: 0 15px;
+    }
+  
+    .title {
+      font-size: 16px; /* Slightly smaller font for title */
+    }
+  
+    .nav-links a {
+      font-size: 13px; /* Slightly smaller font for links */
+    }
+  }
+  
