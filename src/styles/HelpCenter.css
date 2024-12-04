@@ -1,0 +1,70 @@
+/* src/styles/HelpCenter.css */
+
+/* Page Layout */
+.help-center-page {
+    display: flex;
+    height: 100vh;
+  }
+  
+  .main-content {
+    margin-left: 250px;
+    width: calc(100% - 250px);
+    padding-top: 70px;
+    overflow-y: auto;
+    background-color: #f9f9f9;
+  }
+  
+  .help-center-container {
+    padding: 20px;
+  }
+  
+  /* Page Title */
+  .help-center-container h1 {
+    margin-bottom: 20px;
+    color: #2c3e50;
+  }
+  
+  /* Section Styling */
+  .help-section {
+    margin-bottom: 30px;
+  }
+  
+  .help-section h2 {
+    margin-bottom: 10px;
+    color: #3aafa9;
+  }
+  
+  .help-section p {
+    font-size: 14px;
+    line-height: 1.6;
+    color: #4a4a4a;
+  }
+  
+  .help-section ul {
+    padding-left: 20px;
+  }
+  
+  .help-section ul li {
+    margin-bottom: 10px;
+    font-size: 14px;
+    color: #4a4a4a;
+  }
+  
+  /* FAQ Styling */
+  .faq h3 {
+    margin-bottom: 5px;
+    font-size: 16px;
+    color: #2c3e50;
+  }
+  
+  .faq p {
+    margin-left: 20px;
+    font-size: 14px;
+    color: #4a4a4a;
+  }
+  
+  /* Contact Support */
+  .help-section ul li {
+    margin-bottom: 10px;
+  }
+  

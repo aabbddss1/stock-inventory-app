@@ -1,0 +1,91 @@
+
+/* src/styles/Dealerships.css */
+
+.dealerships-page {
+    display: flex;
+    height: 100vh;
+    background-color: #f9f9f9;
+  }
+  
+  .main-content {
+    margin-left: 250px; /* Same as sidebar width */
+    width: calc(100% - 250px);
+    padding-top: 70px; /* Space for top navbar */
+    overflow-y: auto;
+  }
+  
+  .dealerships-container {
+    padding: 20px;
+  }
+  
+  h1 {
+    font-size: 24px;
+    margin-bottom: 20px;
+  }
+  
+  .dealerships-form {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  
+  .dealerships-form input {
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    flex: 1;
+  }
+  
+  .dealerships-form button {
+    padding: 10px 20px;
+    background-color: #00bfa6;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .dealerships-form button:hover {
+    background-color: #019b88;
+  }
+  
+  .dealerships-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+  }
+  
+  .dealership-card {
+    background-color: #3aafa9;
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    position: relative;
+  }
+  
+  .dealership-card h3 {
+    font-size: 18px;
+    margin-bottom: 10px;
+  }
+  
+  .dealership-card p {
+    font-size: 14px;
+  }
+  
+  .dealership-card button {
+    margin-top: 10px;
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .dealership-card button:hover {
+    background-color: #c0392b;
+  }
+  

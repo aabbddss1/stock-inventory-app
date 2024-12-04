@@ -1,0 +1,152 @@
+/* src/styles/Receivables.css */
+
+/* Main Page Layout */
+.receivables-page {
+    display: flex;
+    height: 100vh;
+  }
+  
+  .main-content {
+    margin-left: 250px;
+    width: calc(100% - 250px);
+    padding-top: 70px;
+    overflow-y: auto;
+    background-color: #f9f9f9;
+  }
+  
+  .receivables-container {
+    padding: 20px;
+  }
+  
+  /* Page Title */
+  .receivables-container h1 {
+    margin-bottom: 20px;
+    color: #2c3e50;
+  }
+  
+  /* Search and Export Actions */
+  .receivables-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  .receivables-actions input {
+    width: 50%;
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+  }
+  
+  .receivables-actions button {
+    padding: 10px 20px;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .receivables-actions button:hover {
+    background-color: #2980b9;
+  }
+  
+  /* Form Styling */
+  .receivables-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  
+  .receivables-form input {
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+  }
+  
+  .receivables-form button {
+    padding: 10px 20px;
+    background-color: #00bfa6;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .receivables-form button:hover {
+    background-color: #00997e;
+  }
+  
+  /* Receivables Table */
+  .receivables-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .receivables-table th,
+  .receivables-table td {
+    text-align: left;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  .receivables-table th {
+    background-color: #3aafa9;
+    color: white;
+  }
+  
+  .receivables-table td {
+    background-color: #ffffff;
+  }
+  
+  .receivables-table tr:hover {
+    background-color: #f1f1f1;
+  }
+  
+  /* Action Buttons in Table */
+  .receivables-table button {
+    padding: 5px 10px;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 12px;
+  }
+  
+  .receivables-table button:hover {
+    background-color: #2980b9;
+  }
+  
+  /* Status Colors */
+  .receivables-table td {
+    position: relative;
+  }
+  
+  .receivables-table td:before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%);
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+  }
+  
+  .receivables-table td:nth-child(5):before {
+    background-color: #2ecc71; /* Default: Pending */
+  }
+  
+  .receivables-table td:contains('Paid'):before {
+    background-color: #3498db; /* Paid */
+  }
+  
+  .receivables-table td:contains('Overdue'):before {
+    background-color: #e74c3c; /* Overdue */
+  }
+  

@@ -1,0 +1,195 @@
+/* src/styles/Orders.css */
+
+.orders-page {
+    display: flex;
+    height: 100vh;
+  }
+  
+  .main-content {
+    margin-left: 250px; /* Same as sidebar width */
+    width: calc(100% - 250px);
+    padding-top: 70px; /* Space for top navbar */
+    overflow-y: auto;
+    background-color: #f9f9f9;
+  }
+  
+  .orders-container {
+    padding: 20px;
+  }
+  
+  .orders-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  
+  .orders-table th,
+  .orders-table td {
+    text-align: left;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  .orders-table th {
+    background-color: #3aafa9;
+    color: white;
+  }
+  
+  .orders-table td {
+    background-color: #ffffff;
+  }
+  
+  .orders-table tr:hover {
+    background-color: #f1f1f1;
+  }
+  
+  .orders-table button {
+    margin-right: 5px;
+    padding: 5px 10px;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 12px;
+  }
+  
+  .orders-table button:hover {
+    background-color: #2980b9;
+  }
+  
+  .orders-table input[type='file'] {
+    font-size: 12px;
+    margin-top: 10px;
+  }
+  
+  .edit-order {
+    margin-top: 30px;
+    padding: 20px;
+    background-color: #ffffff;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+  }
+  .orders-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  
+  .orders-table th,
+  .orders-table td {
+    text-align: left;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  .orders-table th {
+    background-color: #3aafa9;
+    color: white;
+  }
+  
+  .orders-table td {
+    background-color: #ffffff;
+  }
+  
+  .orders-table tr:hover {
+    background-color: #f1f1f1;
+  }
+  
+  .actions-dropdown {
+    padding: 5px 10px;
+    font-size: 14px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #ffffff;
+    cursor: pointer;
+  }
+  
+  .actions-dropdown:focus {
+    outline: none;
+    border-color: #3498db;
+  }
+  /* src/styles/Orders.css */
+
+.orders-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  
+  .orders-table th,
+  .orders-table td {
+    text-align: left;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  .orders-table th {
+    background-color: #3aafa9;
+    color: white;
+  }
+  
+  .orders-table td {
+    background-color: #ffffff;
+  }
+  
+  .orders-table tr:hover {
+    background-color: #f1f1f1;
+  }
+  
+  .actions-cell {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+  
+  .actions-dropdown {
+    padding: 5px 10px;
+    font-size: 14px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #ffffff;
+    cursor: pointer;
+  }
+  
+  .actions-dropdown:focus {
+    outline: none;
+    border-color: #3498db;
+  }
+  
+  .actions-cell button {
+    padding: 5px 10px;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 12px;
+  }
+  
+  .actions-cell button:hover {
+    background-color: #2980b9;
+  }
+  
+  .upload-button {
+    padding: 5px 10px;
+    background-color: #f39c12;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 12px;
+  }
+  
+  .upload-button:hover {
+    background-color: #e67e22;
+  }
+  
+  .edit-order {
+    margin-top: 30px;
+    padding: 20px;
+    background-color: #ffffff;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+  }
+  

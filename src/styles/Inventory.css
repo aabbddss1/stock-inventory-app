@@ -1,0 +1,152 @@
+/* src/styles/Inventory.css */
+
+/* Main Page Layout */
+.inventory-page {
+    display: flex;
+    height: 100vh;
+  }
+  
+  .main-content {
+    margin-left: 250px;
+    width: calc(100% - 250px);
+    padding-top: 70px;
+    overflow-y: auto;
+    background-color: #f9f9f9;
+  }
+  
+  .inventory-container {
+    padding: 20px;
+  }
+  
+  /* Page Title */
+  .inventory-container h1 {
+    margin-bottom: 20px;
+    color: #2c3e50;
+  }
+  
+  /* Search and Export Actions */
+  .inventory-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  .inventory-actions input {
+    width: 50%;
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+  }
+  
+  .inventory-actions button {
+    padding: 10px 20px;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .inventory-actions button:hover {
+    background-color: #2980b9;
+  }
+  
+  /* Form Styling */
+  .inventory-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  
+  .inventory-form input {
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+  }
+  
+  .inventory-form button {
+    padding: 10px 20px;
+    background-color: #00bfa6;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .inventory-form button:hover {
+    background-color: #00997e;
+  }
+  
+  /* Inventory Table */
+  .inventory-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .inventory-table th,
+  .inventory-table td {
+    text-align: left;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  .inventory-table th {
+    background-color: #3aafa9;
+    color: white;
+  }
+  
+  .inventory-table td {
+    background-color: #ffffff;
+  }
+  
+  .inventory-table tr:hover {
+    background-color: #f1f1f1;
+  }
+  
+  /* Action Buttons in Table */
+  .inventory-table button {
+    padding: 5px 10px;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 12px;
+  }
+  
+  .inventory-table button:hover {
+    background-color: #2980b9;
+  }
+  
+  /* Status Colors */
+  .inventory-table td {
+    position: relative;
+  }
+  
+  .inventory-table td:before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%);
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+  }
+  
+  .inventory-table td:nth-child(5):before {
+    background-color: #2ecc71; /* Default: In Stock */
+  }
+  
+  .inventory-table td:contains('Low Stock'):before {
+    background-color: #f39c12; /* Low Stock */
+  }
+  
+  .inventory-table td:contains('Out of Stock'):before {
+    background-color: #e74c3c; /* Out of Stock */
+  }
+  
