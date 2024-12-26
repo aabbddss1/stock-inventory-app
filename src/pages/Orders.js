@@ -298,4 +298,3 @@ const Orders = () => {
 
 export default Orders;
 
-//this is test
