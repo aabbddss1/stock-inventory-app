@@ -1,110 +1,145 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import '../styles/AddCustomer.css';
 
 function AddCustomer({ onSave, onClose }) {
-  const [customer, setCustomer] = useState({
+  const [formData, setFormData] = useState({
     name: '',
     email: '',
     phone: '',
     address: '',
     city: '',
     postalCode: '',
+    password: '',
   });
+
+  const [errors, setErrors] = useState({});
+
+  useEffect(() => {
+    document.getElementById('name').focus(); // Automatically focus on the Name input field
+  }, []);
+
+  const validate = () => {
+    const newErrors = {};
+    if (!formData.name.trim()) newErrors.name = 'Name is required';
+    if (!formData.email.trim()) {
+      newErrors.email = 'Email is required';
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = 'Invalid email format';
+    }
+    if (!formData.phone.trim()) {
+      newErrors.phone = 'Phone number is required';
+    } else if (!/^\d{10,15}$/.test(formData.phone)) {
+      newErrors.phone = 'Phone number must be 10-15 digits';
+    }
+    if (!formData.password.trim()) newErrors.password = 'Password is required';
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setCustomer((prevCustomer) => ({
-      ...prevCustomer,
-      [name]: value,
-    }));
+    setFormData({ ...formData, [name]: value });
+    setErrors({ ...errors, [name]: '' }); // Clear specific error
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    if (!customer.name || !customer.email || !customer.phone) {
-      alert('Name, Email, and Phone are required!');
-      return;
+    if (validate()) {
+      onSave(formData);
+      setFormData({
+        name: '',
+        email: '',
+        phone: '',
+        address: '',
+        city: '',
+        postalCode: '',
+        password: '',
+      }); // Clear the form after successful save
     }
+  };
 
-    // Trigger the onSave callback with the customer details
-    onSave(customer);
+  const generateRandomPassword = () => {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%';
+    let password = '';
+    for (let i = 0; i < 10; i++) {
+      password += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    setFormData({ ...formData, password });
   };
 
   return (
-    <div className="add-customer-card">
-      <h2>Add New Customer</h2>
-      <form onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label>Name</label>
-          <input
-            type="text"
-            name="name"
-            value={customer.name}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label>Email</label>
-          <input
-            type="email"
-            name="email"
-            value={customer.email}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label>Phone Number</label>
-          <input
-            type="text"
-            name="phone"
-            value={customer.phone}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label>Address</label>
-          <input
-            type="text"
-            name="address"
-            value={customer.address}
-            onChange={handleChange}
-          />
-        </div>
-        <div className="form-group">
-          <label>City</label>
-          <input
-            type="text"
-            name="city"
-            value={customer.city}
-            onChange={handleChange}
-          />
-        </div>
-        <div className="form-group">
-          <label>Postal Code</label>
-          <input
-            type="text"
-            name="postalCode"
-            value={customer.postalCode}
-            onChange={handleChange}
-          />
-        </div>
-        <div className="form-actions">
-          <button type="submit" className="submit-button">
-            Add Customer
-          </button>
-          <button
-            type="button"
-            className="cancel-button"
-            onClick={onClose}
-          >
-            Cancel
-          </button>
-        </div>
-      </form>
+    <div className="modal-overlay">
+      <div className="modal-content">
+        <h3>Add New Customer</h3>
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label>Name</label>
+            <input
+              id="name"
+              type="text"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              placeholder="Enter full name"
+              required
+            />
+            {errors.name && <p className="error-text">{errors.name}</p>}
+          </div>
+          <div className="form-group">
+            <label>Email</label>
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="Enter email address"
+              required
+            />
+            {errors.email && <p className="error-text">{errors.email}</p>}
+          </div>
+          <div className="form-group">
+            <label>Phone</label>
+            <input
+              type="text"
+              name="phone"
+              value={formData.phone}
+              onChange={handleChange}
+              placeholder="Enter phone number"
+              required
+            />
+            {errors.phone && <p className="error-text">{errors.phone}</p>}
+          </div>
+          <div className="form-group">
+            <label>Password</label>
+            <div className="password-container">
+              <input
+                type="text"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                placeholder="Enter password or generate"
+                required
+              />
+              <button
+                type="button"
+                className="generate-password-btn"
+                onClick={generateRandomPassword}
+              >
+                Generate
+              </button>
+            </div>
+            {errors.password && <p className="error-text">{errors.password}</p>}
+          </div>
+          <div className="form-actions">
+            <button type="submit" className="submit-button">
+              Add Customer
+            </button>
+            <button type="button" className="cancel-button" onClick={onClose}>
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }
