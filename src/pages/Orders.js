@@ -6,28 +6,32 @@ import '../styles/Orders.css';
 
 const Orders = () => {
   const [orders, setOrders] = useState([]);
-  const [users, setUsers] = useState([]); // List of registered users
-  const [loading, setLoading] = useState(true);
-  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [users, setUsers] = useState([]); // List of registered users for admin
+  const [loading, setLoading] = useState(true); // Page loading state
+  const [actionLoading, setActionLoading] = useState(false); // Action-specific loading state
+  const [selectedOrder, setSelectedOrder] = useState(null); // For editing orders
   const [newOrder, setNewOrder] = useState({
     clientEmail: '',
     productName: '',
     quantity: '',
     price: '',
   });
+
   const token = localStorage.getItem('token');
   const userData = JSON.parse(atob(token.split('.')[1])); // Decode token to get user data
-  const userRole = userData.role;
+  const userRole = userData.role; // User role (admin or user)
 
-  // Fetch orders and users for admin
+  // Fetch orders and users (admin)
   useEffect(() => {
     const fetchData = async () => {
       try {
+        // Fetch orders
         const ordersResponse = await axios.get('http://localhost:5001/api/orders', {
           headers: { Authorization: `Bearer ${token}` },
         });
         setOrders(ordersResponse.data);
 
+        // Fetch users for admin
         if (userRole === 'admin') {
           const usersResponse = await axios.get('http://localhost:5001/api/customers', {
             headers: { Authorization: `Bearer ${token}` },
@@ -46,81 +50,95 @@ const Orders = () => {
   }, [token, userRole]);
 
   // Handle creating a new order
-  const handleCreateOrder = (e) => {
+  const handleCreateOrder = async (e) => {
     e.preventDefault();
 
-    if (!newOrder.clientEmail) {
+    if (!newOrder.clientEmail && userRole === 'admin') {
       alert('Please select a user.');
       return;
     }
 
-    axios
-      .post('http://localhost:5001/api/orders', newOrder, {
+    setActionLoading(true);
+    try {
+      const response = await axios.post('http://localhost:5001/api/orders', newOrder, {
         headers: { Authorization: `Bearer ${token}` },
-      })
-      .then((response) => {
-        setOrders([...orders, response.data]);
-        setNewOrder({ clientEmail: '', productName: '', quantity: '', price: '' });
-        alert('Order created successfully!');
-      })
-      .catch((error) => {
-        console.error('Error creating order:', error);
       });
-  };
-
-  // Handle delete order
-  const handleDelete = (id) => {
-    if (window.confirm('Are you sure you want to delete this order?')) {
-      axios
-        .delete(`http://localhost:5001/api/orders/${id}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        })
-        .then(() => {
-          setOrders((prevOrders) => prevOrders.filter((order) => order.id !== id));
-          alert('Order deleted successfully!');
-        })
-        .catch((error) => console.error('Error deleting order:', error));
+      setOrders([...orders, response.data]);
+      setNewOrder({ clientEmail: '', productName: '', quantity: '', price: '' });
+      alert('Order created successfully!');
+    } catch (error) {
+      console.error('Error creating order:', error);
+    } finally {
+      setActionLoading(false);
     }
   };
 
-  // Handle order status change
-  const handleStatusChange = (id, newStatus) => {
+  // Handle deleting an order
+  const handleDelete = async (id) => {
+    if (window.confirm('Are you sure you want to delete this order?')) {
+      setActionLoading(true);
+      try {
+        await axios.delete(`http://localhost:5001/api/orders/${id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setOrders((prevOrders) => prevOrders.filter((order) => order.id !== id));
+        alert('Order deleted successfully!');
+      } catch (error) {
+        console.error('Error deleting order:', error);
+      } finally {
+        setActionLoading(false);
+      }
+    }
+  };
+
+  // Handle changing the order status
+  const handleStatusChange = async (id, newStatus) => {
     const updatedOrder = orders.find((order) => order.id === id);
     updatedOrder.status = newStatus;
 
-    axios
-      .put(`http://localhost:5001/api/orders/${id}`, updatedOrder, {
+    setActionLoading(true);
+    try {
+      await axios.put(`http://localhost:5001/api/orders/${id}`, updatedOrder, {
         headers: { Authorization: `Bearer ${token}` },
-      })
-      .then(() => {
-        setOrders((prevOrders) =>
-          prevOrders.map((order) =>
-            order.id === id ? { ...order, status: newStatus } : order
-          )
-        );
-        alert('Order status updated successfully!');
-      })
-      .catch((error) => console.error('Error updating order status:', error));
+      });
+      setOrders((prevOrders) =>
+        prevOrders.map((order) =>
+          order.id === id ? { ...order, status: newStatus } : order
+        )
+      );
+      alert('Order status updated successfully!');
+    } catch (error) {
+      console.error('Error updating order status:', error);
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  // Handle editing an order
+  const handleEditOrder = (order) => {
+    setSelectedOrder(order);
   };
 
   // Handle saving changes to an order
-  const handleSaveOrder = (e) => {
+  const handleSaveOrder = async (e) => {
     e.preventDefault();
-
-    axios
-      .put(`http://localhost:5001/api/orders/${selectedOrder.id}`, selectedOrder, {
+    setActionLoading(true);
+    try {
+      await axios.put(`http://localhost:5001/api/orders/${selectedOrder.id}`, selectedOrder, {
         headers: { Authorization: `Bearer ${token}` },
-      })
-      .then(() => {
-        setOrders((prevOrders) =>
-          prevOrders.map((order) =>
-            order.id === selectedOrder.id ? selectedOrder : order
-          )
-        );
-        setSelectedOrder(null);
-        alert('Order updated successfully!');
-      })
-      .catch((error) => console.error('Error saving order changes:', error));
+      });
+      setOrders((prevOrders) =>
+        prevOrders.map((order) =>
+          order.id === selectedOrder.id ? selectedOrder : order
+        )
+      );
+      setSelectedOrder(null);
+      alert('Order updated successfully!');
+    } catch (error) {
+      console.error('Error saving order changes:', error);
+    } finally {
+      setActionLoading(false);
+    }
   };
 
   return (
@@ -131,7 +149,7 @@ const Orders = () => {
         <div className="orders-container">
           <h1>Orders</h1>
 
-          {/* Create Order Form (Admin and User) */}
+          {/* Create Order Form */}
           {(userRole === 'admin' || userRole === 'user') && (
             <div className="create-order-form">
               <h2>Create New Order</h2>
@@ -185,7 +203,9 @@ const Orders = () => {
                     required
                   />
                 </div>
-                <button type="submit">Create Order</button>
+                <button type="submit" disabled={actionLoading}>
+                  {actionLoading ? 'Processing...' : 'Create Order'}
+                </button>
               </form>
             </div>
           )}
@@ -218,6 +238,7 @@ const Orders = () => {
                             handleStatusChange(order.id, e.target.value)
                           }
                           value={order.status}
+                          disabled={actionLoading}
                         >
                           <option value="Pending">Pending</option>
                           <option value="Approved">Approved</option>
@@ -230,12 +251,18 @@ const Orders = () => {
                     </td>
                     {userRole === 'admin' && (
                       <td>
-                        <button onClick={() => setSelectedOrder(order)}>Edit</button>
+                        <button
+                          onClick={() => handleEditOrder(order)}
+                          disabled={actionLoading}
+                        >
+                          Edit
+                        </button>
                         <button
                           style={{ backgroundColor: 'red', color: 'white' }}
                           onClick={() => handleDelete(order.id)}
+                          disabled={actionLoading}
                         >
-                          Delete
+                          {actionLoading ? 'Processing...' : 'Delete'}
                         </button>
                       </td>
                     )}
@@ -286,7 +313,9 @@ const Orders = () => {
                   placeholder="Price"
                   required
                 />
-                <button type="submit">Save Changes</button>
+                <button type="submit" disabled={actionLoading}>
+                  {actionLoading ? 'Saving...' : 'Save Changes'}
+                </button>
               </form>
             </div>
           )}
@@ -297,4 +326,3 @@ const Orders = () => {
 };
 
 export default Orders;
-
