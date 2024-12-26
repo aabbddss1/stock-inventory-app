@@ -109,3 +109,29 @@
     max-width: 150px; /* Set a maximum width for larger screens */
     height: auto; /* Keep aspect ratio */
   }
+
+  /* Sidebar Links */
+/* Sidebar Links */
+.sidebar-links a {
+  display: flex;
+  align-items: center;
+  padding: 10px 15px;
+  color: #fff; /* White text for inactive links */
+  text-decoration: none;
+  border-radius: 5px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.sidebar-links a:hover {
+  background-color: #3aafa9; /* Teal background on hover */
+  color: #fff; /* White text on hover */
+}
+
+/* Active Link Style */
+.sidebar-links .active-link {
+  background-color: #3aafa9; /* Teal background for active link */
+  color: #fff; /* White text for contrast */
+  font-weight: bold;
+}
+
+

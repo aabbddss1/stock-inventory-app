@@ -1,63 +1,126 @@
-// src/pages/Orders.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Sidebar from '../components/Sidebar';
 import TopNavbar from '../components/TopNavbar';
+import axios from 'axios';
 import '../styles/Orders.css';
 
 const Orders = () => {
-  const [orders, setOrders] = useState([
-    {
-      id: 1,
-      clientName: 'John Doe',
-      productName: 'Product A',
-      quantity: 2,
-      price: 50,
-      status: 'Pending',
-      documents: [],
-    },
-    {
-      id: 2,
-      clientName: 'Jane Smith',
-      productName: 'Product B',
-      quantity: 1,
-      price: 80,
-      status: 'On Process',
-      documents: [],
-    },
-  ]);
-
+  const [orders, setOrders] = useState([]);
+  const [users, setUsers] = useState([]); // List of registered users
+  const [loading, setLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState(null);
-  const [uploadedFiles, setUploadedFiles] = useState([]);
+  const [newOrder, setNewOrder] = useState({
+    clientEmail: '',
+    productName: '',
+    quantity: '',
+    price: '',
+  });
+  const token = localStorage.getItem('token');
+  const userData = JSON.parse(atob(token.split('.')[1])); // Decode token to get user data
+  const userRole = userData.role;
 
-  // Change order status
+  // Fetch orders and users for admin
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const ordersResponse = await axios.get('http://localhost:5001/api/orders', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setOrders(ordersResponse.data);
+
+        if (userRole === 'admin') {
+          const usersResponse = await axios.get('http://localhost:5001/api/customers', {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          setUsers(usersResponse.data);
+        }
+
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [token, userRole]);
+
+  // Handle creating a new order
+  const handleCreateOrder = (e) => {
+    e.preventDefault();
+
+    if (!newOrder.clientEmail) {
+      alert('Please select a user.');
+      return;
+    }
+
+    axios
+      .post('http://localhost:5001/api/orders', newOrder, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then((response) => {
+        setOrders([...orders, response.data]);
+        setNewOrder({ clientEmail: '', productName: '', quantity: '', price: '' });
+        alert('Order created successfully!');
+      })
+      .catch((error) => {
+        console.error('Error creating order:', error);
+      });
+  };
+
+  // Handle delete order
+  const handleDelete = (id) => {
+    if (window.confirm('Are you sure you want to delete this order?')) {
+      axios
+        .delete(`http://localhost:5001/api/orders/${id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        .then(() => {
+          setOrders((prevOrders) => prevOrders.filter((order) => order.id !== id));
+          alert('Order deleted successfully!');
+        })
+        .catch((error) => console.error('Error deleting order:', error));
+    }
+  };
+
+  // Handle order status change
   const handleStatusChange = (id, newStatus) => {
-    const updatedOrders = orders.map((order) =>
-      order.id === id ? { ...order, status: newStatus } : order
-    );
-    setOrders(updatedOrders);
+    const updatedOrder = orders.find((order) => order.id === id);
+    updatedOrder.status = newStatus;
+
+    axios
+      .put(`http://localhost:5001/api/orders/${id}`, updatedOrder, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then(() => {
+        setOrders((prevOrders) =>
+          prevOrders.map((order) =>
+            order.id === id ? { ...order, status: newStatus } : order
+          )
+        );
+        alert('Order status updated successfully!');
+      })
+      .catch((error) => console.error('Error updating order status:', error));
   };
 
-  // Edit order
-  const handleEditOrder = (order) => {
-    setSelectedOrder(order);
-  };
+  // Handle saving changes to an order
+  const handleSaveOrder = (e) => {
+    e.preventDefault();
 
-  // Save order changes
-  const handleSaveOrder = () => {
-    const updatedOrders = orders.map((order) =>
-      order.id === selectedOrder.id ? selectedOrder : order
-    );
-    setOrders(updatedOrders);
-    setSelectedOrder(null);
-  };
-
-  // Upload files
-  const handleFileUpload = (id, files) => {
-    const updatedOrders = orders.map((order) =>
-      order.id === id ? { ...order, documents: [...order.documents, ...files] } : order
-    );
-    setOrders(updatedOrders);
-    setUploadedFiles([]);
+    axios
+      .put(`http://localhost:5001/api/orders/${selectedOrder.id}`, selectedOrder, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then(() => {
+        setOrders((prevOrders) =>
+          prevOrders.map((order) =>
+            order.id === selectedOrder.id ? selectedOrder : order
+          )
+        );
+        setSelectedOrder(null);
+        alert('Order updated successfully!');
+      })
+      .catch((error) => console.error('Error saving order changes:', error));
   };
 
   return (
@@ -68,102 +131,160 @@ const Orders = () => {
         <div className="orders-container">
           <h1>Orders</h1>
 
-          {/* Orders List Table */}
-          <table className="orders-table">
-            <thead>
-              <tr>
-                <th>Client Name</th>
-                <th>Product Name</th>
-                <th>Quantity</th>
-                <th>Price</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {orders.map((order) => (
-                <tr key={order.id}>
-                  <td>{order.clientName}</td>
-                  <td>{order.productName}</td>
-                  <td>{order.quantity}</td>
-                  <td>${order.price}</td>
-                  <td>{order.status}</td>
-                  <td className="actions-cell">
-                    {/* Dropdown for Status Change */}
+          {/* Create Order Form (Admin and User) */}
+          {(userRole === 'admin' || userRole === 'user') && (
+            <div className="create-order-form">
+              <h2>Create New Order</h2>
+              <form onSubmit={handleCreateOrder}>
+                {userRole === 'admin' && (
+                  <div className="form-row">
                     <select
-                      className="actions-dropdown"
-                      onChange={(e) => handleStatusChange(order.id, e.target.value)}
-                      defaultValue=""
+                      value={newOrder.clientEmail}
+                      onChange={(e) =>
+                        setNewOrder({ ...newOrder, clientEmail: e.target.value })
+                      }
+                      required
                     >
-                      <option value="" disabled>
-                        Change Status
-                      </option>
-                      <option value="Approved">Approve</option>
-                      <option value="On Process">On Process</option>
-                      <option value="Completed">Complete</option>
+                      <option value="">Select a User</option>
+                      {users.map((user) => (
+                        <option key={user.email} value={user.email}>
+                          {user.name} ({user.email})
+                        </option>
+                      ))}
                     </select>
+                  </div>
+                )}
+                <div className="form-row">
+                  <input
+                    type="text"
+                    placeholder="Product Name"
+                    value={newOrder.productName}
+                    onChange={(e) =>
+                      setNewOrder({ ...newOrder, productName: e.target.value })
+                    }
+                    required
+                  />
+                </div>
+                <div className="form-row">
+                  <input
+                    type="number"
+                    placeholder="Quantity"
+                    value={newOrder.quantity}
+                    onChange={(e) =>
+                      setNewOrder({ ...newOrder, quantity: e.target.value })
+                    }
+                    required
+                  />
+                  <input
+                    type="number"
+                    placeholder="Price"
+                    value={newOrder.price}
+                    onChange={(e) =>
+                      setNewOrder({ ...newOrder, price: e.target.value })
+                    }
+                    required
+                  />
+                </div>
+                <button type="submit">Create Order</button>
+              </form>
+            </div>
+          )}
 
-                    {/* Edit Button */}
-                    <button onClick={() => handleEditOrder(order)}>Edit</button>
-
-                    {/* Upload Button */}
-                    <label className="upload-button">
-                      Upload Files
-                      <input
-                        id={`file-upload-${order.id}`}
-                        type="file"
-                        multiple
-                        style={{ display: 'none' }}
-                        onChange={(e) => handleFileUpload(order.id, [...e.target.files])}
-                      />
-                    </label>
-                  </td>
+          {loading ? (
+            <p>Loading orders...</p>
+          ) : (
+            <table className="orders-table">
+              <thead>
+                <tr>
+                  <th>Client Name</th>
+                  <th>Product Name</th>
+                  <th>Quantity</th>
+                  <th>Price</th>
+                  <th>Status</th>
+                  {userRole === 'admin' && <th>Actions</th>}
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {orders.map((order) => (
+                  <tr key={order.id}>
+                    <td>{order.clientName}</td>
+                    <td>{order.productName}</td>
+                    <td>{order.quantity}</td>
+                    <td>${order.price}</td>
+                    <td>
+                      {userRole === 'admin' ? (
+                        <select
+                          onChange={(e) =>
+                            handleStatusChange(order.id, e.target.value)
+                          }
+                          value={order.status}
+                        >
+                          <option value="Pending">Pending</option>
+                          <option value="Approved">Approved</option>
+                          <option value="On Process">On Process</option>
+                          <option value="Completed">Completed</option>
+                        </select>
+                      ) : (
+                        order.status
+                      )}
+                    </td>
+                    {userRole === 'admin' && (
+                      <td>
+                        <button onClick={() => setSelectedOrder(order)}>Edit</button>
+                        <button
+                          style={{ backgroundColor: 'red', color: 'white' }}
+                          onClick={() => handleDelete(order.id)}
+                        >
+                          Delete
+                        </button>
+                      </td>
+                    )}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
 
           {/* Edit Order Form */}
           {selectedOrder && (
             <div className="edit-order">
               <h2>Edit Order</h2>
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  handleSaveOrder();
-                }}
-              >
-                <input
-                  type="text"
-                  value={selectedOrder.clientName}
-                  onChange={(e) =>
-                    setSelectedOrder({ ...selectedOrder, clientName: e.target.value })
-                  }
-                  placeholder="Client Name"
-                />
+              <form onSubmit={handleSaveOrder}>
                 <input
                   type="text"
                   value={selectedOrder.productName}
                   onChange={(e) =>
-                    setSelectedOrder({ ...selectedOrder, productName: e.target.value })
+                    setSelectedOrder({
+                      ...selectedOrder,
+                      productName: e.target.value,
+                    })
                   }
                   placeholder="Product Name"
+                  required
                 />
                 <input
                   type="number"
                   value={selectedOrder.quantity}
                   onChange={(e) =>
-                    setSelectedOrder({ ...selectedOrder, quantity: e.target.value })
+                    setSelectedOrder({
+                      ...selectedOrder,
+                      quantity: e.target.value,
+                    })
                   }
                   placeholder="Quantity"
+                  required
                 />
                 <input
                   type="number"
                   value={selectedOrder.price}
                   onChange={(e) =>
-                    setSelectedOrder({ ...selectedOrder, price: e.target.value })
+                    setSelectedOrder({
+                      ...selectedOrder,
+                      price: e.target.value,
+                    })
                   }
                   placeholder="Price"
+                  required
                 />
                 <button type="submit">Save Changes</button>
               </form>

@@ -1,85 +1,246 @@
 /* src/styles/Customers.css */
 
+/* Page layout */
 .customers-page {
-    padding: 20px;
-    margin-top: var(--navbar-height); /* Offset for navbar height */
+  padding: 20px;
+  margin-left: var(--sidebar-width); /* Offset for the sidebar */
+  margin-top: var(--navbar-height); /* Offset for the top navbar */
+  background-color: #f9f9f9; /* Light background for better contrast */
+  height: calc(100vh - var(--navbar-height)); /* Full height minus navbar */
+  overflow-y: auto; /* Enable scrolling for long tables */
+}
+
+/* Header styling */
+.customers-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.customers-header h2 {
+  font-size: 24px;
+  color: #333;
+  margin: 0;
+}
+
+/* Add customer button */
+.add-customer-btn {
+  background-color: #00bfa6;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  font-size: 14px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.add-customer-btn:hover {
+  background-color: #008f82;
+  transform: scale(1.05); /* Subtle hover effect */
+}
+
+/* Table styling */
+.customers-table {
+  width: 100%;
+  border-collapse: collapse;
+  border-radius: 8px; /* Rounded corners */
+  overflow: hidden; /* Ensure borders don't overflow */
+  background-color: white;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+}
+
+.customers-table th {
+  background-color: #00bfa6;
+  color: white;
+  font-weight: bold;
+  padding: 12px 15px;
+  text-align: left;
+}
+
+.customers-table td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+  color: #333;
+}
+
+.customers-table tr:hover {
+  background-color: #f1f1f1; /* Highlight row on hover */
+}
+
+/* Action buttons */
+.edit-btn,
+.delete-btn {
+  padding: 6px 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  margin-right: 5px;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.edit-btn {
+  background-color: #f1c40f;
+  color: white;
+}
+
+.edit-btn:hover {
+  background-color: #d4ac0d;
+  transform: scale(1.05);
+}
+
+.delete-btn {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.delete-btn:hover {
+  background-color: #c0392b;
+  transform: scale(1.05);
+}
+
+/* Modal overlay background */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.7); /* Darker overlay for better focus */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+/* Modal content container */
+.modal-content {
+  background: white;
+  padding: 25px;
+  border-radius: 10px;
+  width: 400px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.25); /* Subtle shadow for depth */
+  animation: slide-down 0.3s ease-out;
+}
+
+/* Modal header */
+.modal-content h3 {
+  margin: 0 0 15px;
+  font-size: 22px;
+  text-align: center;
+  color: #333;
+}
+
+/* Form labels */
+.modal-content label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+  color: #555;
+}
+
+/* Form inputs */
+.modal-content input {
+  width: calc(100% - 20px);
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 14px;
+  transition: border-color 0.2s ease;
+}
+
+.modal-content input:focus {
+  border-color: #00bfa6;
+  outline: none;
+}
+
+/* Error messages */
+.error-text {
+  color: #e74c3c;
+  font-size: 12px;
+  margin-top: -10px;
+  margin-bottom: 10px;
+}
+
+/* Modal actions buttons */
+.modal-actions {
+  display: flex;
+  justify-content: space-between;
+}
+
+.modal-actions .save-btn {
+  background-color: #00bfa6;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.modal-actions .save-btn:hover {
+  background-color: #008f82;
+}
+
+.modal-actions .cancel-btn {
+  background-color: #e74c3c;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.modal-actions .cancel-btn:hover {
+  background-color: #c0392b;
+}
+
+/* Animation for modal entrance */
+@keyframes slide-down {
+  from {
+      transform: translateY(-30%);
+      opacity: 0;
   }
-  
-  .customers-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
+  to {
+      transform: translateY(0);
+      opacity: 1;
   }
-  
-  .add-customer-btn {
-    background-color: #00bfa6;
-    color: white;
-    border: none;
-    padding: 10px 15px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-  }
-  
-  .add-customer-btn:hover {
-    background-color: #008f82;
-  }
-  
-  .customers-table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-  
-  .customers-table th,
-  .customers-table td {
-    padding: 12px 15px;
-    text-align: left;
-    border-bottom: 1px solid #ddd;
-  }
-  
-  .edit-btn,
-  .delete-btn {
-    padding: 6px 10px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    margin-right: 5px;
-  }
-  
-  .edit-btn {
-    background-color: #f1c40f;
-    color: white;
-  }
-  
-  .delete-btn {
-    background-color: #e74c3c;
-    color: white;
-  }
-  
-  .modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0, 0, 0, 0.6);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-  
-  .modal-content {
-    background: white;
-    padding: 20px;
-    border-radius: 10px;
-    width: 400px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-  }
-  
-  .modal-actions {
-    margin-top: 15px;
-    display: flex;
-    justify-content: space-between;
-  }
-  
+}
+
+
+.error-text {
+  color: #e74c3c;
+  font-size: 12px;
+  margin-top: 5px;
+}
+
+/* Password container */
+.password-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.generate-password-btn {
+  background-color: #00bfa6;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  font-size: 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.generate-password-btn:hover {
+  background-color: #008f82;
+}
+
+

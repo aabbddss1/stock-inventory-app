@@ -60,4 +60,18 @@
       font-size: 13px; /* Slightly smaller font for links */
     }
   }
+  .logout-button {
+    background-color: transparent;
+    border: none;
+    color: #007bff;
+    font-size: 14px;
+    cursor: pointer;
+    margin-left: 15px;
+    text-decoration: underline;
+  }
+  
+  .logout-button:hover {
+    color: #0056b3;
+    text-decoration: none;
+  }
   

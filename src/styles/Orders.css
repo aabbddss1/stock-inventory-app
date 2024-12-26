@@ -192,4 +192,102 @@
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     border-radius: 10px;
   }
+  .file-list {
+    list-style: none;
+    padding: 0;
+    margin: 10px 0;
+  }
   
+  .file-list li {
+    margin: 5px 0;
+  }
+  
+  .delete-file-btn {
+    background-color: red;
+    color: white;
+    border: none;
+    padding: 2px 5px;
+    cursor: pointer;
+  }
+  
+  .delete-file-btn:hover {
+    background-color: darkred;
+  }
+  
+  /* Create Order Form */
+.create-order-form {
+  background: none; /* No card style */
+  padding: 20px;
+  margin: 10px 0;
+  border: 1px solid #ddd; /* Subtle border */
+  border-radius: 5px; /* Slight rounding */
+}
+
+.create-order-form h2 {
+  font-size: 20px;
+  color: #333;
+  margin-bottom: 15px;
+}
+
+.create-order-form form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.create-order-form input {
+  flex: 1 1 calc(50% - 10px); /* Responsive two-column layout */
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.create-order-form input:focus {
+  border-color: #00bfa6;
+  box-shadow: 0 0 4px rgba(0, 191, 166, 0.3);
+}
+
+.create-order-form button {
+  flex: none; /* Override flex settings */
+  width: auto; /* Button will size according to content */
+  padding: 10px 20px; /* Adjust padding for better size */
+  border: none;
+  background-color: #00bfa6;
+  color: #fff;
+  font-size: 14px; /* Reduce font size */
+  font-weight: bold;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.create-order-form button:hover {
+  background-color: #008f82;
+}
+
+.create-order-form .form-group {
+  flex: 1 1 calc(50% - 10px);
+  display: flex;
+  flex-direction: column;
+}
+
+.create-order-form label {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 5px;
+}
+@media (max-width: 600px) {
+  .create-order-form input {
+    flex: 1 1 100%; /* Full width */
+  }
+
+  .create-order-form .form-group {
+    flex: 1 1 100%;
+  }
+}
+.create-order-form {
+  background: #f9f9f9;
+}

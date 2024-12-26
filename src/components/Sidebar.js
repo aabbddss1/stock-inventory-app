@@ -1,8 +1,6 @@
-// src/components/Sidebar.js
 import React from 'react';
 import logo from '../assets/logo.png'; // Adjust path based on your directory structure
-
-import { Link } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import '../styles/Sidebar.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -13,57 +11,116 @@ import {
   faChartLine,
   faClipboardList,
   faWarehouse,
-  faEnvelopeOpenText,
   faFileInvoiceDollar,
   faDollarSign,
   faFolderOpen,
 } from '@fortawesome/free-solid-svg-icons';
 
 function Sidebar() {
+  const userRole = localStorage.getItem('role'); // Fetch user role from localStorage
+
   return (
     <div className="sidebar">
-<div className="logo-container">
-        <img src={logo} alt="GOLFPLAST Logo" className="logo" />
+      <div className="logo-container">
+        <img src={logo} alt="QUBITE Logo" className="logo" />
       </div>
       <div className="sidebar-links">
         <h3>MAIN</h3>
-        <Link to="/admin">
-          <FontAwesomeIcon icon={faTachometerAlt} /> Dashboard
-        </Link>
-        <Link to="/customers">
-          <FontAwesomeIcon icon={faUsers} /> Customers
-        </Link>
-        <Link to="/suppliers">
-          <FontAwesomeIcon icon={faTruck} /> Suppliers
-        </Link>
-        <Link to="/dealerships">
-          <FontAwesomeIcon icon={faFileAlt} /> Dealerships
-        </Link>
 
-        <h3>OPERATIONS</h3>
-        <Link to="/sales">
-          <FontAwesomeIcon icon={faChartLine} /> Sales
-        </Link>
-        <Link to="/orders">
+        {/* Dashboard */}
+        <NavLink
+          to={userRole === 'admin' ? '/admin' : '/user'}
+          className={({ isActive }) => (isActive ? 'active-link' : '')}
+        >
+          <FontAwesomeIcon icon={faTachometerAlt} /> Dashboard
+        </NavLink>
+
+        {/* Orders */}
+        <NavLink
+          to="/orders"
+          className={({ isActive }) => (isActive ? 'active-link' : '')}
+        >
           <FontAwesomeIcon icon={faClipboardList} /> Orders
-        </Link>
-        <Link to="/quotations">
-          <FontAwesomeIcon icon={faFileAlt} /> Quotations
-        </Link>
-        <Link to="/inventory">
-          <FontAwesomeIcon icon={faWarehouse} /> Inventory
-        </Link>
+        </NavLink>
+
+        {/* Inventory */}
+        {userRole === 'admin' ? (
+          <NavLink
+            to="/inventory"
+            className={({ isActive }) => (isActive ? 'active-link' : '')}
+          >
+            <FontAwesomeIcon icon={faWarehouse} /> Inventory
+          </NavLink>
+        ) : (
+          <NavLink
+            to="/user/inventory"
+            className={({ isActive }) => (isActive ? 'active-link' : '')}
+          >
+            <FontAwesomeIcon icon={faWarehouse} /> Inventory
+          </NavLink>
+        )}
+
+        {/* Admin-Only Links */}
+        {userRole === 'admin' && (
+          <>
+            <NavLink
+              to="/customers"
+              className={({ isActive }) => (isActive ? 'active-link' : '')}
+            >
+              <FontAwesomeIcon icon={faUsers} /> Customers
+            </NavLink>
+            <NavLink
+              to="/suppliers"
+              className={({ isActive }) => (isActive ? 'active-link' : '')}
+            >
+              <FontAwesomeIcon icon={faTruck} /> Suppliers
+            </NavLink>
+            <NavLink
+              to="/dealerships"
+              className={({ isActive }) => (isActive ? 'active-link' : '')}
+            >
+              <FontAwesomeIcon icon={faFileAlt} /> Dealerships
+            </NavLink>
+            <NavLink
+              to="/sales"
+              className={({ isActive }) => (isActive ? 'active-link' : '')}
+            >
+              <FontAwesomeIcon icon={faChartLine} /> Sales
+            </NavLink>
+            <NavLink
+              to="/quotations"
+              className={({ isActive }) => (isActive ? 'active-link' : '')}
+            >
+              <FontAwesomeIcon icon={faFileAlt} /> Quotations
+            </NavLink>
+          </>
+        )}
 
         <h3>ACCOUNTS</h3>
-        <Link to="/receivables">
-          <FontAwesomeIcon icon={faDollarSign} /> Receivables
-        </Link>
-        <Link to="/payables">
-          <FontAwesomeIcon icon={faFileInvoiceDollar} /> Payables
-        </Link>
-        <Link to="/documents">
-          <FontAwesomeIcon icon={faFolderOpen} /> Documents
-        </Link>
+
+        {/* Admin-Only Accounts Links */}
+        {userRole === 'admin' && (
+          <>
+            <NavLink
+              to="/receivables"
+              className={({ isActive }) => (isActive ? 'active-link' : '')}
+            >
+              <FontAwesomeIcon icon={faDollarSign} /> Receivables
+            </NavLink>
+            <NavLink
+              to="/payables"
+              className={({ isActive }) => (isActive ? 'active-link' : '')}
+            >
+              <FontAwesomeIcon icon={faFileInvoiceDollar} /> Payables
+            </NavLink>
+            <NavLink
+              to="/documents"
+              className={({ isActive }) => (isActive ? 'active-link' : '')}
+            >
+              <FontAwesomeIcon icon={faFolderOpen} /> Documents
+            </NavLink>
+          </>
+        )}
       </div>
     </div>
   );
