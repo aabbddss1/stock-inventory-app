@@ -45,17 +45,54 @@ function DashboardCards() {
   }, []);
 
   const cardsData = [
-    { title: `${totalOrders} Orders`, icon: faListAlt, description: `total orders in the system.` },
-    { title: `${pendingOrders} Pending`, icon: faListCheck, description: ` orders are pending.` },
-    { title: "Notifications", icon: faBell, description: `${notifications} notifications available.` },
-    { title: "Add Customer", icon: faUserPlus, onClick: () => setIsAddCustomerModalOpen(true) },
-    { title: "Add Suppliers", icon: faTruck, onClick: () => setIsAddSupplierModalOpen(true) },
-    { title: "Sales", icon: faShoppingCart },
+    {
+      title: `${totalOrders} Orders`,
+      icon: faListAlt,
+      description: `total orders in the system.`,
+      onClick: () => (window.location.href = "http://localhost:3000/orders"),
+    },
+    {
+      title: `${pendingOrders} Pending`,
+      icon: faListCheck,
+      description: `orders are pending.`,
+      onClick: () => (window.location.href = "http://localhost:3000/orders"),
+    },
+    {
+      title: "Notifications",
+      icon: faBell,
+      description: `${notifications} notifications available.`,
+    },
+    {
+      title: "Add Customer",
+      icon: faUserPlus,
+      onClick: () => setIsAddCustomerModalOpen(true),
+    },
+    {
+      title: "Add Suppliers",
+      icon: faTruck,
+      onClick: () => setIsAddSupplierModalOpen(true),
+    },
+    {
+      title: "Sales",
+      icon: faShoppingCart,
+      onClick: () => (window.location.href = "http://localhost:3000/sales"),
+    },
     { title: "Orders", icon: faClipboardList },
-    { title: "Inventory", icon: faWarehouse },
-    { title: "Mails", icon: faEnvelope },
-    
+    {
+      title: "Inventory",
+      icon: faWarehouse,
+      onClick: () => (window.location.href = "http://localhost:3000/inventory"),
+    },
+    {
+      title: "Mails",
+      icon: faEnvelope,
+      onClick: () => {
+        window.location.href = "mailto:qubite.net@gmail.com?subject=Hello%20Qubite&body=Write%20your%20message%20here";
+      },
+    },
+   
   ];
+
 
   return (
     <div className="dashboard-cards">

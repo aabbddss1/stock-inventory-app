@@ -52,15 +52,13 @@ const Orders = () => {
   // Handle creating a new order
   const handleCreateOrder = async (e) => {
     e.preventDefault();
-
-    if (!newOrder.clientEmail && userRole === 'admin') {
-      alert('Please select a user.');
-      return;
-    }
-
+  
+    // Set the clientEmail for non-admin users
+    const orderData = userRole === 'admin' ? newOrder : { ...newOrder, clientEmail: userData.email };
+  
     setActionLoading(true);
     try {
-      const response = await axios.post('http://localhost:5001/api/orders', newOrder, {
+      const response = await axios.post('http://localhost:5001/api/orders', orderData, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setOrders([...orders, response.data]);
@@ -68,10 +66,12 @@ const Orders = () => {
       alert('Order created successfully!');
     } catch (error) {
       console.error('Error creating order:', error);
+      alert('Failed to create order. Please try again.');
     } finally {
       setActionLoading(false);
     }
   };
+  
 
   // Handle deleting an order
   const handleDelete = async (id) => {
