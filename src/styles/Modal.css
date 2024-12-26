@@ -1,42 +1,107 @@
-/* src/styles/Modal.css */
-
+/* Modal overlay - darkens the background */
 .modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: transparent; /* Ensure there’s no background */
-    z-index: 1000;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5); /* Semi-transparent dark background */
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Modal content container */
+.modal-content {
+  position: relative;
+  background: white;
+  padding: 30px 40px;
+  width: 90%;
+  max-width: 500px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Close button inside the modal */
+/* Close button inside the modal */
+.close-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 18px; /* Adjusted size for better appearance */
+  color: #666; /* Subtle color for a clean look */
+  cursor: pointer;
+  transition: color 0.3s ease, transform 0.3s ease;
+}
+
+.close-button:hover {
+  color: #e74c3c; /* Red hover color for visibility */
+  transform: scale(1.2); /* Slight zoom effect on hover */
+}
+
+
+
+/* Input and select fields inside the modal */
+.modal-content input,
+.modal-content select,
+.modal-content button {
+  width: 100%;
+  padding: 12px;
+  margin: 10px 0;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: Arial, sans-serif;
+  box-sizing: border-box;
+}
+
+.modal-content input:focus,
+.modal-content select:focus {
+  border-color: #4caf50; /* Green focus outline */
+  outline: none;
+}
+
+/* Submit button */
+.modal-content button {
+  background: #4caf50;
+  color: white;
+  font-weight: bold;
+  font-size: 16px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.modal-content button:hover {
+  background: #45a049;
+}
+
+.modal-content button:disabled {
+  background: #ddd;
+  cursor: not-allowed;
+}
+
+/* Fade-in animation for the modal */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -45%);
   }
-  
-  .modal-content {
-    position: absolute;
-    top: 50%;
-    left: 50%;
+  to {
+    opacity: 1;
     transform: translate(-50%, -50%);
-    background: white;
-    padding: 40px;
-    width: 100%;
-    max-width: 500px;
-    border-radius: 12px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
   }
-  
-  .close-button {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    font-size: 20px;
-    background: none;
-    border: none;
-    color: #333;
-    font-weight: bold;
-    cursor: pointer;
-    transition: color 0.3s ease;
+}
+
+/* Responsive design for smaller screens */
+@media (max-width: 600px) {
+  .modal-content {
+    padding: 20px;
   }
-  
-  .close-button:hover {
-    color: #e74c3c; /* Red color on hover for visibility */
+
+  .modal-content button {
+    font-size: 14px;
   }
-  
+}
