@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import Sidebar from '../components/Sidebar';
 import TopNavbar from '../components/TopNavbar';
+import { utils as XLSXUtils, writeFile as XLSXWriteFile } from 'xlsx'; // For Excel export
 import axios from 'axios';
 import '../styles/Orders.css';
 
 const Orders = () => {
   const [orders, setOrders] = useState([]);
+  const [filteredOrders, setFilteredOrders] = useState([]); // For search functionality
+  const [searchTerm, setSearchTerm] = useState(''); // Search input state
   const [users, setUsers] = useState([]); // List of registered users for admin
   const [loading, setLoading] = useState(true); // Page loading state
   const [actionLoading, setActionLoading] = useState(false); // Action-specific loading state
@@ -30,6 +33,7 @@ const Orders = () => {
           headers: { Authorization: `Bearer ${token}` },
         });
         setOrders(ordersResponse.data);
+        setFilteredOrders(ordersResponse.data); // Initialize filtered orders
 
         // Fetch users for admin
         if (userRole === 'admin') {
@@ -49,19 +53,42 @@ const Orders = () => {
     fetchData();
   }, [token, userRole]);
 
+  // Handle search functionality
+  const handleSearch = (e) => {
+    const value = e.target.value.toLowerCase();
+    setSearchTerm(value);
+
+    const filtered = orders.filter(
+      (order) =>
+        order.clientName.toLowerCase().includes(value) ||
+        order.productName.toLowerCase().includes(value) ||
+        order.status.toLowerCase().includes(value)
+    );
+    setFilteredOrders(filtered);
+  };
+
+  // Export to Excel functionality
+  const exportToExcel = () => {
+    const worksheet = XLSXUtils.json_to_sheet(filteredOrders);
+    const workbook = XLSXUtils.book_new();
+    XLSXUtils.book_append_sheet(workbook, worksheet, 'Orders');
+    XLSXWriteFile(workbook, 'orders_data.xlsx');
+  };
+
   // Handle creating a new order
   const handleCreateOrder = async (e) => {
     e.preventDefault();
-  
+
     // Set the clientEmail for non-admin users
     const orderData = userRole === 'admin' ? newOrder : { ...newOrder, clientEmail: userData.email };
-  
+
     setActionLoading(true);
     try {
       const response = await axios.post('http://localhost:5001/api/orders', orderData, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setOrders([...orders, response.data]);
+      setFilteredOrders([...orders, response.data]); // Update filteredOrders as well
       setNewOrder({ clientEmail: '', productName: '', quantity: '', price: '' });
       alert('Order created successfully!');
     } catch (error) {
@@ -71,7 +98,6 @@ const Orders = () => {
       setActionLoading(false);
     }
   };
-  
 
   // Handle deleting an order
   const handleDelete = async (id) => {
@@ -82,6 +108,7 @@ const Orders = () => {
           headers: { Authorization: `Bearer ${token}` },
         });
         setOrders((prevOrders) => prevOrders.filter((order) => order.id !== id));
+        setFilteredOrders((prevOrders) => prevOrders.filter((order) => order.id !== id)); // Update filteredOrders
         alert('Order deleted successfully!');
       } catch (error) {
         console.error('Error deleting order:', error);
@@ -102,6 +129,11 @@ const Orders = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
       setOrders((prevOrders) =>
+        prevOrders.map((order) =>
+          order.id === id ? { ...order, status: newStatus } : order
+        )
+      );
+      setFilteredOrders((prevOrders) =>
         prevOrders.map((order) =>
           order.id === id ? { ...order, status: newStatus } : order
         )
@@ -132,6 +164,11 @@ const Orders = () => {
           order.id === selectedOrder.id ? selectedOrder : order
         )
       );
+      setFilteredOrders((prevOrders) =>
+        prevOrders.map((order) =>
+          order.id === selectedOrder.id ? selectedOrder : order
+        )
+      );
       setSelectedOrder(null);
       alert('Order updated successfully!');
     } catch (error) {
@@ -148,6 +185,17 @@ const Orders = () => {
         <TopNavbar />
         <div className="orders-container">
           <h1>Orders</h1>
+
+          {/* Search and Export Actions */}
+          <div className="orders-actions">
+            <input
+              type="text"
+              placeholder="Search by Client, Product, or Status"
+              value={searchTerm}
+              onChange={handleSearch}
+            />
+            <button onClick={exportToExcel}>Export to Excel</button>
+          </div>
 
           {/* Create Order Form */}
           {(userRole === 'admin' || userRole === 'user') && (
@@ -225,7 +273,7 @@ const Orders = () => {
                 </tr>
               </thead>
               <tbody>
-                {orders.map((order) => (
+                {filteredOrders.map((order) => (
                   <tr key={order.id}>
                     <td>{order.clientName}</td>
                     <td>{order.productName}</td>
