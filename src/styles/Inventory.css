@@ -101,6 +101,7 @@
   
   .inventory-table td {
     background-color: #ffffff;
+    position: relative;  
   }
   
   .inventory-table tr:hover {
@@ -150,3 +151,8 @@
     background-color: #e74c3c; /* Out of Stock */
   }
   
+  .inventory-table td .action-buttons {
+    display: flex;
+    gap: 10px; /* Butonlar arası boşluk */
+    align-items: center; /* Dikey hizalama */
+}

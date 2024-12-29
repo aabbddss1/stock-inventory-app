@@ -3,7 +3,6 @@ import axios from 'axios'; // For API calls
 import Sidebar from '../components/Sidebar';
 import TopNavbar from '../components/TopNavbar';
 import { utils as XLSXUtils, writeFile as XLSXWriteFile } from 'xlsx'; // For Excel export
-import jsPDF from 'jspdf'; // For PDF export
 import '../styles/Inventory.css';
 
 // Set Axios base URL and Authorization header
@@ -140,26 +139,6 @@ const Inventory = () => {
     console.log('Inventory exported as Excel');
   };
 
-  // Export to PDF
-  const exportAsPDF = () => {
-    const doc = new jsPDF();
-    doc.text('Inventory Report', 10, 10);
-    let yPosition = 20;
-
-    products.forEach((product, index) => {
-      doc.text(`${index + 1}. ${product.name} - ${product.category}`, 10, yPosition);
-      doc.text(
-        `   Quantity: ${product.quantity}, Price: $${product.price}, Status: ${product.status}`,
-        10,
-        yPosition + 10
-      );
-      yPosition += 20;
-    });
-
-    doc.save('inventory_report.pdf');
-    console.log('Inventory exported as PDF');
-  };
-
   return (
     <div className="inventory-page">
       <Sidebar />
@@ -177,7 +156,6 @@ const Inventory = () => {
               onChange={handleSearch}
             />
             <button onClick={exportAsExcel}>Export as Excel</button>
-            <button onClick={exportAsPDF}>Export as PDF</button>
           </div>
 
           {/* Add/Edit Product Form */}
@@ -238,8 +216,10 @@ const Inventory = () => {
                   <td>${product.price}</td>
                   <td>{product.status}</td>
                   <td>
-                    <button onClick={() => handleEdit(product)}>Edit</button>
-                    <button onClick={() => handleDelete(product.id)}>Delete</button>
+                    <div className="action-buttons">
+                      <button onClick={() => handleEdit(product)}>Edit</button>
+                      <button onClick={() => handleDelete(product.id)}>Delete</button>
+                    </div>
                   </td>
                 </tr>
               ))}
