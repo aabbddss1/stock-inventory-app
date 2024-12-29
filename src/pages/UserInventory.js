@@ -3,7 +3,7 @@ import axios from 'axios'; // For API calls
 import Sidebar from '../components/Sidebar';
 import TopNavbar from '../components/TopNavbar';
 import { utils as XLSXUtils, writeFile as XLSXWriteFile } from 'xlsx'; // For Excel export
-import jsPDF from 'jspdf'; // For PDF export
+
 import '../styles/Inventory.css';
 
 axios.defaults.baseURL = 'http://localhost:5001'; // Replace with your backend URL
@@ -49,25 +49,6 @@ const UserInventory = () => {
     XLSXWriteFile(workbook, 'inventory_data.xlsx');
   };
 
-  // Export to PDF
-  const exportAsPDF = () => {
-    const doc = new jsPDF();
-    doc.text('Inventory Report', 10, 10);
-    let yPosition = 20;
-
-    products.forEach((product, index) => {
-      doc.text(`${index + 1}. ${product.name} - ${product.category}`, 10, yPosition);
-      doc.text(
-        `   Quantity: ${product.quantity}, Price: $${product.price}, Status: ${product.status}`,
-        10,
-        yPosition + 10
-      );
-      yPosition += 20;
-    });
-
-    doc.save('inventory_report.pdf');
-  };
-
   return (
     <div className="inventory-page">
       <Sidebar />
@@ -85,7 +66,6 @@ const UserInventory = () => {
               onChange={handleSearch}
             />
             <button onClick={exportAsExcel}>Export as Excel</button>
-            <button onClick={exportAsPDF}>Export as PDF</button>
           </div>
 
           {/* Inventory Table */}
