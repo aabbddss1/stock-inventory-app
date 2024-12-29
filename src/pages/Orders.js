@@ -9,8 +9,9 @@ const Orders = () => {
   const [orders, setOrders] = useState([]);
   const [filteredOrders, setFilteredOrders] = useState([]); // For search functionality
   const [searchTerm, setSearchTerm] = useState(''); // Search input state
+  const [inventory, setInventory] = useState([]); // Inventory data
   const [users, setUsers] = useState([]); // List of registered users for admin
-  const [loading, setLoading] = useState(true); // Page loading state
+  const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false); // Action-specific loading state
   const [selectedOrder, setSelectedOrder] = useState(null); // For editing orders
   const [newOrder, setNewOrder] = useState({
@@ -24,7 +25,7 @@ const Orders = () => {
   const userData = JSON.parse(atob(token.split('.')[1])); // Decode token to get user data
   const userRole = userData.role; // User role (admin or user)
 
-  // Fetch orders and users (admin)
+  // Fetch orders, users, and inventory
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -34,6 +35,12 @@ const Orders = () => {
         });
         setOrders(ordersResponse.data);
         setFilteredOrders(ordersResponse.data); // Initialize filtered orders
+
+        // Fetch inventory
+        const inventoryResponse = await axios.get('http://localhost:5001/api/inventory', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setInventory(inventoryResponse.data);
 
         // Fetch users for admin
         if (userRole === 'admin') {
@@ -79,7 +86,6 @@ const Orders = () => {
   const handleCreateOrder = async (e) => {
     e.preventDefault();
 
-    // Set the clientEmail for non-admin users
     const orderData = userRole === 'admin' ? newOrder : { ...newOrder, clientEmail: userData.email };
 
     setActionLoading(true);
@@ -88,7 +94,7 @@ const Orders = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
       setOrders([...orders, response.data]);
-      setFilteredOrders([...orders, response.data]); // Update filteredOrders as well
+      setFilteredOrders([...orders, response.data]); // Update filtered orders
       setNewOrder({ clientEmail: '', productName: '', quantity: '', price: '' });
       alert('Order created successfully!');
     } catch (error) {
@@ -108,7 +114,7 @@ const Orders = () => {
           headers: { Authorization: `Bearer ${token}` },
         });
         setOrders((prevOrders) => prevOrders.filter((order) => order.id !== id));
-        setFilteredOrders((prevOrders) => prevOrders.filter((order) => order.id !== id)); // Update filteredOrders
+        setFilteredOrders((prevOrders) => prevOrders.filter((order) => order.id !== id));
         alert('Order deleted successfully!');
       } catch (error) {
         console.error('Error deleting order:', error);
@@ -198,65 +204,72 @@ const Orders = () => {
           </div>
 
           {/* Create Order Form */}
-          {(userRole === 'admin' || userRole === 'user') && (
-            <div className="create-order-form">
-              <h2>Create New Order</h2>
-              <form onSubmit={handleCreateOrder}>
-                {userRole === 'admin' && (
-                  <div className="form-row">
-                    <select
-                      value={newOrder.clientEmail}
-                      onChange={(e) =>
-                        setNewOrder({ ...newOrder, clientEmail: e.target.value })
-                      }
-                      required
-                    >
-                      <option value="">Select a User</option>
-                      {users.map((user) => (
-                        <option key={user.email} value={user.email}>
-                          {user.name} ({user.email})
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                )}
+          <div className="create-order-form">
+            <h2>Create New Order</h2>
+            <form onSubmit={handleCreateOrder}>
+              {userRole === 'admin' && (
                 <div className="form-row">
-                  <input
-                    type="text"
-                    placeholder="Product Name"
-                    value={newOrder.productName}
+                  <select
+                    value={newOrder.clientEmail}
                     onChange={(e) =>
-                      setNewOrder({ ...newOrder, productName: e.target.value })
+                      setNewOrder({ ...newOrder, clientEmail: e.target.value })
                     }
                     required
-                  />
+                  >
+                    <option value="">Select a User</option>
+                    {users.map((user) => (
+                      <option key={user.email} value={user.email}>
+                        {user.name} ({user.email})
+                      </option>
+                    ))}
+                  </select>
                 </div>
-                <div className="form-row">
-                  <input
-                    type="number"
-                    placeholder="Quantity"
-                    value={newOrder.quantity}
-                    onChange={(e) =>
-                      setNewOrder({ ...newOrder, quantity: e.target.value })
-                    }
-                    required
-                  />
-                  <input
-                    type="number"
-                    placeholder="Price"
-                    value={newOrder.price}
-                    onChange={(e) =>
-                      setNewOrder({ ...newOrder, price: e.target.value })
-                    }
-                    required
-                  />
-                </div>
-                <button type="submit" disabled={actionLoading}>
-                  {actionLoading ? 'Processing...' : 'Create Order'}
-                </button>
-              </form>
-            </div>
-          )}
+              )}
+              <div className="form-row">
+                <select
+                  value={newOrder.productName}
+                  onChange={(e) =>
+                    setNewOrder({
+                      ...newOrder,
+                      productName: e.target.value,
+                      price:
+                        inventory.find((item) => item.name === e.target.value)
+                          ?.price || '',
+                    })
+                  }
+                  required
+                >
+                  <option value="">Select a Product</option>
+                  {inventory.map((item) => (
+                    <option key={item.id} value={item.name}>
+                      {item.name} (Stock: {item.quantity})
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="form-row">
+                <input
+                  type="number"
+                  placeholder="Quantity"
+                  value={newOrder.quantity}
+                  onChange={(e) =>
+                    setNewOrder({ ...newOrder, quantity: e.target.value })
+                  }
+                  required
+                />
+                <input
+                  type="number"
+                  placeholder="Price"
+                  value={newOrder.price}
+                  readOnly
+                  required
+                />
+              </div>
+              <button type="submit" disabled={actionLoading}>
+                {actionLoading ? 'Processing...' : 'Create Order'}
+              </button>
+            </form>
+          </div>
 
           {loading ? (
             <p>Loading orders...</p>

@@ -320,3 +320,35 @@
 .orders-actions button:hover {
   background-color: #1D6F42;
 }
+
+
+.form-row {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+  align-items: center;
+}
+
+/* Dropdown styling */
+select {
+  width: 100%;
+  padding: 10px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+  outline: none;
+  transition: border-color 0.3s ease;
+}
+
+select:focus {
+  border-color: #4caf50; /* Green border on focus */
+  background-color: #ffffff;
+}
+
+/* Dropdown option styling */
+option {
+  padding: 10px;
+  font-size: 14px;
+}
+
