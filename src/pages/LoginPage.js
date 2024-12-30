@@ -1,33 +1,45 @@
-// src/pages/LoginPage.js
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import '../styles/LoginPage.css';
 
 function LoginPage() {
-  const [email, setEmail] = useState(''); // Email state
-  const [password, setPassword] = useState(''); // Password state
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleLogin = async () => {
+    if (!email || !password) {
+      alert('Both email and password are required.');
+      return;
+    }
+    setIsLoading(true);
     try {
-      const response = await axios.post('http://localhost:5001/api/customers/login', {
-        email, // Send email
-        password, // Send password
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/customers/login`, {
+        email,
+        password,
       });
 
-      const { token, role } = response.data; // Extract token and role from response
-      localStorage.setItem('token', token); // Store token in local storage
-      localStorage.setItem('role', role); // Store role in local storage
+      const { token, role } = response.data;
+      localStorage.setItem('token', token);
+      localStorage.setItem('role', role);
 
       if (role === 'admin') {
-        navigate('/admin'); // Redirect admin to admin panel
+        navigate('/admin');
       } else {
-        navigate('/user'); // Redirect user to user panel
+        navigate('/user');
       }
     } catch (error) {
-      console.error('Login failed:', error);
-      alert('Invalid email or password'); // Show alert on login failure
+      if (error.response) {
+        alert(error.response.data.message || 'Invalid email or password');
+      } else if (error.request) {
+        alert('No response from server. Please try again later.');
+      } else {
+        alert('An unexpected error occurred. Please try again.');
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -39,20 +51,20 @@ function LoginPage() {
         <form onSubmit={(e) => e.preventDefault()}>
           <input
             type="text"
-            placeholder="Email" // Placeholder updated
-            value={email} // Bind email state
-            onChange={(e) => setEmail(e.target.value)} // Update email state on change
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             className="login-input"
           />
           <input
             type="password"
-            placeholder="Password" // Placeholder for password
-            value={password} // Bind password state
-            onChange={(e) => setPassword(e.target.value)} // Update password state on change
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             className="login-input"
           />
-          <button onClick={handleLogin} className="login-button">
-            Login
+          <button onClick={handleLogin} className="login-button" disabled={isLoading}>
+            {isLoading ? 'Logging in...' : 'Login'}
           </button>
         </form>
       </div>
