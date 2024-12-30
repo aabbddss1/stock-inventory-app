@@ -13,16 +13,7 @@ dotenv.config(); // Load environment variables
 const app = express();
 
 // Middleware
-
-// Configure CORS to allow frontend origin
-app.use(
-  cors({
-    origin: process.env.FRONTEND_URL || 'http://<YOUR-EC2-PUBLIC-IP>:3000', // Replace with your frontend's IP
-    methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allowed HTTP methods
-    credentials: true, // Include cookies if needed
-  })
-);
-
+app.use(cors()); // Enable Cross-Origin Resource Sharing
 app.use(bodyParser.json()); // Parse JSON request bodies
 
 // Nodemailer transporter setup
