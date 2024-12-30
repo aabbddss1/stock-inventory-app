@@ -1,33 +1,36 @@
-// src/pages/LoginPage.js
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import '../styles/LoginPage.css';
 
 function LoginPage() {
-  const [email, setEmail] = useState(''); // Email state
-  const [password, setPassword] = useState(''); // Password state
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const navigate = useNavigate();
 
   const handleLogin = async () => {
     try {
-      const response = await axios.post('http://localhost:5001/api/customers/login', {
-        email, // Send email
-        password, // Send password
+      const response = await axios.post('http://16.171.31.81:5001/api/customers/login', {
+        email,
+        password,
       });
 
-      const { token, role } = response.data; // Extract token and role from response
-      localStorage.setItem('token', token); // Store token in local storage
-      localStorage.setItem('role', role); // Store role in local storage
+      const { token, role } = response.data;
+      localStorage.setItem('token', token);
+      localStorage.setItem('role', role);
 
       if (role === 'admin') {
-        navigate('/admin'); // Redirect admin to admin panel
+        navigate('/admin');
       } else {
-        navigate('/user'); // Redirect user to user panel
+        navigate('/user');
       }
     } catch (error) {
       console.error('Login failed:', error);
-      alert('Invalid email or password'); // Show alert on login failure
+      if (error.response?.data?.error) {
+        alert(error.response.data.error);
+      } else {
+        alert('An unexpected error occurred. Please try again.');
+      }
     }
   };
 
@@ -39,16 +42,16 @@ function LoginPage() {
         <form onSubmit={(e) => e.preventDefault()}>
           <input
             type="text"
-            placeholder="Email" // Placeholder updated
-            value={email} // Bind email state
-            onChange={(e) => setEmail(e.target.value)} // Update email state on change
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             className="login-input"
           />
           <input
             type="password"
-            placeholder="Password" // Placeholder for password
-            value={password} // Bind password state
-            onChange={(e) => setPassword(e.target.value)} // Update password state on change
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             className="login-input"
           />
           <button onClick={handleLogin} className="login-button">
