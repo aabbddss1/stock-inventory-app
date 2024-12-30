@@ -1,21 +1,21 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import '../styles/AddCustomer.css';
 
 function AddCustomer({ onSave, onClose }) {
+  const nameInputRef = useRef(null); // Ref for focusing on the Name input field
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     phone: '',
-    address: '',
-    city: '',
-    postalCode: '',
     password: '',
   });
 
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
-    document.getElementById('name').focus(); // Automatically focus on the Name input field
+    if (nameInputRef.current) {
+      nameInputRef.current.focus(); // Automatically focus on the Name input field
+    }
   }, []);
 
   const validate = () => {
@@ -50,9 +50,6 @@ function AddCustomer({ onSave, onClose }) {
         name: '',
         email: '',
         phone: '',
-        address: '',
-        city: '',
-        postalCode: '',
         password: '',
       }); // Clear the form after successful save
     }
@@ -75,7 +72,7 @@ function AddCustomer({ onSave, onClose }) {
           <div className="form-group">
             <label>Name</label>
             <input
-              id="name"
+              ref={nameInputRef}
               type="text"
               name="name"
               value={formData.name}

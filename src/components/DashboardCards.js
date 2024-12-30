@@ -21,7 +21,7 @@ import '../styles/DashboardCards.css';
 function DashboardCards() {
   const [isAddCustomerModalOpen, setIsAddCustomerModalOpen] = useState(false);
   const [isAddSupplierModalOpen, setIsAddSupplierModalOpen] = useState(false);
-  const [isQuickOrderModalOpen, setIsQuickOrderModalOpen] = useState(false); // Quick Order Modal State
+  const [isQuickOrderModalOpen, setIsQuickOrderModalOpen] = useState(false);
 
   const [newOrder, setNewOrder] = useState({
     clientEmail: '',
@@ -30,10 +30,11 @@ function DashboardCards() {
     price: '',
   });
 
-  const [users, setUsers] = useState([]); // List of users for admin dropdown
+  const [users, setUsers] = useState([]); // List of users
+  const [inventory, setInventory] = useState([]); // List of inventory products
   const [actionLoading, setActionLoading] = useState(false);
 
-  // State for dynamic data
+  // Dynamic data for dashboard cards
   const [totalOrders, setTotalOrders] = useState(0);
   const [pendingOrders, setPendingOrders] = useState(0);
   const [notifications, setNotifications] = useState(0);
@@ -44,12 +45,14 @@ function DashboardCards() {
       try {
         const ordersResponse = await axios.get('http://localhost:5001/api/orders');
         const notificationsResponse = await axios.get('http://localhost:5001/api/notifications');
-        const usersResponse = await axios.get('http://localhost:5001/api/customers'); // Fetch users
+        const usersResponse = await axios.get('http://localhost:5001/api/customers');
+        const inventoryResponse = await axios.get('http://localhost:5001/api/inventory'); // Fetch inventory
 
         setTotalOrders(ordersResponse.data.length);
         setPendingOrders(ordersResponse.data.filter(order => order.status === 'Pending').length);
         setNotifications(notificationsResponse.data.length);
         setUsers(usersResponse.data);
+        setInventory(inventoryResponse.data); // Set inventory data
       } catch (error) {
         console.error('Error fetching dashboard data:', error);
       }
@@ -80,6 +83,22 @@ function DashboardCards() {
       setActionLoading(false);
     }
   };
+
+  // Handle saving a new customer
+  const handleSaveCustomer = async (customer) => {
+    try {
+      const response = await axios.post('http://localhost:5001/api/customers', {
+        ...customer,
+        role: 'user', // Default role for quick addition
+      });
+      alert(`Customer ${response.data.name} added successfully!`);
+      setIsAddCustomerModalOpen(false); // Close the modal after successful save
+    } catch (error) {
+      console.error('Error adding customer:', error);
+      alert('Failed to add customer. Please try again.');
+    }
+  };
+  
 
   const cardsData = [
     {
@@ -166,15 +185,27 @@ function DashboardCards() {
             </select>
           </div>
           <div className="form-row">
-            <input
-              type="text"
-              placeholder="Product Name"
+            <select
               value={newOrder.productName}
-              onChange={(e) =>
-                setNewOrder({ ...newOrder, productName: e.target.value })
-              }
+              onChange={(e) => {
+                const selectedProduct = inventory.find(
+                  (item) => item.name === e.target.value
+                );
+                setNewOrder({
+                  ...newOrder,
+                  productName: e.target.value,
+                  price: selectedProduct?.price || '',
+                });
+              }}
               required
-            />
+            >
+              <option value="">Select a Product</option>
+              {inventory.map((item) => (
+                <option key={item.id} value={item.name}>
+                  {item.name} (Stock: {item.quantity})
+                </option>
+              ))}
+            </select>
           </div>
           <div className="form-row">
             <input
@@ -190,9 +221,7 @@ function DashboardCards() {
               type="number"
               placeholder="Price"
               value={newOrder.price}
-              onChange={(e) =>
-                setNewOrder({ ...newOrder, price: e.target.value })
-              }
+              readOnly
               required
             />
           </div>
@@ -203,9 +232,14 @@ function DashboardCards() {
       </Modal>
 
       {/* Add Customer Modal */}
-      <Modal isOpen={isAddCustomerModalOpen} onClose={() => setIsAddCustomerModalOpen(false)}>
-        <AddCustomer />
-      </Modal>
+   {/* Add Customer Modal */}
+<Modal isOpen={isAddCustomerModalOpen} onClose={() => setIsAddCustomerModalOpen(false)}>
+  <AddCustomer
+    onSave={(formData) => handleSaveCustomer(formData)}
+    onClose={() => setIsAddCustomerModalOpen(false)}
+  />
+</Modal>
+
 
       {/* Add Supplier Modal */}
       <Modal isOpen={isAddSupplierModalOpen} onClose={() => setIsAddSupplierModalOpen(false)}>
