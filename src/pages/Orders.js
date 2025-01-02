@@ -312,20 +312,25 @@ const Orders = () => {
                     </td>
                     {userRole === 'admin' && (
                       <td>
-                        <button
-                          onClick={() => handleEditOrder(order)}
-                          disabled={actionLoading}
-                        >
-                          Edit
-                        </button>
-                        <button
-                          style={{ backgroundColor: 'red', color: 'white' }}
-                          onClick={() => handleDelete(order.id)}
-                          disabled={actionLoading}
-                        >
-                          {actionLoading ? 'Processing...' : 'Delete'}
-                        </button>
-                      </td>
+                      <button
+                        className="edit-btn"
+                        onClick={() => handleEditOrder(order)}
+                        disabled={actionLoading}
+                      >
+                        <i className="fas fa-edit" style={{ marginRight: '5px' }}></i>
+                        Edit
+                      </button>
+                      <button
+                        className="delete-btn"
+                        onClick={() => handleDelete(order.id)}
+                        disabled={actionLoading}
+                      >
+                        <i className="fas fa-trash" style={{ marginRight: '5px' }}></i>
+                        {actionLoading ? 'Processing...' : 'Delete'}
+                      </button>
+                    </td>
+                    
+                    
                     )}
                   </tr>
                 ))}

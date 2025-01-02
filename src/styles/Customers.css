@@ -70,36 +70,35 @@
   background-color: #f1f1f1; /* Highlight row on hover */
 }
 
-/* Action buttons */
-.edit-btn,
+.edit-btn {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.edit-btn:hover {
+  background-color: #0873bb;
+}
+
 .delete-btn {
+  background-color: red;
+  color: white;
   padding: 6px 10px;
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  font-size: 14px;
   margin-right: 5px;
-  transition: background-color 0.3s ease, transform 0.2s ease;
-}
-
-.edit-btn {
-  background-color: #f1c40f;
-  color: white;
-}
-
-.edit-btn:hover {
-  background-color: #d4ac0d;
-  transform: scale(1.05);
-}
-
-.delete-btn {
-  background-color: #e74c3c;
-  color: white;
 }
 
 .delete-btn:hover {
-  background-color: #c0392b;
-  transform: scale(1.05);
+  background-color: #bc2116;
+}
+
+button i {
+  margin-right: 5px; /* İkon ile metin arasına boşluk */
 }
 
 /* Modal overlay background */
@@ -239,7 +238,7 @@
   transition: background-color 0.3s ease;
 }
 
-.generate-password-btn:hover {
+.generate-password-btn:hover { 
   background-color: #008f82;
 }
 

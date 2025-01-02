@@ -135,22 +135,23 @@ function Customers() {
                     <td>{customer.phone}</td>
                     <td>{'********'}</td>
                     <td>
-                      <button
-                        className="edit-btn"
-                        onClick={() => {
-                          setEditingCustomer(customer);
-                          setShowModal(true);
-                        }}
-                      >
-                        Edit
-                      </button>
-                      <button
-                        className="delete-btn"
-                        onClick={() => handleDelete(customer.id)}
-                      >
-                        Delete
-                      </button>
-                    </td>
+  <button
+    className="edit-btn"
+    onClick={() => {
+      setEditingCustomer(customer);
+      setShowModal(true);
+    }}
+  >
+    <i className="fas fa-edit"></i> Edit
+  </button>
+  <button
+    className="delete-btn"
+    onClick={() => handleDelete(customer.id)}
+  >
+    <i className="fas fa-trash"></i> Delete
+  </button>
+</td>
+
                   </tr>
                 ))}
               </tbody>

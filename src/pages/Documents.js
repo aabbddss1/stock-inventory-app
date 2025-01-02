@@ -217,12 +217,20 @@ const Documents = () => {
                       <td>{doc.customer_id}</td>
                       <td>{new Date(doc.upload_date).toLocaleDateString()}</td>
                       <td>
-                        <a href={doc.file_path} target="_blank" rel="noopener noreferrer">
-                          View
-                        </a>
-                        <button onClick={() => handleDelete(doc.id)}>Delete</button>
-                        <button onClick={() => handleDownload(doc.id)}>Download</button>
-                      </td>
+  <button
+    className="download-btn"
+    onClick={() => handleDownload(doc.id)}
+  >
+    <i className="fas fa-download"></i> Download
+  </button>
+  <button
+    className="delete-btn"
+    onClick={() => handleDelete(doc.id)}
+  >
+    <i className="fas fa-trash"></i> Delete
+  </button>
+</td>
+
                     </tr>
                   ))}
                 </tbody>

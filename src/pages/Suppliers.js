@@ -65,19 +65,21 @@ function Suppliers() {
                   <td>{supplier.email}</td>
                   <td>{supplier.phone}</td>
                   <td>
-                    <button
-                      className="edit-btn"
-                      onClick={() => handleEditSupplier(supplier)}
-                    >
-                      Edit
-                    </button>
-                    <button
-                      className="delete-btn"
-                      onClick={() => handleDeleteSupplier(supplier.id)}
-                    >
-                      Delete
-                    </button>
-                  </td>
+  <button
+    className="edit-btn"
+    onClick={() => handleEditSupplier(supplier)}
+  >
+    <i className="fas fa-edit"></i> Edit {/* Düzenleme ikonu ve yazısı */}
+  </button>
+  <button
+    className="delete-btn"
+    onClick={() => handleDeleteSupplier(supplier.id)}
+  >
+    <i className="fas fa-trash"></i> Delete {/* Çöp ikonu ve yazısı */}
+  </button>
+</td>
+
+
                 </tr>
               ))}
             </tbody>

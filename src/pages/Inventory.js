@@ -216,11 +216,17 @@ const Inventory = () => {
                   <td>${product.price}</td>
                   <td>{product.status}</td>
                   <td>
-                    <div className="action-buttons">
-                      <button onClick={() => handleEdit(product)}>Edit</button>
-                      <button onClick={() => handleDelete(product.id)}>Delete</button>
-                    </div>
-                  </td>
+  <div>
+    <button className="edit-btn" onClick={() => handleEdit(product)}>
+      <i className="fas fa-edit" style={{ marginRight: '5px' }}></i>
+      Edit
+    </button>
+    <button className="delete-btn" onClick={() => handleDelete(product.id)}>
+      <i className="fas fa-trash" style={{ marginRight: '5px' }}></i>
+      Delete
+    </button>
+  </div>
+</td>
                 </tr>
               ))}
             </tbody>
