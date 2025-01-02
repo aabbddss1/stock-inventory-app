@@ -200,7 +200,10 @@ const Orders = () => {
               value={searchTerm}
               onChange={handleSearch}
             />
-            <button onClick={exportToExcel}>Export to Excel</button>
+<button onClick={exportToExcel}>
+  <i className="fa fa-th"></i> Export to Excel
+</button>
+
           </div>
 
           {/* Create Order Form */}
@@ -266,8 +269,17 @@ const Orders = () => {
                 />
               </div>
               <button type="submit" disabled={actionLoading}>
-                {actionLoading ? 'Processing...' : 'Create Order'}
-              </button>
+  {actionLoading ? (
+    <>
+      <i className="fa fa-spinner fa-spin"></i> Processing...
+    </>
+  ) : (
+    <>
+      <i className="fa fa-plus"></i> Create Order
+    </>
+  )}
+</button>
+
             </form>
           </div>
 

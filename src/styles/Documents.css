@@ -58,15 +58,16 @@
   
   .documents-form button {
     padding: 10px 20px;
-    background-color: #00bfa6;
+    background-color: #4caf50;
     color: white;
     border: none;
     border-radius: 5px;
     cursor: pointer;
+    font-weight: bold;
   }
   
   .documents-form button:hover {
-    background-color: #00997e;
+    background-color: #0b8e0f;
   }
   
   /* Documents Table */

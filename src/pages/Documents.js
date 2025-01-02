@@ -190,8 +190,9 @@ const Documents = () => {
               required
             />
             <button type="submit" disabled={isUploading}>
-              {isUploading ? 'Uploading...' : 'Upload'}
-            </button>
+  <i className="fa fa-upload"></i> {isUploading ? 'Uploading...' : 'Upload'}
+</button>
+
           </form>
 
           {/* Document List */}

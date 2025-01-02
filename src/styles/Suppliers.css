@@ -13,7 +13,7 @@
 }
 
 .add-supplier-btn {
-  background-color: #00bfa6;
+  background-color: #4caf50;
   color: white;
   border: none;
   padding: 10px 15px;
@@ -23,7 +23,7 @@
 }
 
 .add-supplier-btn:hover {
-  background-color: #008f82;
+  background-color: #0b8e0f;
 }
 
 .suppliers-table {

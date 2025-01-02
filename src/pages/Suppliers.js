@@ -46,8 +46,9 @@ function Suppliers() {
           <div className="suppliers-header">
             <h2>Suppliers</h2>
             <button className="add-supplier-btn" onClick={handleAddSupplier}>
-              Add Supplier
-            </button>
+  <i className="fa fa-box"></i> Add Supplier
+</button>
+
           </div>
           <table className="suppliers-table">
             <thead>

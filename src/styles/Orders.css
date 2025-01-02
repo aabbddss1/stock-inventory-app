@@ -238,21 +238,23 @@
 }
 
 .create-order-form button {
-  flex: none; /* Override flex settings */
-  width: auto; /* Button will size according to content */
-  padding: 10px 20px; /* Adjust padding for better size */
+  flex: none;
+  width: auto;
+  height: 40px; /* Belirli bir yükseklik veriyoruz */
+  padding: 0 15px; /* Dikey padding'i sıfırlıyoruz, yatayda ise padding'i bırakıyoruz */
+  font-size: 14px; /* Aynı font büyüklüğü */
+  line-height: 40px; /* Butonun içindeki metni dikeyde ortalamak için */
   border: none;
-  background-color: #00bfa6;
+  background-color: #4caf50;
   color: #fff;
-  font-size: 14px; /* Reduce font size */
+  border-radius: 5px;
   font-weight: bold;
-  border-radius: 4px;
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
 
 .create-order-form button:hover {
-  background-color: #008f82;
+  background-color: #0b8e0f;
 }
 
 .create-order-form .form-group {
@@ -295,7 +297,7 @@
 
 .orders-actions button {
   padding: 10px 15px;
-  background-color: #00bfa6;
+  background-color: #3498db;
   color: white;
   border: none;
   border-radius: 5px;
@@ -304,8 +306,9 @@
   transition: background-color 0.3s ease;
 }
 
+
 .orders-actions button:hover {
-  background-color: #1D6F42;
+  background-color: #2980b9;
 }
 
 

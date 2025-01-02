@@ -109,8 +109,9 @@ function Customers() {
           <div className="customers-header">
             <h2>Customers</h2>
             <button className="add-customer-btn" onClick={handleAdd}>
-              Add Customer
-            </button>
+  <i className="fa fa-user-plus"></i> Add Customer
+</button>
+
           </div>
           {loading ? (
             <p>Loading...</p>

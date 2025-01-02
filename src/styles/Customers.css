@@ -26,7 +26,7 @@
 
 /* Add customer button */
 .add-customer-btn {
-  background-color: #00bfa6;
+  background-color: #4caf50;
   color: white;
   border: none;
   padding: 10px 15px;
@@ -37,8 +37,7 @@
 }
 
 .add-customer-btn:hover {
-  background-color: #008f82;
-  transform: scale(1.05); /* Subtle hover effect */
+  background-color: #0b8e0f;
 }
 
 /* Table styling */

@@ -155,7 +155,12 @@ const Inventory = () => {
               value={searchTerm}
               onChange={handleSearch}
             />
-            <button onClick={exportAsExcel}>Export as Excel</button>
+<button onClick={exportAsExcel} className="excel-export-btn">
+  <i className="fa fa-th"></i> Export to Excel
+</button>
+
+
+
           </div>
 
           {/* Add/Edit Product Form */}
@@ -192,7 +197,18 @@ const Inventory = () => {
               onChange={handleChange}
               required
             />
-            <button type="submit">{selectedProduct ? 'Update Product' : 'Add Product'}</button>
+            <button type="submit">
+  {selectedProduct ? (
+    <>
+      <i className="fa fa-edit"></i> Update Product
+    </>
+  ) : (
+    <>
+      <i className="fa fa-plus"></i> Add Product
+    </>
+  )}
+</button>
+
           </form>
 
           {/* Inventory List Table */}

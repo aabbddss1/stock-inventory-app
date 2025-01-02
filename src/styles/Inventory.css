@@ -41,11 +41,12 @@
 }
 
 .inventory-actions button {
-  padding: 10px 20px;
+  padding: 10px 15px;
   background-color: #3498db;
   color: white;
   border: none;
   border-radius: 5px;
+  font-size: 14px;
   cursor: pointer;
 }
 
@@ -70,7 +71,7 @@
 
 .inventory-form button {
   padding: 10px 20px;
-  background-color: #00bfa6;
+  background-color: #4caf50;
   color: white;
   border: none;
   border-radius: 5px;
@@ -78,7 +79,7 @@
 }
 
 .inventory-form button:hover {
-  background-color: #00997e;
+  background-color: #0b8e0f;
 }
 
 /* Inventory Table */
