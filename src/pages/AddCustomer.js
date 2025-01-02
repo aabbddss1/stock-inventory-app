@@ -128,7 +128,7 @@ function AddCustomer({ onSave, onClose }) {
             {errors.password && <p className="error-text">{errors.password}</p>}
           </div>
           <div className="form-actions">
-            <button type="submit" className="submit-button">
+            <button type="submit" className="add-customer-button">
               Add Customer
             </button>
             <button type="button" className="cancel-button" onClick={onClose}>
