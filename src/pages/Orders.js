@@ -287,68 +287,65 @@ const Orders = () => {
             <p>Loading orders...</p>
           ) : (
             <table className="orders-table">
-              <thead>
-  <tr>
-    <th>Client Name</th>
-    <th>Product Name</th>
-    <th>Quantity</th>
-    <th>Price</th>
-    <th>Status</th>
-    <th>Actions</th> {/* Her iki rol için de ortak sütun */}
-  </tr>
-</thead>
-
-              <tbody>
-  {filteredOrders.map((order) => (
-    <tr key={order.id}>
-      <td>{order.clientName}</td>
-      <td>{order.productName}</td>
-      <td>{order.quantity}</td>
-      <td>${order.price}</td>
-      <td>
-        {userRole === 'admin' ? (
-          <select
-            onChange={(e) => handleStatusChange(order.id, e.target.value)}
-            value={order.status}
-            disabled={actionLoading}
-          >
-            <option value="Pending">Pending</option>
-            <option value="Approved">Approved</option>
-            <option value="On Process">On Process</option>
-            <option value="Completed">Completed</option>
-          </select>
-        ) : (
-          order.status
-        )}
-      </td>
-      {userRole === 'admin' && (
+  <thead>
+    <tr>
+      <th>Client Name</th>
+      <th>Product Name</th>
+      <th>Quantity</th>
+      <th>Price</th>
+      <th>Status</th>
+      <th>Actions</th> {/* Actions başlığı */}
+    </tr>
+  </thead>
+  <tbody>
+    {filteredOrders.map((order) => (
+      <tr key={order.id}>
+        <td>{order.clientName}</td>
+        <td>{order.productName}</td>
+        <td>{order.quantity}</td>
+        <td>${order.price}</td>
         <td>
+          {userRole === 'admin' ? (
+            <select
+              onChange={(e) => handleStatusChange(order.id, e.target.value)}
+              value={order.status}
+              disabled={actionLoading}
+            >
+              <option value="Pending">Pending</option>
+              <option value="Approved">Approved</option>
+              <option value="On Process">On Process</option>
+              <option value="Completed">Completed</option>
+            </select>
+          ) : (
+            order.status
+          )}
+        </td>
+        <td>
+          {/* Edit ve Delete butonları aynı hücrede yer alacak */}
           <button
             className="edit-btn"
             onClick={() => handleEditOrder(order)}
-            disabled={actionLoading}
+            disabled={userRole !== 'admin' && order.status !== 'Pending'}
           >
             <i className="fas fa-edit" style={{ marginRight: '5px' }}></i>
             Edit
           </button>
+          <button
+            className="delete-btn"
+            onClick={() => handleDelete(order.id)}
+            disabled={userRole !== 'admin' && order.status !== 'Pending'}
+          >
+            <i className="fas fa-trash" style={{ marginRight: '5px' }}></i>
+            Delete
+          </button>
         </td>
-      )}
-      <td>
-        <button
-          className="delete-btn"
-          onClick={() => handleDelete(order.id)}
-          disabled={userRole !== 'admin' && order.status !== 'Pending'}
-        >
-          <i className="fas fa-trash" style={{ marginRight: '5px' }}></i>
-          {actionLoading ? 'Processing...' : 'Delete'}
-        </button>
-      </td>
-    </tr>
-  ))}
-</tbody>
+      </tr>
+    ))}
+  </tbody>
+</table>
 
-            </table>
-          )}
+
+        )}
 
          {/* Edit Order Form */}
 {selectedOrder && (

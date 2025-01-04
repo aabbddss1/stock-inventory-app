@@ -356,6 +356,11 @@ option {
   background-color: #0873bb;
 }
 
+.edit-btn:disabled {
+  visibility: hidden;
+}
+
+
 .delete-btn {
   background-color: red;
   color: white;
