@@ -350,53 +350,75 @@ const Orders = () => {
             </table>
           )}
 
-          {/* Edit Order Form */}
-          {selectedOrder && (
-            <div className="edit-order">
-              <h2>Edit Order</h2>
-              <form onSubmit={handleSaveOrder}>
-                <input
-                  type="text"
-                  value={selectedOrder.productName}
-                  onChange={(e) =>
-                    setSelectedOrder({
-                      ...selectedOrder,
-                      productName: e.target.value,
-                    })
-                  }
-                  placeholder="Product Name"
-                  required
-                />
-                <input
-                  type="number"
-                  value={selectedOrder.quantity}
-                  onChange={(e) =>
-                    setSelectedOrder({
-                      ...selectedOrder,
-                      quantity: e.target.value,
-                    })
-                  }
-                  placeholder="Quantity"
-                  required
-                />
-                <input
-                  type="number"
-                  value={selectedOrder.price}
-                  onChange={(e) =>
-                    setSelectedOrder({
-                      ...selectedOrder,
-                      price: e.target.value,
-                    })
-                  }
-                  placeholder="Price"
-                  required
-                />
-                <button type="submit" disabled={actionLoading}>
-                  {actionLoading ? 'Saving...' : 'Save Changes'}
-                </button>
-              </form>
-            </div>
+         {/* Edit Order Form */}
+{selectedOrder && (
+  <div className="edit-order-container">
+    <h2 className="edit-order-title">Edit Order</h2>
+    <form onSubmit={handleSaveOrder} className="edit-order-form">
+      <div className="edit-order-input-container">
+        <input
+          type="text"
+          value={selectedOrder.productName}
+          onChange={(e) =>
+            setSelectedOrder({
+              ...selectedOrder,
+              productName: e.target.value,
+            })
+          }
+          placeholder="Product Name"
+          required
+          className="edit-order-input"
+        />
+      </div>
+      <div className="edit-order-input-container">
+        <input
+          type="number"
+          value={selectedOrder.quantity}
+          onChange={(e) =>
+            setSelectedOrder({
+              ...selectedOrder,
+              quantity: e.target.value,
+            })
+          }
+          placeholder="Quantity"
+          required
+          className="edit-order-input"
+        />
+      </div>
+      <div className="edit-order-input-container">
+        <input
+          type="number"
+          value={selectedOrder.price}
+          onChange={(e) =>
+            setSelectedOrder({
+              ...selectedOrder,
+              price: e.target.value,
+            })
+          }
+          placeholder="Price"
+          required
+          className="edit-order-input"
+        />
+      </div>
+      <div className="edit-order-button-container">
+        <button type="submit" disabled={actionLoading} className="edit-order-button">
+          {actionLoading ? (
+            <>
+              <i className="fa fa-spinner fa-spin"></i> Saving...
+            </>
+          ) : (
+            <>
+              <i className="fa fa-save"></i> Save Changes
+            </>
           )}
+        </button>
+      </div>
+    </form>
+  </div>
+)}
+
+
+
         </div>
       </div>
     </div>

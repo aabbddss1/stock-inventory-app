@@ -225,13 +225,24 @@ function DashboardCards() {
               required
             />
           </div>
-          <button type="submit" disabled={actionLoading}>
-            {actionLoading ? 'Creating...' : 'Create Order'}
-          </button>
+          <button
+  type="submit"
+  className={`order-button ${actionLoading ? 'loading' : ''}`}
+  disabled={actionLoading}
+>
+  {actionLoading ? (
+    <i className="fa fa-spinner fa-spin"></i> // Dönen yuvarlak
+  ) : (
+    <>
+      <i className="fa fa-plus"></i> Create Order
+    </>
+  )}
+</button>
+
+
         </form>
       </Modal>
 
-      {/* Add Customer Modal */}
    {/* Add Customer Modal */}
 <Modal isOpen={isAddCustomerModalOpen} onClose={() => setIsAddCustomerModalOpen(false)}>
   <AddCustomer

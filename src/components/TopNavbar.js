@@ -29,7 +29,6 @@ function TopNavbar() {
         {userRole === 'admin' ? (
           <>
             <Link to="/admin-users">Admin Users ▼</Link>
-            <Link to="/admin-panel">Admin Panel ▼</Link>
           </>
         ) : (
           <>
