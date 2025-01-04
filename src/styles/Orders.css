@@ -370,6 +370,10 @@ option {
   background-color: #bc2116;
 }
 
+.delete-btn:disabled {
+  visibility: hidden;
+}
+
 button i {
   margin-right: 5px; /* İkon ile metin arasına boşluk */
 }
