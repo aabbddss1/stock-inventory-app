@@ -1,66 +1,72 @@
-// src/pages/AdminUsers.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Sidebar from '../components/Sidebar';
 import TopNavbar from '../components/TopNavbar';
 import { utils as XLSXUtils, writeFile as XLSXWriteFile } from 'xlsx'; // For Excel export
 import jsPDF from 'jspdf'; // For PDF export
+import axios from 'axios'; // Axios for API calls
 import '../styles/AdminUsers.css';
 
 const AdminUsers = () => {
-  const [users, setUsers] = useState([
-    {
-      id: 1,
-      username: 'JohnDoe',
-      email: 'john.doe@example.com',
-      role: 'Admin',
-      status: 'Active',
-    },
-    {
-      id: 2,
-      username: 'JaneSmith',
-      email: 'jane.smith@example.com',
-      role: 'Manager',
-      status: 'Suspended',
-    },
-  ]);
-
+  const [users, setUsers] = useState([]); // List of users
   const [formData, setFormData] = useState({
     username: '',
     email: '',
     role: 'Viewer',
     status: 'Active',
-  });
+    password: '',
+  }); // Form data for adding/editing users
+  const [searchTerm, setSearchTerm] = useState(''); // Search input
+  const [selectedUser, setSelectedUser] = useState(null); // User being edited
+  const [loading, setLoading] = useState(true); // Loading state
 
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedUser, setSelectedUser] = useState(null);
+  useEffect(() => {
+    fetchUsers();
+  }, []);
 
-  // Handle form changes
+  // Fetch users from backend
+  const fetchUsers = async () => {
+    try {
+      const response = await axios.get('http://localhost:5001/api/admin-users', {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+      });
+      setUsers(response.data);
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching users:', error);
+    }
+  };
+
+  // Handle form input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
   // Add or update user
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (selectedUser) {
-      // Update user
-      const updatedUsers = users.map((user) =>
-        user.id === selectedUser.id ? { ...formData, id: user.id } : user
-      );
-      setUsers(updatedUsers);
-      setSelectedUser(null);
-    } else {
-      // Add new user
-      const newUser = {
-        ...formData,
-        id: Date.now(),
-      };
-      setUsers([...users, newUser]);
-    }
+    try {
+      if (selectedUser) {
+        // Update existing user
+        await axios.put(`http://localhost:5001/api/admin-users/${selectedUser.id}`, formData, {
+          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+        });
+        alert('User updated successfully');
+      } else {
+        // Add new user
+        await axios.post('http://localhost:5001/api/admin-users', formData, {
+          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+        });
+        alert('User added successfully');
+      }
 
-    setFormData({ username: '', email: '', role: 'Viewer', status: 'Active' });
+      setFormData({ username: '', email: '', role: 'Viewer', status: 'Active', password: '' });
+      setSelectedUser(null);
+      fetchUsers();
+    } catch (error) {
+      console.error('Error saving user:', error);
+    }
   };
 
   // Edit user
@@ -75,15 +81,23 @@ const AdminUsers = () => {
   };
 
   // Delete user
-  const handleDelete = (id) => {
-    const updatedUsers = users.filter((user) => user.id !== id);
-    setUsers(updatedUsers);
+  const handleDelete = async (id) => {
+    if (window.confirm('Are you sure you want to delete this user?')) {
+      try {
+        await axios.delete(`http://localhost:5001/api/admin-users/${id}`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+        });
+        alert('User deleted successfully');
+        fetchUsers();
+      } catch (error) {
+        console.error('Error deleting user:', error);
+      }
+    }
   };
 
-  // Search functionality
+  // Search users
   const handleSearch = (e) => {
-    const value = e.target.value.toLowerCase();
-    setSearchTerm(value);
+    setSearchTerm(e.target.value.toLowerCase());
   };
 
   // Export to Excel
@@ -102,11 +116,7 @@ const AdminUsers = () => {
 
     users.forEach((user, index) => {
       doc.text(`${index + 1}. ${user.username} (${user.email})`, 10, yPosition);
-      doc.text(
-        `   Role: ${user.role}, Status: ${user.status}`,
-        10,
-        yPosition + 10
-      );
+      doc.text(`   Role: ${user.role}, Status: ${user.status}`, 10, yPosition + 10);
       yPosition += 20;
     });
 
@@ -151,6 +161,14 @@ const AdminUsers = () => {
               onChange={handleChange}
               required
             />
+            <input
+              type="password"
+              name="password"
+              placeholder="Password"
+              value={formData.password}
+              onChange={handleChange}
+              required={!selectedUser}
+            />
             <select
               name="role"
               value={formData.role}
@@ -176,37 +194,41 @@ const AdminUsers = () => {
           </form>
 
           {/* Users List Table */}
-          <table className="admin-users-table">
-            <thead>
-              <tr>
-                <th>Username</th>
-                <th>Email</th>
-                <th>Role</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {users
-                .filter(
-                  (user) =>
-                    user.username.toLowerCase().includes(searchTerm) ||
-                    user.email.toLowerCase().includes(searchTerm)
-                )
-                .map((user) => (
-                  <tr key={user.id}>
-                    <td>{user.username}</td>
-                    <td>{user.email}</td>
-                    <td>{user.role}</td>
-                    <td>{user.status}</td>
-                    <td>
-                      <button onClick={() => handleEdit(user)}>Edit</button>
-                      <button onClick={() => handleDelete(user.id)}>Delete</button>
-                    </td>
-                  </tr>
-                ))}
-            </tbody>
-          </table>
+          {loading ? (
+            <p>Loading users...</p>
+          ) : (
+            <table className="admin-users-table">
+              <thead>
+                <tr>
+                  <th>Username</th>
+                  <th>Email</th>
+                  <th>Role</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {users
+                  .filter(
+                    (user) =>
+                      user.username.toLowerCase().includes(searchTerm) ||
+                      user.email.toLowerCase().includes(searchTerm)
+                  )
+                  .map((user) => (
+                    <tr key={user.id}>
+                      <td>{user.username}</td>
+                      <td>{user.email}</td>
+                      <td>{user.role}</td>
+                      <td>{user.status}</td>
+                      <td>
+                        <button onClick={() => handleEdit(user)}>Edit</button>
+                        <button onClick={() => handleDelete(user.id)}>Delete</button>
+                      </td>
+                    </tr>
+                  ))}
+              </tbody>
+            </table>
+          )}
         </div>
       </div>
     </div>

@@ -1,33 +1,63 @@
-// src/pages/LoginPage.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import '../styles/LoginPage.css';
 
 function LoginPage() {
-  const [email, setEmail] = useState(''); // Email state
-  const [password, setPassword] = useState(''); // Password state
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const role = localStorage.getItem('role');
+
+    if (token && role) {
+      navigate(role === 'admin' ? '/admin' : '/user');
+    }
+  }, [navigate]);
+
   const handleLogin = async () => {
+    if (!email || !password) {
+      setError('Both email and password are required');
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setError('Please enter a valid email address');
+      return;
+    }
+
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters long');
+      return;
+    }
+
+    setLoading(true);
+    setError('');
+
     try {
       const response = await axios.post('http://localhost:5001/api/customers/login', {
-        email, // Send email
-        password, // Send password
+        email,
+        password,
       });
 
-      const { token, role } = response.data; // Extract token and role from response
-      localStorage.setItem('token', token); // Store token in local storage
-      localStorage.setItem('role', role); // Store role in local storage
+      const { token, role } = response.data;
+      localStorage.setItem('token', token);
+      localStorage.setItem('role', role);
 
-      if (role === 'admin') {
-        navigate('/admin'); // Redirect admin to admin panel
-      } else {
-        navigate('/user'); // Redirect user to user panel
-      }
+      navigate(role === 'admin' ? '/admin' : '/user');
     } catch (error) {
-      console.error('Login failed:', error);
-      alert('Invalid email or password'); // Show alert on login failure
+      console.error('Login failed:', error.response ? error.response.data : error.message);
+      setError(
+        error.response?.data?.error || 
+        (error.response?.status === 401 ? 'Invalid email or password' : 'An error occurred')
+      );
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -38,21 +68,26 @@ function LoginPage() {
         <p>Please sign in to your account</p>
         <form onSubmit={(e) => e.preventDefault()}>
           <input
-            type="text"
-            placeholder="Email" // Placeholder updated
-            value={email} // Bind email state
-            onChange={(e) => setEmail(e.target.value)} // Update email state on change
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             className="login-input"
           />
           <input
             type="password"
-            placeholder="Password" // Placeholder for password
-            value={password} // Bind password state
-            onChange={(e) => setPassword(e.target.value)} // Update password state on change
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             className="login-input"
           />
-          <button onClick={handleLogin} className="login-button">
-            Login
+          {error && <p className="error-message">{error}</p>}
+          <button
+            onClick={handleLogin}
+            className="login-button"
+            disabled={loading}
+          >
+            {loading ? 'Logging in...' : 'Login'}
           </button>
         </form>
       </div>
