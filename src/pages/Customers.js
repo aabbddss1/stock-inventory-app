@@ -109,9 +109,8 @@ function Customers() {
           <div className="customers-header">
             <h2>Customers</h2>
             <button className="add-customer-btn" onClick={handleAdd}>
-  <i className="fa fa-user-plus"></i> Add Customer
-</button>
-
+              Add Customer
+            </button>
           </div>
           {loading ? (
             <p>Loading...</p>
@@ -136,23 +135,22 @@ function Customers() {
                     <td>{customer.phone}</td>
                     <td>{'********'}</td>
                     <td>
-  <button
-    className="edit-btn"
-    onClick={() => {
-      setEditingCustomer(customer);
-      setShowModal(true);
-    }}
-  >
-    <i className="fas fa-edit"></i> Edit
-  </button>
-  <button
-    className="delete-btn"
-    onClick={() => handleDelete(customer.id)}
-  >
-    <i className="fas fa-trash"></i> Delete
-  </button>
-</td>
-
+                      <button
+                        className="edit-btn"
+                        onClick={() => {
+                          setEditingCustomer(customer);
+                          setShowModal(true);
+                        }}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        className="delete-btn"
+                        onClick={() => handleDelete(customer.id)}
+                      >
+                        Delete
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>

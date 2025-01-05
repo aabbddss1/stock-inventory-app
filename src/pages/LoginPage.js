@@ -1,43 +1,26 @@
-import React, { useState, useEffect } from 'react';
+// src/pages/LoginPage.js
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import '../styles/LoginPage.css';
 
 function LoginPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [email, setEmail] = useState(''); // Email state
+  const [password, setPassword] = useState(''); // Password state
+  const [isLoading, setIsLoading] = useState(false); // Loading state for login button
+  const [errorMessage, setErrorMessage] = useState(''); // Error message state
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    const role = localStorage.getItem('role');
-
-    if (token && role) {
-      navigate(role === 'admin' ? '/admin' : '/user');
-    }
-  }, [navigate]);
-
+  // Handle login process
   const handleLogin = async () => {
+    // Validation before sending request
     if (!email || !password) {
-      setError('Both email and password are required');
+      setErrorMessage('Email and password are required');
       return;
     }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      setError('Please enter a valid email address');
-      return;
-    }
-
-    if (password.length < 6) {
-      setError('Password must be at least 6 characters long');
-      return;
-    }
-
-    setLoading(true);
-    setError('');
+    setIsLoading(true); // Set loading state
+    setErrorMessage(''); // Clear any previous errors
 
     try {
       const response = await axios.post('http://localhost:5001/api/customers/login', {
@@ -45,19 +28,21 @@ function LoginPage() {
         password,
       });
 
-      const { token, role } = response.data;
-      localStorage.setItem('token', token);
-      localStorage.setItem('role', role);
+      const { token, role } = response.data; // Extract token and role from response
+      localStorage.setItem('token', token); // Store token in local storage
+      localStorage.setItem('role', role); // Store role in local storage
 
-      navigate(role === 'admin' ? '/admin' : '/user');
+      if (role === 'admin') {
+        navigate('/admin'); // Redirect admin to admin panel
+      } else {
+        navigate('/user'); // Redirect user to user panel
+      }
     } catch (error) {
-      console.error('Login failed:', error.response ? error.response.data : error.message);
-      setError(
-        error.response?.data?.error || 
-        (error.response?.status === 401 ? 'Invalid email or password' : 'An error occurred')
-      );
+      console.error('Login failed:', error.response?.data || error.message);
+      const errorMessage = error.response?.data?.error || 'Invalid email or password';
+      setErrorMessage(errorMessage); // Show error message
     } finally {
-      setLoading(false);
+      setIsLoading(false); // Reset loading state
     }
   };
 
@@ -66,28 +51,28 @@ function LoginPage() {
       <div className="login-card">
         <h2>Welcome Back</h2>
         <p>Please sign in to your account</p>
+        {errorMessage && <p className="error-message">{errorMessage}</p>} {/* Display error */}
         <form onSubmit={(e) => e.preventDefault()}>
           <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            type="text"
+            placeholder="Email" // Placeholder updated
+            value={email} // Bind email state
+            onChange={(e) => setEmail(e.target.value)} // Update email state on change
             className="login-input"
           />
           <input
             type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Password" // Placeholder for password
+            value={password} // Bind password state
+            onChange={(e) => setPassword(e.target.value)} // Update password state on change
             className="login-input"
           />
-          {error && <p className="error-message">{error}</p>}
           <button
             onClick={handleLogin}
             className="login-button"
-            disabled={loading}
+            disabled={isLoading} // Disable button when loading
           >
-            {loading ? 'Logging in...' : 'Login'}
+            {isLoading ? 'Logging in...' : 'Login'}
           </button>
         </form>
       </div>

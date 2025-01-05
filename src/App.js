@@ -21,6 +21,7 @@ import SalesPage from './pages/SalesPage'; // Import the new Sales page
 import UserInventory from './pages/UserInventory'; // User portal
 
 
+
 function App() {
   const [isAddCustomerModalOpen, setIsAddCustomerModalOpen] = useState(false);
 

@@ -96,6 +96,14 @@ function Sidebar() {
           </>
         )}
 
+        {/* User Documents */}
+        <NavLink
+          to="/documents"
+          className={({ isActive }) => (isActive ? 'active-link' : '')}
+        >
+          <FontAwesomeIcon icon={faFolderOpen} /> Documents
+        </NavLink>
+
         <h3>ACCOUNTS</h3>
 
         {/* Admin-Only Accounts Links */}
@@ -112,12 +120,6 @@ function Sidebar() {
               className={({ isActive }) => (isActive ? 'active-link' : '')}
             >
               <FontAwesomeIcon icon={faFileInvoiceDollar} /> Payables
-            </NavLink>
-            <NavLink
-              to="/documents"
-              className={({ isActive }) => (isActive ? 'active-link' : '')}
-            >
-              <FontAwesomeIcon icon={faFolderOpen} /> Documents
             </NavLink>
           </>
         )}
