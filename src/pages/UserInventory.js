@@ -49,6 +49,20 @@ const UserInventory = () => {
     XLSXWriteFile(workbook, 'inventory_data.xlsx');
   };
 
+  // Function to apply CSS class based on status
+  const getStatusClass = (status) => {
+    switch (status) {
+      case 'In Stock':
+        return 'in-stock';
+      case 'Low Stock':
+        return 'low-stock';
+      case 'Out of Stock':
+        return 'out-of-stock';
+      default:
+        return '';
+    }
+  };
+
   return (
     <div className="inventory-page">
       <Sidebar />
@@ -65,9 +79,10 @@ const UserInventory = () => {
               value={searchTerm}
               onChange={handleSearch}
             />
-<button onClick={exportAsExcel}>
-  <i className="fa fa-th"></i> Export to Excel
-</button>          </div>
+            <button onClick={exportAsExcel}>
+              <i className="fa fa-th"></i> Export to Excel
+            </button>
+          </div>
 
           {/* Inventory Table */}
           <table className="inventory-table">
@@ -87,7 +102,9 @@ const UserInventory = () => {
                   <td>{product.category}</td>
                   <td>{product.quantity}</td>
                   <td>${product.price}</td>
-                  <td>{product.status}</td>
+                  <td className={`status-cell ${getStatusClass(product.status)}`}>
+                    {product.status}
+                  </td>
                 </tr>
               ))}
               {filteredProducts.length === 0 && (
