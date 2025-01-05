@@ -102,7 +102,6 @@
 
 .inventory-table td {
   background-color: #ffffff;
-  position: relative;  
 }
 
 .inventory-table tr:hover {
@@ -145,34 +144,31 @@
   background-color: #bc2116;
 }
 
-button i {
-  margin-right: 5px; /* İkon ile metin arasına boşluk */
-}
-
 /* Status Colors */
-.inventory-table td {
+.inventory-table td.status-cell {
   position: relative;
+  padding-left: 30px; /* Make room for the pseudo-element */
 }
 
-.inventory-table td:before {
+.inventory-table td.status-cell:before {
   content: '';
   position: absolute;
-  top: 50%;
   left: 0;
+  top: 50%;
   transform: translateY(-50%);
   width: 10px;
   height: 10px;
   border-radius: 50%;
 }
 
-.inventory-table td:nth-child(5):before {
-  background-color: #2ecc71; /* Default: In Stock */
+.inventory-table td.status-cell.in-stock:before {
+  background-color: #2ecc71; /* In Stock */
 }
 
-.inventory-table td:contains('Low Stock'):before {
+.inventory-table td.status-cell.low-stock:before {
   background-color: #f39c12; /* Low Stock */
 }
 
-.inventory-table td:contains('Out of Stock'):before {
+.inventory-table td.status-cell.out-of-stock:before {
   background-color: #e74c3c; /* Out of Stock */
 }

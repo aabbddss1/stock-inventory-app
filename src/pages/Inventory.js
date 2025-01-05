@@ -155,12 +155,9 @@ const Inventory = () => {
               value={searchTerm}
               onChange={handleSearch}
             />
-<button onClick={exportAsExcel} className="excel-export-btn">
-  <i className="fa fa-th"></i> Export to Excel
-</button>
-
-
-
+            <button onClick={exportAsExcel} className="excel-export-btn">
+              <i className="fa fa-th"></i> Export to Excel
+            </button>
           </div>
 
           {/* Add/Edit Product Form */}
@@ -198,17 +195,16 @@ const Inventory = () => {
               required
             />
             <button type="submit">
-  {selectedProduct ? (
-    <>
-      <i className="fa fa-edit"></i> Update Product
-    </>
-  ) : (
-    <>
-      <i className="fa fa-plus"></i> Add Product
-    </>
-  )}
-</button>
-
+              {selectedProduct ? (
+                <>
+                  <i className="fa fa-edit"></i> Update Product
+                </>
+              ) : (
+                <>
+                  <i className="fa fa-plus"></i> Add Product
+                </>
+              )}
+            </button>
           </form>
 
           {/* Inventory List Table */}
@@ -230,19 +226,21 @@ const Inventory = () => {
                   <td>{product.category}</td>
                   <td>{product.quantity}</td>
                   <td>${product.price}</td>
-                  <td>{product.status}</td>
+                  <td className={`status-cell ${product.status.toLowerCase().replace(/ /g, '-')}`}>
+                    {product.status}
+                  </td>
                   <td>
-  <div>
-    <button className="edit-btn" onClick={() => handleEdit(product)}>
-      <i className="fas fa-edit" style={{ marginRight: '5px' }}></i>
-      Edit
-    </button>
-    <button className="delete-btn" onClick={() => handleDelete(product.id)}>
-      <i className="fas fa-trash" style={{ marginRight: '5px' }}></i>
-      Delete
-    </button>
-  </div>
-</td>
+                    <div>
+                      <button className="edit-btn" onClick={() => handleEdit(product)}>
+                        <i className="fas fa-edit" style={{ marginRight: '5px' }}></i>
+                        Edit
+                      </button>
+                      <button className="delete-btn" onClick={() => handleDelete(product.id)}>
+                        <i className="fas fa-trash" style={{ marginRight: '5px' }}></i>
+                        Delete
+                      </button>
+                    </div>
+                  </td>
                 </tr>
               ))}
             </tbody>
