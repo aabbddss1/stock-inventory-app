@@ -486,3 +486,89 @@ h1 {
   background-color: #0b8e0f;
 }
 
+.edit-order-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.edit-order-modal-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 5px;
+  width: 400px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+
+.edit-order-input-container {
+  margin-bottom: 15px;
+}
+
+.edit-order-input {
+  width: 100%;
+  padding: 8px;
+  margin-top: 5px;
+}
+
+.edit-order-button-container {
+  width: 100%;
+  padding: 10px;
+  display: flex;
+  flex-direction: column; /* Buttons will stack vertically */
+  gap: 5px; /* Space between buttons */
+}
+
+.close-modal-btn {
+  background: none;
+  border: none;
+  font-size: 20px;
+  color: #888;
+  cursor: pointer;
+}
+
+.cancel-order-button {
+  padding: 12px;
+  font-size: 16px;
+  color: white;
+  background-color: red;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  width: 100%; /* Make button span the full width */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.cancel-order-button:hover {
+  background-color: #bc2116;
+}
+
+.edit-order-input[readonly] {
+  background-color: #f5f5f5; /* Gri bir arka plan ekleyerek, kullanıcıya bu inputların değiştirilemez olduğunu göster */
+  cursor: not-allowed; /* Fare işaretçisi değiştirilemez olduğunu gösterecek şekilde değiştirilir */
+}
+
+/* Spinner styling */
+.loading-spinner {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 24px;
+  color: #3498db;
+  background-color: rgba(0, 0, 0, 0.5);
+  padding: 20px;
+  border-radius: 5px;
+  display: none; /* Initially hidden */
+  color: white;
+}
