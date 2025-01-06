@@ -31,6 +31,7 @@ function Sidebar() {
         <NavLink
           to={userRole === 'admin' ? '/admin' : '/user'}
           className={({ isActive }) => (isActive ? 'active-link' : '')}
+          end // Ensure exact match for the dashboard route
         >
           <FontAwesomeIcon icon={faTachometerAlt} /> Dashboard
         </NavLink>
@@ -48,6 +49,7 @@ function Sidebar() {
           <NavLink
             to="/inventory"
             className={({ isActive }) => (isActive ? 'active-link' : '')}
+            end // Ensure exact match for admin inventory
           >
             <FontAwesomeIcon icon={faWarehouse} /> Inventory
           </NavLink>
@@ -55,6 +57,7 @@ function Sidebar() {
           <NavLink
             to="/user/inventory"
             className={({ isActive }) => (isActive ? 'active-link' : '')}
+            end // Ensure exact match for user inventory
           >
             <FontAwesomeIcon icon={faWarehouse} /> Inventory
           </NavLink>
@@ -66,30 +69,35 @@ function Sidebar() {
             <NavLink
               to="/customers"
               className={({ isActive }) => (isActive ? 'active-link' : '')}
+              end
             >
               <FontAwesomeIcon icon={faUsers} /> Customers
             </NavLink>
             <NavLink
               to="/suppliers"
               className={({ isActive }) => (isActive ? 'active-link' : '')}
+              end
             >
               <FontAwesomeIcon icon={faTruck} /> Suppliers
             </NavLink>
             <NavLink
               to="/dealerships"
               className={({ isActive }) => (isActive ? 'active-link' : '')}
+              end
             >
               <FontAwesomeIcon icon={faFileAlt} /> Dealerships
             </NavLink>
             <NavLink
               to="/sales"
               className={({ isActive }) => (isActive ? 'active-link' : '')}
+              end
             >
               <FontAwesomeIcon icon={faChartLine} /> Sales
             </NavLink>
             <NavLink
               to="/quotations"
               className={({ isActive }) => (isActive ? 'active-link' : '')}
+              end
             >
               <FontAwesomeIcon icon={faFileAlt} /> Quotations
             </NavLink>
@@ -100,6 +108,7 @@ function Sidebar() {
         <NavLink
           to="/documents"
           className={({ isActive }) => (isActive ? 'active-link' : '')}
+          end
         >
           <FontAwesomeIcon icon={faFolderOpen} /> Documents
         </NavLink>
@@ -112,12 +121,14 @@ function Sidebar() {
             <NavLink
               to="/receivables"
               className={({ isActive }) => (isActive ? 'active-link' : '')}
+              end
             >
               <FontAwesomeIcon icon={faDollarSign} /> Receivables
             </NavLink>
             <NavLink
               to="/payables"
               className={({ isActive }) => (isActive ? 'active-link' : '')}
+              end
             >
               <FontAwesomeIcon icon={faFileInvoiceDollar} /> Payables
             </NavLink>
