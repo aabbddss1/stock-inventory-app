@@ -80,27 +80,3 @@
   font-weight: bold;
 }
 
-/* Responsive Styles */
-@media (max-width: 768px) {
-  .sidebar {
-    width: 200px;
-    transform: translateX(-100%); /* Hide sidebar by default on small screens */
-  }
-
-  .sidebar.open {
-    transform: translateX(0); /* Show sidebar when toggled */
-  }
-
-  .sidebar-links a {
-    font-size: 14px;
-    padding: 10px 12px;
-  }
-
-  .logo-container {
-    margin-bottom: 10px;
-  }
-
-  .logo {
-    width: 20%; /* Smaller logo for mobile */
-  }
-}

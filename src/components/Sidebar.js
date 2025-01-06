@@ -25,7 +25,7 @@ function Sidebar() {
         <img src={logo} alt="QUBITE Logo" className="logo" />
       </div>
       <div className="sidebar-links">
-        <h3>MAIN</h3>
+      <h3 className="hidingtext">Main</h3>
 
         {/* Dashboard */}
         <NavLink
@@ -33,7 +33,7 @@ function Sidebar() {
           className={({ isActive }) => (isActive ? 'active-link' : '')}
           end // Ensure exact match for the dashboard route
         >
-          <FontAwesomeIcon icon={faTachometerAlt} /> Dashboard
+          <FontAwesomeIcon icon={faTachometerAlt} /> <span className="hidingtext">Dashboard</span>
         </NavLink>
 
         {/* Orders */}
@@ -41,8 +41,8 @@ function Sidebar() {
           to="/orders"
           className={({ isActive }) => (isActive ? 'active-link' : '')}
         >
-          <FontAwesomeIcon icon={faClipboardList} /> Orders
-        </NavLink>
+<FontAwesomeIcon icon={faClipboardList} /> <span className="hidingtext">Orders</span>
+</NavLink>
 
         {/* Inventory */}
         {userRole === 'admin' ? (
@@ -51,7 +51,7 @@ function Sidebar() {
             className={({ isActive }) => (isActive ? 'active-link' : '')}
             end // Ensure exact match for admin inventory
           >
-            <FontAwesomeIcon icon={faWarehouse} /> Inventory
+            <FontAwesomeIcon icon={faWarehouse} /> <span className="hidingtext">Orders</span>
           </NavLink>
         ) : (
           <NavLink
@@ -59,7 +59,7 @@ function Sidebar() {
             className={({ isActive }) => (isActive ? 'active-link' : '')}
             end // Ensure exact match for user inventory
           >
-            <FontAwesomeIcon icon={faWarehouse} /> Inventory
+            <FontAwesomeIcon icon={faWarehouse} /> <span className="hidingtext">Inventory</span>
           </NavLink>
         )}
 
@@ -71,35 +71,35 @@ function Sidebar() {
               className={({ isActive }) => (isActive ? 'active-link' : '')}
               end
             >
-              <FontAwesomeIcon icon={faUsers} /> Customers
+              <FontAwesomeIcon icon={faUsers} /> <span className="hidingtext">Customers</span>
             </NavLink>
             <NavLink
               to="/suppliers"
               className={({ isActive }) => (isActive ? 'active-link' : '')}
               end
             >
-              <FontAwesomeIcon icon={faTruck} /> Suppliers
+              <FontAwesomeIcon icon={faTruck} /> <span className="hidingtext">Suppliers</span>
             </NavLink>
             <NavLink
               to="/dealerships"
               className={({ isActive }) => (isActive ? 'active-link' : '')}
               end
             >
-              <FontAwesomeIcon icon={faFileAlt} /> Dealerships
+              <FontAwesomeIcon icon={faFileAlt} /> <span className="hidingtext">Dealerships</span>
             </NavLink>
             <NavLink
               to="/sales"
               className={({ isActive }) => (isActive ? 'active-link' : '')}
               end
             >
-              <FontAwesomeIcon icon={faChartLine} /> Sales
+              <FontAwesomeIcon icon={faChartLine} /> <span className="hidingtext">Sales</span>
             </NavLink>
             <NavLink
               to="/quotations"
               className={({ isActive }) => (isActive ? 'active-link' : '')}
               end
             >
-              <FontAwesomeIcon icon={faFileAlt} /> Quotations
+              <FontAwesomeIcon icon={faFileAlt} /> <span className="hidingtext">Quotations</span>
             </NavLink>
           </>
         )}
@@ -110,10 +110,10 @@ function Sidebar() {
           className={({ isActive }) => (isActive ? 'active-link' : '')}
           end
         >
-          <FontAwesomeIcon icon={faFolderOpen} /> Documents
+          <FontAwesomeIcon icon={faFolderOpen} /> <span className="hidingtext">Documents</span>
         </NavLink>
 
-        <h3>ACCOUNTS</h3>
+        <h3 className="hidingtext">ACCOUNTS</h3>
 
         {/* Admin-Only Accounts Links */}
         {userRole === 'admin' && (
@@ -123,14 +123,14 @@ function Sidebar() {
               className={({ isActive }) => (isActive ? 'active-link' : '')}
               end
             >
-              <FontAwesomeIcon icon={faDollarSign} /> Receivables
+              <FontAwesomeIcon icon={faDollarSign} /> <span className="hidingtext">Receivables</span>
             </NavLink>
             <NavLink
               to="/payables"
               className={({ isActive }) => (isActive ? 'active-link' : '')}
               end
             >
-              <FontAwesomeIcon icon={faFileInvoiceDollar} /> Payables
+              <FontAwesomeIcon icon={faFileInvoiceDollar} /> <span className="hidingtext">Payables</span>
             </NavLink>
           </>
         )}
