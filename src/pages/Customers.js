@@ -109,8 +109,9 @@ function Customers() {
           <div className="customers-header">
             <h2>Customers</h2>
             <button className="add-customer-btn" onClick={handleAdd}>
-              Add Customer
-            </button>
+  <i className="fa fa-user-plus"></i> Add Customer
+</button>
+
           </div>
           {loading ? (
             <p>Loading...</p>
@@ -142,12 +143,14 @@ function Customers() {
                           setShowModal(true);
                         }}
                       >
+                        <i className="fas fa-edit"></i>
                         Edit
                       </button>
                       <button
                         className="delete-btn"
                         onClick={() => handleDelete(customer.id)}
                       >
+                        <i className="fas fa-trash"></i>
                         Delete
                       </button>
                     </td>
@@ -271,6 +274,7 @@ function CustomerModal({ customer, onSave, onClose }) {
               className="generate-password-btn"
               onClick={generateRandomPassword}
             >
+              <i className="fa fa-random"></i>
               Randomize
             </button>
           </div>
@@ -278,9 +282,11 @@ function CustomerModal({ customer, onSave, onClose }) {
 
           <div className="modal-actions">
             <button type="submit" className="save-btn">
+              <i className="fa fa-save"></i>
               Save
             </button>
             <button type="button" className="cancel-btn" onClick={onClose}>
+              <i className="fa fa-x"></i>
               Cancel
             </button>
           </div>

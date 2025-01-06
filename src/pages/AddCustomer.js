@@ -122,17 +122,20 @@ function AddCustomer({ onSave, onClose }) {
                 className="generate-password-btn"
                 onClick={generateRandomPassword}
               >
+                <i className="fa fa-random"></i>
                 Generate
+
               </button>
             </div>
             {errors.password && <p className="error-text">{errors.password}</p>}
           </div>
           <div className="form-actions">
           <button type="submit" className="add-customer-button">
-  <i className="fa fa-user"></i> Add Customer
+  <i className="fa fa-user-plus"></i> Add Customer
 </button>
 
             <button type="button" className="cancel-button" onClick={onClose}>
+            <i className="fa fa-x"></i>
               Cancel
             </button>
           </div>
