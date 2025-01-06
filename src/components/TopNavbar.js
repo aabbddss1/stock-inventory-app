@@ -1,15 +1,20 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import '../styles/TopNavbar.css';
 
 function TopNavbar() {
   const navigate = useNavigate();
   const userRole = localStorage.getItem('role'); // Check user role (admin or user)
+  const [menuOpen, setMenuOpen] = useState(false); // State for mobile menu
 
   const handleLogout = () => {
     localStorage.removeItem('token'); // Remove the token from local storage
     localStorage.removeItem('role'); // Remove the role from local storage
     navigate('/'); // Redirect to the login page
+  };
+
+  const toggleMenu = () => {
+    setMenuOpen(!menuOpen); // Toggle the mobile menu
   };
 
   return (
@@ -21,19 +26,21 @@ function TopNavbar() {
           : 'Qubite User Dashboard'}
       </div>
 
-      <div className="nav-links">
+      {/* Hamburger Icon for Mobile */}
+      <div className="hamburger" onClick={toggleMenu}>
+        ☰
+      </div>
+
+      {/* Navigation Links */}
+      <div className={`nav-links ${menuOpen ? 'open' : ''}`}>
         {/* Help Center */}
         <Link to="/help-center">Help Center</Link>
 
         {/* Conditional Links for Admin */}
         {userRole === 'admin' ? (
-          <>
-            <Link to="/admin-users">Admin Users ▼</Link>
-          </>
+          <Link to="/admin-users">Admin Users ▼</Link>
         ) : (
-          <>
-            <Link to="/user/profile">My Account ▼</Link>
-          </>
+          <Link to="/user/profile">My Account ▼</Link>
         )}
 
         {/* Language Selector */}

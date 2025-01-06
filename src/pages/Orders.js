@@ -160,29 +160,42 @@ const Orders = () => {
   // Handle saving changes to an order
   const handleSaveOrder = async (e) => {
     e.preventDefault();
+  
+    // Validate selectedOrder data
+    if (!selectedOrder.productName || !selectedOrder.quantity || !selectedOrder.price) {
+      alert('All fields are required.');
+      return;
+    }
+  
     setActionLoading(true);
     try {
-      await axios.put(`http://localhost:5001/api/orders/${selectedOrder.id}`, selectedOrder, {
+      // Use correct API endpoint for editing orders
+      await axios.put(`http://localhost:5001/api/orders/edit/${selectedOrder.id}`, selectedOrder, {
         headers: { Authorization: `Bearer ${token}` },
       });
+  
+      // Update state
       setOrders((prevOrders) =>
         prevOrders.map((order) =>
-          order.id === selectedOrder.id ? selectedOrder : order
+          order.id === selectedOrder.id ? { ...order, ...selectedOrder } : order
         )
       );
       setFilteredOrders((prevOrders) =>
         prevOrders.map((order) =>
-          order.id === selectedOrder.id ? selectedOrder : order
+          order.id === selectedOrder.id ? { ...order, ...selectedOrder } : order
         )
       );
-      setSelectedOrder(null);
+  
+      setSelectedOrder(null); // Close edit form
       alert('Order updated successfully!');
     } catch (error) {
       console.error('Error saving order changes:', error);
+      alert('Failed to save changes. Please try again.');
     } finally {
       setActionLoading(false);
     }
   };
+  
 
   return (
     <div className="orders-page">

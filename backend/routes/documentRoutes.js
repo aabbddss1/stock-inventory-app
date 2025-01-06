@@ -144,6 +144,30 @@ router.get('/:id', async (req, res) => {
     }
 });
 
+// Fetch documents for a specific user
+router.get('/user-documents', async (req, res) => {
+    const { customerId } = req.query;
+
+    if (!customerId) {
+        return res.status(400).json({ error: 'Customer ID is required' });
+    }
+
+    try {
+        const [documents] = await db.promise().query(
+            'SELECT * FROM documents WHERE customer_id = ? ORDER BY upload_date DESC',
+            [customerId]
+        );
+
+        if (documents.length === 0) {
+            return res.status(404).json({ message: 'No documents found for this user' });
+        }
+
+        res.status(200).json({ documents });
+    } catch (err) {
+        handleError(res, err, 'Failed to fetch user documents');
+    }
+});
+
 // Generate a pre-signed URL for downloading a document
 router.get('/download/:id', async (req, res) => {
     const { id } = req.params;

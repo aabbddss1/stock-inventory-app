@@ -9,7 +9,6 @@ const salesRoutes = require('./routes/salesRoutes');
 const inventoryRoutes = require('./routes/inventoryRoutes');
 const documentRoutes = require('./routes/documentRoutes');
 const adminUsersRoutes = require('./routes/adminUsers'); // Import the route
-const userDocuments = require('./routes/userDocuments');
 
 
 dotenv.config();
@@ -70,7 +69,6 @@ app.use('/api/sales', salesRoutes);
 app.use('/api/inventory', inventoryRoutes);
 app.use('/api/documents', documentRoutes);
 app.use('/api/admin-users', adminUsersRoutes); // Register the route
-app.use('/api/userDocuments', userDocuments);
 // Test Root
 app.get('/', (req, res) => {
     res.send('Welcome to the Stock Inventory API!');
