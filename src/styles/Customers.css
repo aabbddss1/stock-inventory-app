@@ -1,5 +1,3 @@
-/* src/styles/Customers.css */
-
 /* Page layout */
 .customers-page {
   padding: 20px;
@@ -69,6 +67,7 @@
   background-color: #f1f1f1; /* Highlight row on hover */
 }
 
+/* Buttons */
 .edit-btn {
   background-color: #3498db;
   color: white;
@@ -96,11 +95,7 @@
   background-color: #bc2116;
 }
 
-button i {
-  margin-right: 5px; /* İkon ile metin arasına boşluk */
-}
-
-/* Modal overlay background */
+/* Modal */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -114,7 +109,6 @@ button i {
   z-index: 1000;
 }
 
-/* Modal content container */
 .modal-content {
   background: white;
   padding: 25px;
@@ -124,7 +118,6 @@ button i {
   animation: slide-down 0.3s ease-out;
 }
 
-/* Modal header */
 .modal-content h3 {
   margin: 0 0 15px;
   font-size: 22px;
@@ -132,15 +125,6 @@ button i {
   color: #333;
 }
 
-/* Form labels */
-.modal-content label {
-  display: block;
-  margin-bottom: 5px;
-  font-weight: bold;
-  color: #555;
-}
-
-/* Form inputs */
 .modal-content input {
   width: calc(100% - 20px);
   padding: 10px;
@@ -148,97 +132,60 @@ button i {
   border: 1px solid #ddd;
   border-radius: 5px;
   font-size: 14px;
-  transition: border-color 0.2s ease;
 }
 
-.modal-content input:focus {
-  border-color: #00bfa6;
-  outline: none;
-}
-
-/* Error messages */
-.error-text {
-  color: #e74c3c;
-  font-size: 12px;
-  margin-top: -10px;
-  margin-bottom: 10px;
-}
-
-/* Modal actions buttons */
-.modal-actions {
-  display: flex;
-  justify-content: space-between;
-}
-
-.modal-actions .save-btn {
-  background-color: #4caf50;
-  color: white;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 5px;
-  font-size: 14px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.modal-actions .save-btn:hover {
-  background-color: #0b8e0f;
-}
-
-.modal-actions .cancel-btn {
-  background-color: #e74c3c;
-  color: white;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 5px;
-  font-size: 14px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.modal-actions .cancel-btn:hover {
-  background-color: #c0392b;
-}
-
-/* Animation for modal entrance */
-@keyframes slide-down {
-  from {
-      transform: translateY(-30%);
-      opacity: 0;
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .customers-page {
+    padding: 10px;
+    margin-left: 0; /* Remove sidebar offset */
+    margin-top: 0; /* Remove navbar offset */
   }
-  to {
-      transform: translateY(0);
-      opacity: 1;
+
+  .customers-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .add-customer-btn {
+    width: 100%;
+    font-size: 12px;
+    padding: 8px;
+  }
+
+  .customers-table {
+    display: block;
+    overflow-x: auto; /* Enable horizontal scrolling */
+    white-space: nowrap; /* Prevent breaking of table rows */
+  }
+
+  .customers-table th,
+  .customers-table td {
+    padding: 8px;
+    font-size: 12px;
+  }
+
+  .modal-content {
+    width: 90%;
+    padding: 15px;
+  }
+
+  .modal-actions .save-btn,
+  .modal-actions .cancel-btn {
+    width: 100%;
+    margin-bottom: 10px;
   }
 }
 
+@media (max-width: 480px) {
+  .customers-header h2 {
+    font-size: 20px;
+  }
 
-.error-text {
-  color: #e74c3c;
-  font-size: 12px;
-  margin-top: 5px;
+  .customers-table th,
+  .customers-table td {
+    padding: 5px;
+    font-size: 10px;
+  }
 }
-
-/* Password container */
-.password-container {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.generate-password-btn {
-  background-color: #00bfa6;
-  color: white;
-  border: none;
-  padding: 8px 12px;
-  font-size: 12px;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.generate-password-btn:hover { 
-  background-color: #008f82;
-}
-
-
