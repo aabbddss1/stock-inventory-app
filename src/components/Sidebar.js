@@ -51,7 +51,7 @@ function Sidebar() {
             className={({ isActive }) => (isActive ? 'active-link' : '')}
             end // Ensure exact match for admin inventory
           >
-            <FontAwesomeIcon icon={faWarehouse} /> <span className="hidingtext">Orders</span>
+            <FontAwesomeIcon icon={faWarehouse} /> <span className="hidingtext">Inventory</span>
           </NavLink>
         ) : (
           <NavLink
