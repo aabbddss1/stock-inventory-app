@@ -39,3 +39,17 @@
     background: #c0392b;
   }
   
+  @media (max-width: 768px) {
+    :root {
+        --sidebar-width: 45px; /* Mobilde sidebar genişliğini küçült */
+        --navbar-height: 60px;  /* Mobilde navbar yüksekliğini küçült */
+    }
+
+    .main-content {
+      visibility: none;
+      flex: 1;
+      padding: 20px;
+      margin-left: 30px;
+    }
+
+  }

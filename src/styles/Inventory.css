@@ -172,3 +172,85 @@
 .inventory-table td.status-cell.out-of-stock:before {
   background-color: #e74c3c; /* Out of Stock */
 }
+
+@media (max-width: 768px) {
+  /* Genel yerleşim */
+  .inventory-page {
+    flex-direction: column;
+    height: auto;
+  }
+
+  .main-content {
+    margin-left: 0;
+    width: 100%;
+    padding-top: 50px;
+  }
+
+  .inventory-container {
+    padding: 10px;
+  }
+
+  /* Başlık boyutlandırma */
+  .inventory-container h1 {
+    font-size: 18px;
+    margin-bottom: 15px;
+  }
+
+  /* Arama ve dışa aktarma işlemleri */
+  .inventory-actions {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .inventory-actions input {
+    width: 100%;
+    padding: 8px;
+    font-size: 12px;
+  }
+
+  .inventory-actions button {
+    width: 100%;
+    padding: 10px;
+    font-size: 12px;
+  }
+
+  /* Form stili */
+  .inventory-form {
+    gap: 8px;
+  }
+
+  .inventory-form input {
+    padding: 8px;
+    font-size: 12px;
+  }
+
+  .inventory-form button {
+    padding: 8px;
+    font-size: 12px;
+  }
+
+  /* Tablo stilini küçültme */
+  .inventory-table {
+    font-size: 12px;
+  }
+
+  .inventory-table th,
+  .inventory-table td {
+    padding: 8px;
+  }
+
+  .inventory-table button {
+    padding: 4px 8px;
+    font-size: 10px;
+  }
+
+  .main-content {
+    margin-left: 300px;
+    width: calc(100% - 250px);
+    padding-top: 70px;
+    overflow-y: auto;
+    background-color: #f9f9f9;
+  }
+  
+}
