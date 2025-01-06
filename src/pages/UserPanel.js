@@ -128,15 +128,33 @@ const UserPanel = () => {
 
           {/* Recent Orders */}
           <div className="recent-orders-section">
-            <h2>Recent Orders</h2>
-            <ul>
-              {orders.slice(0, 5).map((order) => (
-                <li key={order.id}>
-                  Order #{order.id} - {order.status} ({order.date})
-                </li>
-              ))}
-            </ul>
+  <h2>Recent Orders</h2>
+  <ul>
+    {orders
+      .sort((a, b) => new Date(b.date) - new Date(a.date)) // Sort by date (latest first)
+      .slice(0, 10) // Get the first 10 orders
+      .map((order) => (
+        <li key={order.id} style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>
+          <div style={{ fontWeight: 'bold', marginBottom: '5px' }}>
+            Order #{order.id} - {order.status} 
           </div>
+          <div>
+            <strong>Product:</strong> {order.productName}
+          </div>
+          <div>
+            <strong>Quantity:</strong> {order.quantity}
+          </div>
+          <div>
+            <strong>Date:</strong> {order.date}
+          </div>
+        
+        </li>
+      ))}
+  </ul>
+  {orders.length === 0 && <p>No recent orders available.</p>}
+</div>
+
+
 
           <div className="user-panel-content">
             {/* Notifications */}
