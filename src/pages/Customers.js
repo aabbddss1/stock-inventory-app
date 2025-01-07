@@ -10,14 +10,14 @@ function Customers() {
   const [showModal, setShowModal] = useState(false);
   const [editingCustomer, setEditingCustomer] = useState(null);
 
-  const token = localStorage.getItem('token'); // Get the token from localStorage
+  const token = localStorage.getItem('token');
+  const axiosInstance = React.useMemo(() => {
+    return axios.create({
+      baseURL: 'http://localhost:5001/api',
+      headers: { Authorization: `Bearer ${token}` },
+    });
+  }, [token]);
 
-  const axiosInstance = axios.create({
-    baseURL: 'http://localhost:5001/api',
-    headers: { Authorization: `Bearer ${token}` },
-  });
-
-  // Fetch customer data from the backend
   useEffect(() => {
     if (!token) {
       console.error('No token found. Redirecting to login.');
@@ -40,7 +40,7 @@ function Customers() {
         }
         setLoading(false);
       });
-  }, [axiosInstance, token]);
+  }, [token]);
 
   // Handle adding a new customer
   const handleAdd = () => {
