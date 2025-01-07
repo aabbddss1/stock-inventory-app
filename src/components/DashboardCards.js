@@ -11,7 +11,8 @@ import {
   faListCheck, 
   faListAlt, 
   faPlus, 
-  faSync 
+  faSync, 
+  faUsers
 } from '@fortawesome/free-solid-svg-icons';
 import Modal from './Modal';
 import AddCustomer from '../pages/AddCustomer';
@@ -170,6 +171,12 @@ function DashboardCards() {
       onClick: () => setIsAddCustomerModalOpen(true),
     },
     {
+      title: `${users.length} Customers`,
+      icon: faUsers,
+      description: 'registered customers.',
+      onClick: () => (window.location.href = "http://localhost:3000/customers"),
+    },
+    {
       title: "Add Suppliers",
       icon: faTruck,
       onClick: () => setIsAddSupplierModalOpen(true),
@@ -179,7 +186,7 @@ function DashboardCards() {
       icon: faShoppingCart,
       onClick: () => (window.location.href = "http://localhost:3000/sales"),
     },
-    { title: "Orders", icon: faClipboardList },
+   
     {
       title: "Inventory",
       icon: faWarehouse,
