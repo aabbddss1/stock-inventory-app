@@ -79,3 +79,39 @@ body {
     font-size: 16px;
   }
 }
+
+.session-timer {
+  font-size: 0.9rem;
+  color: #fff;
+  background-color: rgba(0, 0, 0, 0.2);
+  padding: 4px 8px;
+  border-radius: 4px;
+  margin-right: 15px;
+}
+
+/* When session is about to expire (you can add this logic in the component) */
+.session-timer.expiring {
+  color: #ff6b6b;
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/* Adjust for mobile */
+@media (max-width: 768px) {
+  .session-timer {
+    margin: 10px 0;
+    text-align: center;
+    display: block;
+  }
+}
