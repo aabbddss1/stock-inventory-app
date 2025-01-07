@@ -204,7 +204,7 @@ function DashboardCards() {
   return (
     <div className="dashboard-container">
       <div className="dashboard-header">
-        <h2>Dashboard</h2>
+        <h2>Admin Dashboard</h2>
         <div className="dashboard-controls">
           <span className="last-refresh">
             Last updated: {lastRefresh.toLocaleTimeString()}

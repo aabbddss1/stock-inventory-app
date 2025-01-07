@@ -58,7 +58,7 @@ function TopNavbar() {
     <div className="top-navbar">
       <div className="title">
         {userRole === 'admin'
-          ? 'Qubite Stock Inventory Admin Page'
+          ? 'Qubite Stock Management Systems'
           : 'Qubite User Dashboard'}
       </div>
 
