@@ -269,14 +269,63 @@
   margin-bottom: 5px;
 }
 @media (max-width: 600px) {
+  /* Create Order kısmı: Form elemanlarını küçültüyoruz */
   .create-order-form input {
-    flex: 1 1 100%; /* Full width */
+    flex: 1 1 100%; /* Tam genişlikte */
+    font-size: 12px; /* Font boyutunu küçültüyoruz */
+    padding: 6px; /* Padding'i azaltıyoruz */
   }
 
+  /* Orders tablosunu daha da küçültüyoruz */
+  .orders-table-container {
+    width: 100%;
+    margin-bottom: 15px; /* Tablo altına boşluk ekliyoruz */
+  }
+
+  .orders-table {
+    min-width: 300px; /* Tabloyu küçültüyoruz */
+    table-layout: fixed; /* Sabit hücre genişliği */
+    font-size: 10px; /* Yazı boyutunu küçültüyoruz */
+  }
+
+  .orders-table th, .orders-table td {
+    padding: 4px; /* Hücre içi boşlukları azaltıyoruz */
+  }
+
+  /* Create Order formundaki satırları sıkıştırıyoruz */
   .create-order-form .form-group {
     flex: 1 1 100%;
+    margin-bottom: 8px; /* Form elemanları arasındaki boşluğu azaltıyoruz */
+  }
+
+  .form-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+    align-items: center;
+    flex-direction: column; /* Form elemanlarını dikey hizalıyoruz */
+  }
+
+  /* Quantity ve Price elemanlarını alt alta diziyoruz */
+  .create-order-form .form-group .quantity {
+    order: 1; /* Quantity ilk sırada */
+  }
+
+  .create-order-form .form-group .price {
+    order: 2; /* Price ikinci sırada */
+  }
+
+  /* Price ve Quantity arasındaki boşlukları azaltıyoruz */
+  .create-order-form .form-group {
+    margin-bottom: 8px; /* Alt elemanlar arasındaki boşluğu azaltıyoruz */
+  }
+
+  .edit-btn, .delete-btn {
+    font-size: 10px; /* Reduce font size */
+    padding: 4px 8px; /* Reduce padding */
   }
 }
+
 .create-order-form {
   background: #f9f9f9;
 }

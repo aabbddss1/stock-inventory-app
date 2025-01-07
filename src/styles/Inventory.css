@@ -180,11 +180,6 @@
     height: auto;
   }
 
-  .main-content {
-    margin-left: 0;
-    width: 100%;
-    padding-top: 50px;
-  }
 
   .inventory-container {
     padding: 10px;
@@ -243,14 +238,6 @@
   .inventory-table button {
     padding: 4px 8px;
     font-size: 10px;
-  }
-
-  .main-content {
-    margin-left: 300px;
-    width: calc(100% - 250px);
-    padding-top: 70px;
-    overflow-y: auto;
-    background-color: #f9f9f9;
   }
   
 }

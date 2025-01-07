@@ -134,6 +134,31 @@
   font-size: 14px;
 }
 
+.modal-actions .save-btn {
+  background-color: #4caf50;
+  cursor: pointer;
+}
+
+.modal-actions .save-btn:hover {
+  background-color: #0b8e0f;
+}
+
+.modal-actions .cancel-btn {
+  background-color: red;
+  cursor: pointer;
+}
+
+.modal-actions .cancel-btn:hover {
+  background-color: #bc2116;
+}
+
+
+.modal-actions .save-btn,
+.modal-actions .cancel-btn {
+  width: 100%;
+  margin-bottom: 10px;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .customers-page {
@@ -170,6 +195,25 @@
     width: 90%;
     padding: 15px;
   }
+
+
+
+  .modal-actions .save-btn {
+    background-color: #4caf50;
+  }
+
+  .modal-actions .save-btn:hover {
+    background-color: #0b8e0f;
+  }
+
+  .modal-actions .cancel-btn {
+    background-color: red;
+  }
+
+  .modal-actions .cancel-btn:hover {
+    background-color: #bc2116;
+  }
+  
 
   .modal-actions .save-btn,
   .modal-actions .cancel-btn {
