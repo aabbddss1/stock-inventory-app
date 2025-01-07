@@ -268,61 +268,155 @@
   color: #666;
   margin-bottom: 5px;
 }
-@media (max-width: 600px) {
-  /* Create Order kısmı: Form elemanlarını küçültüyoruz */
-  .create-order-form input {
-    flex: 1 1 100%; /* Tam genişlikte */
-    font-size: 12px; /* Font boyutunu küçültüyoruz */
-    padding: 6px; /* Padding'i azaltıyoruz */
-  }
-
-  /* Orders tablosunu daha da küçültüyoruz */
-  .orders-table-container {
+@media (max-width: 768px) {
+  /* Main layout adjustments */
+  .main-content {
+    margin-left: 0;
     width: 100%;
-    margin-bottom: 15px; /* Tablo altına boşluk ekliyoruz */
+    padding-top: 60px;
   }
 
+  .orders-container {
+    padding: 10px;
+  }
+
+  /* Table responsiveness */
   .orders-table {
-    min-width: 300px; /* Tabloyu küçültüyoruz */
-    table-layout: fixed; /* Sabit hücre genişliği */
-    font-size: 10px; /* Yazı boyutunu küçültüyoruz */
+    font-size: 12px;
   }
 
-  .orders-table th, .orders-table td {
-    padding: 4px; /* Hücre içi boşlukları azaltıyoruz */
+  .orders-table th,
+  .orders-table td {
+    padding: 8px 5px;
   }
 
-  /* Create Order formundaki satırları sıkıştırıyoruz */
-  .create-order-form .form-group {
-    flex: 1 1 100%;
-    margin-bottom: 8px; /* Form elemanları arasındaki boşluğu azaltıyoruz */
+  /* Actions and buttons */
+  .actions-cell {
+    flex-direction: column;
+    gap: 5px;
   }
 
-  .form-row {
-    display: flex;
+  .actions-dropdown {
+    width: 100%;
+    font-size: 12px;
+  }
+
+  .actions-cell button {
+    width: 100%;
+    font-size: 11px;
+  }
+
+  /* Create Order Form */
+  .create-order-form {
+    padding: 15px;
+  }
+
+  .create-order-form form {
     gap: 8px;
-    margin-bottom: 12px;
-    align-items: center;
-    flex-direction: column; /* Form elemanlarını dikey hizalıyoruz */
   }
 
-  /* Quantity ve Price elemanlarını alt alta diziyoruz */
-  .create-order-form .form-group .quantity {
-    order: 1; /* Quantity ilk sırada */
+  .create-order-form input {
+    flex: 1 1 100%;
+    padding: 8px;
+    font-size: 13px;
   }
 
-  .create-order-form .form-group .price {
-    order: 2; /* Price ikinci sırada */
+  .create-order-form button {
+    width: 100%;
+    height: 36px;
+    line-height: 36px;
+    font-size: 13px;
   }
 
-  /* Price ve Quantity arasındaki boşlukları azaltıyoruz */
-  .create-order-form .form-group {
-    margin-bottom: 8px; /* Alt elemanlar arasındaki boşluğu azaltıyoruz */
+  /* Orders actions */
+  .orders-actions {
+    flex-direction: column;
+    gap: 10px;
   }
 
-  .edit-btn, .delete-btn {
-    font-size: 10px; /* Reduce font size */
-    padding: 4px 8px; /* Reduce padding */
+  .orders-actions input {
+    width: 100%;
+    font-size: 13px;
+  }
+
+  .orders-actions button {
+    width: 100%;
+  }
+
+  /* Edit Order Modal */
+  .edit-order-modal-content {
+    width: 90%;
+    max-width: 350px;
+    margin: 10px;
+  }
+
+  .edit-order-container {
+    padding: 15px;
+  }
+
+  .edit-order-title {
+    font-size: 20px;
+  }
+
+  .edit-order-input-container {
+    min-width: 100%;
+  }
+
+  .edit-order-input {
+    padding: 10px;
+    font-size: 14px;
+  }
+
+  .edit-order-button,
+  .cancel-order-button {
+    padding: 10px;
+    font-size: 14px;
+  }
+
+  /* Form groups and rows */
+  .form-row {
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 15px;
+  }
+
+  select {
+    padding: 8px;
+    font-size: 13px;
+  }
+
+  /* Buttons */
+  .edit-btn,
+  .delete-btn {
+    width: 100%;
+    margin: 2px 0;
+    padding: 6px 8px;
+    font-size: 11px;
+  }
+
+  /* Loading spinner */
+  .loading-spinner {
+    font-size: 20px;
+    padding: 15px;
+  }
+}
+
+/* Additional mobile adjustments for even smaller screens */
+@media (max-width: 480px) {
+  .orders-table {
+    font-size: 11px;
+  }
+
+  .edit-order-title {
+    font-size: 18px;
+  }
+
+  .create-order-form h2 {
+    font-size: 18px;
+  }
+
+  .orders-container {
+    padding: 8px;
   }
 }
 

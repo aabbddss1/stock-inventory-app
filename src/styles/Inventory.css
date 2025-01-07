@@ -174,70 +174,176 @@
 }
 
 @media (max-width: 768px) {
-  /* Genel yerleşim */
+  /* Main Layout */
+  .main-content {
+    margin-left: 0;
+    width: 100%;
+    padding-top: 60px;
+  }
+
   .inventory-page {
     flex-direction: column;
     height: auto;
   }
 
-
   .inventory-container {
     padding: 10px;
   }
 
-  /* Başlık boyutlandırma */
+  /* Header */
   .inventory-container h1 {
-    font-size: 18px;
+    font-size: 20px;
     margin-bottom: 15px;
+    text-align: center;
   }
 
-  /* Arama ve dışa aktarma işlemleri */
+  /* Search and Actions */
   .inventory-actions {
     flex-direction: column;
-    align-items: flex-start;
     gap: 10px;
+    margin-bottom: 15px;
   }
 
   .inventory-actions input {
     width: 100%;
     padding: 8px;
-    font-size: 12px;
+    font-size: 13px;
   }
 
   .inventory-actions button {
     width: 100%;
-    padding: 10px;
-    font-size: 12px;
+    padding: 8px;
+    font-size: 13px;
   }
 
-  /* Form stili */
+  /* Form */
   .inventory-form {
     gap: 8px;
+    padding: 10px;
+    background-color: #fff;
+    border-radius: 5px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   }
 
   .inventory-form input {
     padding: 8px;
-    font-size: 12px;
+    font-size: 13px;
   }
 
   .inventory-form button {
-    padding: 8px;
-    font-size: 12px;
+    padding: 10px;
+    font-size: 13px;
   }
 
-  /* Tablo stilini küçültme */
+  /* Table */
   .inventory-table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
     font-size: 12px;
+    border-radius: 5px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   }
 
   .inventory-table th,
   .inventory-table td {
-    padding: 8px;
+    padding: 8px 6px;
   }
 
+  .inventory-table th {
+    font-size: 12px;
+    white-space: nowrap;
+  }
+
+  /* Table Actions */
   .inventory-table button {
     padding: 4px 8px;
+    font-size: 11px;
+    margin: 2px;
+  }
+
+  .edit-btn,
+  .delete-btn {
+    max-width: 55px; /* Eni daha da küçültüldü */
+    padding: 3px 4px; /* Yanlardaki boşluğu azalttım */
     font-size: 10px;
   }
   
+  /* Status Indicators */
+  .inventory-table td.status-cell {
+    padding-left: 25px;
+  }
+
+  .inventory-table td.status-cell:before {
+    width: 8px;
+    height: 8px;
+    left: 10px;
+  }
+}
+
+/* Extra small devices */
+@media (max-width: 480px) {
+  .inventory-container {
+    padding: 8px;
+  }
+
+  .inventory-container h1 {
+    font-size: 18px;
+    margin-bottom: 12px;
+  }
+
+  .inventory-actions input,
+  .inventory-actions button,
+  .inventory-form input,
+  .inventory-form button {
+    font-size: 12px;
+    padding: 6px;
+  }
+
+  .inventory-table {
+    font-size: 11px;
+  }
+
+  .inventory-table th,
+  .inventory-table td {
+    padding: 6px 4px;
+  }
+
+  .inventory-table button {
+    padding: 3px 6px;
+    font-size: 10px;
+    min-width: 50px;
+  }
+
+  /* Status cell adjustments */
+  .inventory-table td.status-cell {
+    padding-left: 20px;
+  }
+
+  .inventory-table td.status-cell:before {
+    width: 6px;
+    height: 6px;
+    left: 8px;
+  }
+}
+
+/* Landscape orientation adjustments */
+@media (max-width: 768px) and (orientation: landscape) {
+  .inventory-table {
+    max-height: 60vh;
+    overflow-y: auto;
+  }
+
+  .inventory-actions {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .inventory-actions input {
+    width: calc(70% - 10px);
+  }
+
+  .inventory-actions button {
+    width: 30%;
+  }
 }
