@@ -104,14 +104,24 @@ function Sidebar() {
           </>
         )}
 
-        {/* User Documents */}
-        <NavLink
-          to="/documents"
-          className={({ isActive }) => (isActive ? 'active-link' : '')}
-          end
-        >
-          <FontAwesomeIcon icon={faFolderOpen} /> <span className="hidingtext">Documents</span>
-        </NavLink>
+        {/* Documents Links */}
+        {userRole === 'admin' ? (
+          <NavLink
+            to="/documents"
+            className={({ isActive }) => (isActive ? 'active-link' : '')}
+            end
+          >
+            <FontAwesomeIcon icon={faFolderOpen} /> <span className="hidingtext">Documents</span>
+          </NavLink>
+        ) : (
+          <NavLink
+            to="/user/documents"
+            className={({ isActive }) => (isActive ? 'active-link' : '')}
+            end
+          >
+            <FontAwesomeIcon icon={faFolderOpen} /> <span className="hidingtext">My Documents</span>
+          </NavLink>
+        )}
 
         <h3 className="hidingtext">ACCOUNTS</h3>
 

@@ -145,12 +145,8 @@ router.get('/:id', async (req, res) => {
 });
 
 // Fetch documents for a specific user
-router.get('/user-documents', async (req, res) => {
-    const { customerId } = req.query;
-
-    if (!customerId) {
-        return res.status(400).json({ error: 'Customer ID is required' });
-    }
+router.get('/user/:customerId', async (req, res) => {
+    const { customerId } = req.params;
 
     try {
         const [documents] = await db.promise().query(
@@ -158,11 +154,10 @@ router.get('/user-documents', async (req, res) => {
             [customerId]
         );
 
-        if (documents.length === 0) {
-            return res.status(404).json({ message: 'No documents found for this user' });
-        }
-
-        res.status(200).json({ documents });
+        res.status(200).json({ 
+            documents,
+            totalCount: documents.length 
+        });
     } catch (err) {
         handleError(res, err, 'Failed to fetch user documents');
     }

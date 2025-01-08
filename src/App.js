@@ -19,6 +19,7 @@ import ProtectedRoute from './components/ProtectedRoute'; // Ensure protection f
 import './styles/App.css';
 import SalesPage from './pages/SalesPage'; // Import the new Sales page
 import UserInventory from './pages/UserInventory'; // User portal
+import UserDocuments from './pages/UserDocuments';
 
 
 
@@ -76,6 +77,7 @@ function App() {
           <Route path="/documents" element={<ProtectedRoute><Documents /></ProtectedRoute>} />
           <Route path="/sales" element={<ProtectedRoute><SalesPage /></ProtectedRoute>} />
           <Route path="/user/inventory" element={<UserInventory />} />
+          <Route path="/user/documents" element={<UserDocuments />} />
 
 
           {/* Optional Routes for Add Customer and Add Supplier */}
