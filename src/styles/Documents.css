@@ -96,9 +96,6 @@
     background-color: #f1f1f1;
   }
   
-  
-  
-  /* File Upload Styling */
   .documents-form input[type="file"] {
     padding: 5px;
     font-size: 14px;

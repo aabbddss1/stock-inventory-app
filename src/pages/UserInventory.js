@@ -72,16 +72,16 @@ const UserInventory = () => {
           <h1>Inventory</h1>
 
           {/* Search and Export */}
-          <div className="inventory-actions">
+          <div className="inventory-export">
             <input
               type="text"
               placeholder="Search by name or category"
               value={searchTerm}
               onChange={handleSearch}
             />
-            <button onClick={exportAsExcel}>
-              <i className="fa fa-th"></i> Export to Excel
-            </button>
+            <button className="export-button" onClick={exportAsExcel}>
+  <i className="fa fa-th"></i> Export to Excel
+</button>
           </div>
 
           {/* Inventory Table */}

@@ -274,8 +274,17 @@ margin-right: 0; /* Son butonun sağında boşluk olmaması için */
     height: 8px;
     left: 6px;
   }
-}
 
+  .inventory-export button {
+    padding: 12px;
+    font-size: 12px;
+    width: 50%;
+  }
+
+  .inventory-export {
+    gap: 10px; /* Arama çubuğu ile buton arasında boşluk ekler */
+  }
+}
 /* Landscape orientation adjustments */
 @media (max-width: 768px) and (orientation: landscape) {
   .inventory-table {
