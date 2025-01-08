@@ -9,15 +9,9 @@ const salesRoutes = require('./routes/salesRoutes');
 const inventoryRoutes = require('./routes/inventoryRoutes');
 const documentRoutes = require('./routes/documentRoutes');
 const adminUsersRoutes = require('./routes/adminUsers'); // Import the route
-const jwt = require('jsonwebtoken'); // Add this import at the top with other requires
-const authenticateToken = require('./middleware/authenticate');
-const path = require('path'); // Add this import
 
 
 dotenv.config();
-
-// Add JWT secret to your environment variables
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key'; // Make sure to set this in .env
 
 const app = express();
 
@@ -58,8 +52,8 @@ app.post('/api/send-email', async (req, res) => {
     }
 });
 
-// Now the notifications route can use authenticateToken
-app.get('/api/notifications', authenticateToken, (req, res) => {
+// Notifications Endpoint
+app.get('/api/notifications', (req, res) => {
     const notifications = [
         { id: 1, message: 'New order received', date: '2024-12-20' },
         { id: 2, message: 'Inventory updated', date: '2024-12-19' },
@@ -80,27 +74,10 @@ app.get('/', (req, res) => {
     res.send('Welcome to the Stock Inventory API!');
 });
 
-// Add login endpoint
-app.post('/api/login', async (req, res) => {
-  const { username, password } = req.body;
-  
-  // Add your user verification logic here
-  // if (user is verified) {
-    const token = jwt.sign(
-      { username: username }, 
-      JWT_SECRET, 
-      { expiresIn: '24h' } // Set token expiration to 24 hours
-    );
-    res.json({ token });
-  // }
-});
-
-// Serve static files from the React build directory
-app.use(express.static(path.join(__dirname, '../build')));
-
-// Handle React routing, return all requests to React app
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../build', 'index.html'));
+// 404 Handler
+app.use((req, res) => {
+    console.error(`404 Not Found: ${req.method} ${req.url}`);
+    res.status(404).json({ error: 'Route not found' });
 });
 
 // Global Error Handler
