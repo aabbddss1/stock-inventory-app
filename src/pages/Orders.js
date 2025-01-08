@@ -20,6 +20,8 @@ const Orders = () => {
     quantity: '',
     price: '',
   });
+  const [sortOrder, setSortOrder] = useState('desc');
+  const [quantitySortOrder, setQuantitySortOrder] = useState('desc');
 
   const token = localStorage.getItem('token');
   const userData = JSON.parse(atob(token.split('.')[1])); // Decode token to get user data
@@ -196,6 +198,28 @@ const Orders = () => {
     }
   };
 
+  const toggleSortOrder = () => {
+    const newOrder = sortOrder === 'desc' ? 'asc' : 'desc';
+    setSortOrder(newOrder);
+    const sorted = [...filteredOrders].sort((a, b) => {
+      return newOrder === 'desc' 
+        ? new Date(b.orderDate) - new Date(a.orderDate)
+        : new Date(a.orderDate) - new Date(b.orderDate);
+    });
+    setFilteredOrders(sorted);
+  };
+
+  const toggleQuantitySort = () => {
+    const newOrder = quantitySortOrder === 'desc' ? 'asc' : 'desc';
+    setQuantitySortOrder(newOrder);
+    const sorted = [...filteredOrders].sort((a, b) => {
+      return newOrder === 'desc' 
+        ? b.quantity - a.quantity
+        : a.quantity - b.quantity;
+    });
+    setFilteredOrders(sorted);
+  };
+
   return (
     <div className="orders-page">
       <Sidebar />
@@ -301,8 +325,22 @@ const Orders = () => {
                 <tr>
                   <th>Client Name</th>
                   <th>Product Name</th>
-                  <th>Date</th>
-                  <th>Quantity</th>
+                  <th>
+                    Date 
+                    <i 
+                      className={`fas fa-sort${sortOrder === 'desc' ? '-down' : '-up'}`} 
+                      onClick={toggleSortOrder}
+                      style={{ marginLeft: '5px', cursor: 'pointer' }}
+                    />
+                  </th>
+                  <th>
+                    Quantity
+                    <i 
+                      className={`fas fa-sort${quantitySortOrder === 'desc' ? '-down' : '-up'}`} 
+                      onClick={toggleQuantitySort}
+                      style={{ marginLeft: '5px', cursor: 'pointer' }}
+                    />
+                  </th>
                   <th>Price</th>
                   <th>Status</th>
                   <th>Actions</th> 
@@ -310,7 +348,12 @@ const Orders = () => {
               </thead>
               <tbody>
                 {filteredOrders.map((order) => (
-                  <tr key={order.id}>
+                  <tr 
+                    key={order.id} 
+                    onClick={() => handleEditOrder(order)}
+                    style={{ cursor: 'pointer' }}
+                    className="order-row"
+                  >
                     <td>{order.clientName}</td>
                     <td>{order.productName}</td>
                     <td>{order.orderDate ? new Date(order.orderDate).toLocaleString() : 'N/A'}</td>
@@ -319,7 +362,10 @@ const Orders = () => {
                     <td>
                       {userRole === 'admin' ? (
                         <select
-                          onChange={(e) => handleStatusChange(order.id, e.target.value)}
+                          onChange={(e) => {
+                            e.stopPropagation(); // Prevent row click when using select
+                            handleStatusChange(order.id, e.target.value);
+                          }}
                           value={order.status}
                           disabled={actionLoading}
                         >
@@ -332,7 +378,7 @@ const Orders = () => {
                         order.status
                       )}
                     </td>
-                    <td>
+                    <td onClick={(e) => e.stopPropagation()}> {/* Prevent row click when clicking buttons */}
                       <button
                         className="edit-btn"
                         onClick={() => handleEditOrder(order)}
