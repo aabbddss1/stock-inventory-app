@@ -25,7 +25,8 @@
     "jspdf-autotable": "^3.5.28",
     "react-calendar": "^4.6.0",
     "bcrypt": "^5.1.1",
-    "bcryptjs": "^2.4.3"
+    "bcryptjs": "^2.4.3",
+    "mysql2": "^3.6.0"
   },
   "scripts": {
     "start": "node backend/server.js",
