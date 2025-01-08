@@ -19,6 +19,7 @@ import AddCustomer from '../pages/AddCustomer';
 import AddSupplier from '../pages/AddSupplier';
 import axios from 'axios'; // Axios for API calls
 import '../styles/DashboardCards.css';
+import API_BASE_URL from '../config';
 
 function DashboardCards() {
   const [isAddCustomerModalOpen, setIsAddCustomerModalOpen] = useState(false);
@@ -57,10 +58,10 @@ function DashboardCards() {
     try {
       const [ordersResponse, notificationsResponse, usersResponse, inventoryResponse] = 
         await Promise.all([
-          axios.get('http://localhost:5001/api/orders'),
-          axios.get('http://localhost:5001/api/notifications'),
-          axios.get('http://localhost:5001/api/customers'),
-          axios.get('http://localhost:5001/api/inventory')
+          axios.get(`${API_BASE_URL}/api/orders`),
+          axios.get(`${API_BASE_URL}/api/notifications`),
+          axios.get(`${API_BASE_URL}/api/customers`),
+          axios.get(`${API_BASE_URL}/api/inventory`)
         ]);
 
       setOrders(ordersResponse.data);
@@ -105,7 +106,7 @@ function DashboardCards() {
 
     setActionLoading(true);
     try {
-      await axios.post('http://localhost:5001/api/orders', newOrder);
+      await axios.post(`${API_BASE_URL}/api/orders`, newOrder);
       alert('Quick order created successfully!');
       setNewOrder({ clientEmail: '', productName: '', quantity: '', price: '' });
       setIsQuickOrderModalOpen(false); // Close modal after creation
@@ -120,7 +121,7 @@ function DashboardCards() {
   // Handle saving a new customer
   const handleSaveCustomer = async (customer) => {
     try {
-      const response = await axios.post('http://localhost:5001/api/customers', {
+      const response = await axios.post(`${API_BASE_URL}/api/customers`, {
         ...customer,
         role: 'user', // Default role for quick addition
       });

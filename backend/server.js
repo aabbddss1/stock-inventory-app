@@ -11,6 +11,7 @@ const documentRoutes = require('./routes/documentRoutes');
 const adminUsersRoutes = require('./routes/adminUsers'); // Import the route
 const jwt = require('jsonwebtoken'); // Add this import at the top with other requires
 const authenticateToken = require('./middleware/authenticate');
+const path = require('path'); // Add this import
 
 
 dotenv.config();
@@ -94,10 +95,12 @@ app.post('/api/login', async (req, res) => {
   // }
 });
 
-// 404 Handler
-app.use((req, res) => {
-    console.error(`404 Not Found: ${req.method} ${req.url}`);
-    res.status(404).json({ error: 'Route not found' });
+// Serve static files from the React build directory
+app.use(express.static(path.join(__dirname, '../build')));
+
+// Handle React routing, return all requests to React app
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../build', 'index.html'));
 });
 
 // Global Error Handler
