@@ -350,9 +350,9 @@ const Orders = () => {
                 {filteredOrders.map((order) => (
                   <tr 
                     key={order.id} 
-                    onClick={() => handleEditOrder(order)}
-                    style={{ cursor: 'pointer' }}
-                    className="order-row"
+                    onClick={userRole === 'admin' ? () => handleEditOrder(order) : undefined}
+                    style={{ cursor: userRole === 'admin' ? 'pointer' :'default' }}
+                    className={userRole === 'admin' ? 'order-row' :''}
                   >
                     <td>{order.clientName}</td>
                     <td>{order.productName}</td>
@@ -363,7 +363,7 @@ const Orders = () => {
                       {userRole === 'admin' ? (
                         <select
                           onChange={(e) => {
-                            e.stopPropagation(); // Prevent row click when using select
+                            e.stopPropagation();
                             handleStatusChange(order.id, e.target.value);
                           }}
                           value={order.status}
@@ -378,13 +378,13 @@ const Orders = () => {
                         order.status
                       )}
                     </td>
-                    <td onClick={(e) => e.stopPropagation()}> {/* Prevent row click when clicking buttons */}
+                    <td onClick={(e) => e.stopPropagation()}>
                       <button
                         className="edit-order-btn"
                         onClick={() => handleEditOrder(order)}
                         disabled={userRole !== 'admin' && order.status !== 'Pending'}
                       >
-                        <i className="fas fa-edit"></i>
+                        <i className="fas fa-edit" style={{ marginRight: '5px' }}></i>
                         Edit
                       </button>
                       <button
@@ -392,7 +392,7 @@ const Orders = () => {
                         onClick={() => handleDelete(order.id)}
                         disabled={userRole !== 'admin' && order.status !== 'Pending'}
                       >
-                        <i className="fas fa-trash"></i>
+                        <i className="fas fa-trash" style={{ marginRight:'5px' }}></i>
                         Delete
                       </button>
                     </td>
