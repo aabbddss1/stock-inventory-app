@@ -148,7 +148,7 @@ const Inventory = () => {
           <h1>Inventory</h1>
 
           {/* Search and Export */}
-          <div className="inventory-actions">
+          <div className="inventory-export">
             <input
               type="text"
               placeholder="Search by name or category"
@@ -231,11 +231,11 @@ const Inventory = () => {
                   </td>
                   <td>
                     <div>
-                      <button className="edit-btn" onClick={() => handleEdit(product)}>
+                      <button className="inventory-edit-btn" onClick={() => handleEdit(product)}>
                         <i className="fas fa-edit" style={{ marginRight: '5px' }}></i>
                         Edit
                       </button>
-                      <button className="delete-btn" onClick={() => handleDelete(product.id)}>
+                      <button className="inventory-delete-btn" onClick={() => handleDelete(product.id)}>
                         <i className="fas fa-trash" style={{ marginRight: '5px' }}></i>
                         Delete
                       </button>

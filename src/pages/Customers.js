@@ -137,7 +137,7 @@ function Customers() {
                     <td>{'********'}</td>
                     <td>
                       <button
-                        className="edit-btn"
+                        className="customers-edit-btn"
                         onClick={() => {
                           setEditingCustomer(customer);
                           setShowModal(true);
@@ -147,7 +147,7 @@ function Customers() {
                         Edit
                       </button>
                       <button
-                        className="delete-btn"
+                        className="customers-delete-btn"
                         onClick={() => handleDelete(customer.id)}
                       >
                         <i className="fas fa-trash"></i>

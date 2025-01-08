@@ -24,15 +24,15 @@
   color: #2c3e50;
 }
 
-/* Search and Export Actions */
-.inventory-actions {
+.inventory-export {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
+  
 }
 
-.inventory-actions input {
+.inventory-export input {
   width: 50%;
   padding: 10px;
   font-size: 14px;
@@ -40,7 +40,7 @@
   border-radius: 5px;
 }
 
-.inventory-actions button {
+.inventory-export button {
   padding: 10px 15px;
   background-color: #3498db;
   color: white;
@@ -50,11 +50,10 @@
   cursor: pointer;
 }
 
-.inventory-actions button:hover {
+.inventory-export button:hover {
   background-color: #2980b9;
 }
 
-/* Form Styling */
 .inventory-form {
   display: flex;
   flex-direction: column;
@@ -82,7 +81,6 @@
   background-color: #0b8e0f;
 }
 
-/* Inventory Table */
 .inventory-table {
   width: 100%;
   border-collapse: collapse;
@@ -108,7 +106,6 @@
   background-color: #f1f1f1;
 }
 
-/* Action Buttons in Table */
 .inventory-table button {
   padding: 5px 10px;
   border: none;
@@ -117,7 +114,7 @@
   font-size: 12px;
 }
 
-.edit-btn {
+.inventory-edit-btn {
   background-color: #3498db;
   color: white;
   border: none;
@@ -126,11 +123,11 @@
   border-radius: 4px;
 }
 
-.edit-btn:hover {
+.inventory-edit-btn:hover {
   background-color: #0873bb;
 }
 
-.delete-btn {
+.inventory-delete-btn {
   background-color: red;
   color: white;
   padding: 6px 10px;
@@ -140,8 +137,17 @@
   margin-right: 5px;
 }
 
-.delete-btn:hover {
+.inventory-delete-btn:hover {
   background-color: #bc2116;
+}
+
+.inventory-edit-btn,
+.inventory-delete-btn {
+margin-right: 5px; /* İki buton arasına boşluk eklemek için */
+}
+
+.inventory-edit-btn:last-child {
+margin-right: 0; /* Son butonun sağında boşluk olmaması için */
 }
 
 /* Status Colors */
@@ -200,8 +206,8 @@
   }
 
   /* Compact the action buttons */
-  .edit-btn,
-  .delete-btn {
+  .inventory-edit-btn,
+  .inventory-delete-btn {
     padding: 6px 8px;
     font-size: 12px;
     margin: 2px;
@@ -236,8 +242,8 @@
   }
 
   /* Improve button touch targets */
-  .edit-btn,
-  .delete-btn {
+  .inventory-edit-btn,
+  .inventory-delete-btn {
     padding: 10px 15px;
     font-size: 16px;
   }
