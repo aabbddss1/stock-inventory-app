@@ -1,275 +1,362 @@
-/* src/styles/Orders.css */
-
 .orders-page {
-    display: flex;
-    height: 100vh;
-  }
-  
-  .main-content {
-    margin-left: 250px; /* Same as sidebar width */
-    width: calc(100% - 250px);
-    padding-top: 70px; /* Space for top navbar */
-    overflow-y: auto;
-    background-color: #f9f9f9;
-  }
-  
-  .orders-container {
-    padding: 20px;
-  }
-  
-  .orders-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-  }
-  
-  .orders-table th,
-  .orders-table td {
-    text-align: left;
-    padding: 10px;
-    border-bottom: 1px solid #ddd;
-  }
-  
-  .orders-table th {
-    background-color: #3aafa9;
-    color: white;
-  }
-  
-  .orders-table td {
-    background-color: #ffffff;
-  }
-  
-  .orders-table tr:hover {
-    background-color: #f1f1f1;
-  }
-  
-  
-  
-  .orders-table input[type='file'] {
-    font-size: 12px;
-    margin-top: 10px;
-  }
-  
-  .edit-order {
-    margin-top: 30px;
-    padding: 20px;
-    background-color: #ffffff;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    border-radius: 10px;
-  }
-  .orders-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-  }
-  
-  .orders-table th,
-  .orders-table td {
-    text-align: left;
-    padding: 10px;
-    border-bottom: 1px solid #ddd;
-  }
-  
-  .orders-table th {
-    background-color: #3aafa9;
-    color: white;
-  }
-  
-  .orders-table td {
-    background-color: #ffffff;
-  }
-  
-  .orders-table tr:hover {
-    background-color: #f1f1f1;
-  }
-  
-  .actions-dropdown {
-    padding: 5px 10px;
-    font-size: 14px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    background-color: #ffffff;
-    cursor: pointer;
-  }
-  
-  .actions-dropdown:focus {
-    outline: none;
-    border-color: #3498db;
-  }
-  /* src/styles/Orders.css */
+  display: flex;
+  height: 100vh;
+}
+
+.main-content {
+  margin-left: 250px; /* Same as sidebar width */
+  width: calc(100% - 250px);
+  padding-top: 70px; /* Space for top navbar */
+  overflow-y: auto;
+  background-color: #f9f9f9;
+}
+
+.orders-container {
+  padding: 20px;
+}
 
 .orders-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-  }
-  
-  .orders-table th,
-  .orders-table td {
-    text-align: left;
-    padding: 10px;
-    border-bottom: 1px solid #ddd;
-  }
-  
-  .orders-table th {
-    background-color: #3aafa9;
-    color: white;
-  }
-  
-  .orders-table td {
-    background-color: #ffffff;
-  }
-  
-  .orders-table tr:hover {
-    background-color: #f1f1f1;
-  }
-  
-  .actions-cell {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-  }
-  
-  .actions-dropdown {
-    padding: 5px 10px;
-    font-size: 14px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    background-color: #ffffff;
-    cursor: pointer;
-  }
-  
-  .actions-dropdown:focus {
-    outline: none;
-    border-color: #3498db;
-  }
-  
-  .actions-cell button {
-    padding: 5px 10px;
-    background-color: #3498db;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 12px;
-  }
-  
-  .actions-cell button:hover {
-    background-color: #2980b9;
-  }
-  
-  .upload-button {
-    padding: 5px 10px;
-    background-color: #f39c12;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 12px;
-  }
-  
-  .upload-button:hover {
-    background-color: #e67e22;
-  }
-  
-  .edit-order {
-    margin-top: 30px;
-    padding: 20px;
-    background-color: #ffffff;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    border-radius: 10px;
-  }
-  .file-list {
-    list-style: none;
-    padding: 0;
-    margin: 10px 0;
-  }
-  
-  .file-list li {
-    margin: 5px 0;
-  }
-  
-  .delete-file-btn {
-    background-color: red;
-    color: white;
-    border: none;
-    padding: 2px 5px;
-    cursor: pointer;
-  }
-  
-  .delete-file-btn:hover {
-    background-color: darkred;
-  }
-  
-  /* Create Order Form */
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.orders-table th,
+.orders-table td {
+  text-align: left;
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+.orders-table th {
+  background-color: #3aafa9;
+  color: white;
+}
+
+.orders-table tr:hover {
+  background-color: #f1f1f1;
+}
+
+.actions-dropdown:focus {
+  outline: none;
+  border-color: #3498db;
+}
+
+.delete-order-btn {
+  background-color: red;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+.delete-order-btn:hover {
+  background-color: #bc2116;
+}
+
+.edit-order-btn {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+.edit-order-btn:hover {
+  background-color: #0873bb;
+}
+
+.edit-order-btn:disabled,
+.delete-order-btn:disabled {
+  visibility: hidden;
+}
+
+.edit-order-btn,
+.delete-order-btn {
+margin-right: 5px; /* İki buton arasına boşluk eklemek için */
+}
+
+.edit-order-btn:last-child {
+margin-right: 0; /* Son butonun sağında boşluk olmaması için */
+}
+
 .create-order-form {
-  background: none; /* No card style */
-  padding: 20px;
-  margin: 10px 0;
-  border: 1px solid #ddd; /* Subtle border */
-  border-radius: 5px; /* Slight rounding */
+background: none; /* No card style */
+padding: 20px;
+margin: 10px 0;
+border: 1px solid #ddd; /* Subtle border */
+border-radius: 5px; /* Slight rounding */
 }
 
 .create-order-form h2 {
-  font-size: 20px;
-  color: #333;
-  margin-bottom: 15px;
+font-size: 20px;
+color: #333;
+margin-bottom: 15px;
 }
 
 .create-order-form form {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
+display: flex;
+flex-wrap: wrap;
+gap: 10px;
 }
 
 .create-order-form input {
-  flex: 1 1 calc(50% - 10px); /* Responsive two-column layout */
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 14px;
-  outline: none;
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+flex: 1 1 calc(50% - 10px); /* Responsive two-column layout */
+padding: 10px;
+border: 1px solid #ddd;
+border-radius: 4px;
+font-size: 14px;
+outline: none;
+transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .create-order-form input:focus {
-  border-color: #00bfa6;
-  box-shadow: 0 0 4px rgba(0, 191, 166, 0.3);
+border-color: #00bfa6;
+box-shadow: 0 0 4px rgba(0, 191, 166, 0.3);
 }
 
 .create-order-form button {
-  flex: none;
-  width: auto;
-  height: 40px; /* Belirli bir yükseklik veriyoruz */
-  padding: 0 15px; /* Dikey padding'i sıfırlıyoruz, yatayda ise padding'i bırakıyoruz */
-  font-size: 14px; /* Aynı font büyüklüğü */
-  line-height: 40px; /* Butonun içindeki metni dikeyde ortalamak için */
-  border: none;
-  background-color: #4caf50;
-  color: #fff;
-  border-radius: 5px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
+flex: none;
+width: auto;
+height: 40px; /* Belirli bir yükseklik veriyoruz */
+padding: 0 15px; /* Dikey padding'i sıfırlıyoruz, yatayda ise padding'i bırakıyoruz */
+font-size: 14px; /* Aynı font büyüklüğü */
+line-height: 40px; /* Butonun içindeki metni dikeyde ortalamak için */
+border: none;
+background-color: #4caf50;
+color: #fff;
+border-radius: 5px;
+font-weight: bold;
+cursor: pointer;
+transition: background-color 0.3s ease;
 }
 
 .create-order-form button:hover {
-  background-color: #0b8e0f;
+background-color: #0b8e0f;
 }
 
 .create-order-form .form-group {
-  flex: 1 1 calc(50% - 10px);
-  display: flex;
-  flex-direction: column;
+flex: 1 1 calc(50% - 10px);
+display: flex;
+flex-direction: column;
 }
 
 .create-order-form label {
-  font-size: 14px;
-  color: #666;
-  margin-bottom: 5px;
+font-size: 14px;
+color: #666;
+margin-bottom: 5px;
 }
-@media (max-width: 768px) {
-  /* Main layout adjustments */
+
+.orders-export {
+display: flex;
+justify-content: space-between;
+margin-bottom: 20px;
+}
+
+.orders-export input {
+width: 70%;
+padding: 10px;
+font-size: 14px;
+border: 1px solid #ccc;
+border-radius: 5px;
+}
+
+.orders-export button {
+padding: 10px 15px;
+background-color: #3498db;
+color: white;
+border: none;
+border-radius: 5px;
+font-size: 14px;
+cursor: pointer;
+transition: background-color 0.3s ease;
+}
+
+.orders-export button:hover {
+background-color: #2980b9;
+}
+
+.form-row {
+display: flex;
+gap: 15px;
+margin-bottom: 20px;
+align-items: center;
+}
+
+select {
+width: 100%;
+padding: 10px;
+font-size: 14px;
+border: 1px solid #ccc;
+border-radius: 5px;
+background-color: #f9f9f9;
+outline: none;
+transition: border-color 0.3s ease;
+}
+
+select:focus {
+border-color: #4caf50; /* Green border on focus */
+background-color: #ffffff;
+}
+
+option {
+padding: 10px;
+font-size: 14px;
+}
+
+button i {
+margin-right: 5px; /* İkon ile metin arasına boşluk */
+}
+
+h1 {
+margin-top: 30px;
+}
+
+.edit-order-container {
+width: 100%;
+max-width: 1200px; /* max width to prevent it from becoming too wide */
+margin: 0 auto;
+padding: 20px;
+background-color: #f9f9f9;
+border-radius: 8px;
+box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.edit-order-form {
+display: flex;
+justify-content: space-between;
+gap: 20px;
+flex-wrap: wrap; /* Allows the input fields to wrap on smaller screens */
+}
+
+.edit-order-input-container {
+flex: 1;
+min-width: 250px; /* Ensures the inputs are not too small */
+padding: 10px;
+margin-bottom: 15px;
+}
+
+.edit-order-input {
+width: 100%;
+padding: 12px;
+font-size: 16px;
+border: 1px solid #ddd;
+border-radius: 4px;
+outline: none;
+transition: border-color 0.3s ease;
+}
+
+.edit-order-input:focus {
+border-color: #007bff;
+}
+
+.fa-save {
+font-size: 20px;
+margin-right: 10px;
+}
+
+.fa-spinner {
+font-size: 20px;
+margin-right: 10px;
+animation: spin 2s linear infinite; 
+}
+
+.edit-order-modal {
+position: fixed;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+background-color: rgba(0, 0, 0, 0.5);
+display: flex;
+justify-content: center;
+align-items: center;
+z-index: 1000;
+}
+
+.edit-order-modal-content {
+background-color: white;
+padding: 20px;
+border-radius: 5px;
+width: 400px;
+box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.edit-order-input {
+width: 100%;
+padding: 8px;
+margin-top: 5px;
+}
+
+.edit-order-button-container {
+width: 100%;
+padding: 10px;
+display: flex;
+flex-direction: column; /* Buttons will stack vertically */
+gap: 5px; /* Space between buttons */
+}
+
+.order-modal-cancel-button {
+padding: 12px;
+font-size: 16px;
+color: white;
+background-color: red;
+border: none;
+border-radius: 4px;
+cursor: pointer;
+transition: background-color 0.3s ease;
+width: 100%; /* Make button span the full width */
+display: flex;
+justify-content: center;
+align-items: center;
+}
+
+.order-modal-cancel-button:hover {
+background-color: #bc2116;
+}
+
+.order-modal-save-button {
+  padding: 12px;
+  font-size: 16px;
+  color: white;
+  background-color: #4caf50;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  width: 100%; /* Make button span the full width */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.order-modal-save-button:hover {
+  background-color: #0b8e0f;
+}
+
+.edit-order-input[readonly] {
+background-color: #f5f5f5; 
+cursor: not-allowed; 
+}
+
+.loading-spinner {
+position: fixed;
+top: 50%;
+left: 50%;
+transform: translate(-50%, -50%);
+font-size: 24px;
+color: #3498db;
+background-color: rgba(0, 0, 0, 0.5);
+padding: 20px;
+border-radius: 5px;
+display: none; 
+color: white;
+}
+
+/* Tablet için (768px'e kadar) */
+@media screen and (max-width: 768px) {
   .main-content {
     margin-left: 0;
     width: 100%;
@@ -280,462 +367,106 @@
     padding: 10px;
   }
 
-  /* Table responsiveness */
-  .orders-table {
-    font-size: 12px;
-  }
-
-  .orders-table th,
-  .orders-table td {
-    padding: 8px 5px;
-  }
-
-  /* Actions and buttons */
-  .actions-cell {
-    flex-direction: column;
-    gap: 5px;
-  }
-
-  .actions-dropdown {
-    width: 100%;
-    font-size: 12px;
-  }
-
-  .actions-cell button {
-    width: 100%;
-    font-size: 11px;
-  }
-
-  /* Create Order Form */
-  .create-order-form {
-    padding: 15px;
-  }
-
-  .create-order-form form {
-    gap: 8px;
-  }
-
   .create-order-form input {
+    flex: 1 1 100%; /* Tek kolon layout */
+  }
+
+  .create-order-form .form-group {
     flex: 1 1 100%;
-    padding: 8px;
-    font-size: 13px;
   }
 
-  .create-order-form button {
-    width: 100%;
-    height: 36px;
-    line-height: 36px;
-    font-size: 13px;
-  }
-
-  /* Orders actions */
-  .orders-actions {
+  .orders-export {
     flex-direction: column;
     gap: 10px;
   }
 
-  .orders-actions input {
-    width: 100%;
-    font-size: 13px;
-  }
-
-  .orders-actions button {
+  .orders-export input {
     width: 100%;
   }
 
-  /* Edit Order Modal */
-  .edit-order-modal-content {
-    width: 90%;
-    max-width: 350px;
-    margin: 10px;
+  .orders-export button {
+    width: 100%;
+  }
+
+  .form-row {
+    flex-direction: column;
+    gap: 10px;
   }
 
   .edit-order-container {
-    padding: 15px;
-  }
-
-  .edit-order-title {
-    font-size: 20px;
+    padding: 10px;
   }
 
   .edit-order-input-container {
     min-width: 100%;
   }
-
-  .edit-order-input {
-    padding: 10px;
-    font-size: 14px;
-  }
-
-  .edit-order-button,
-  .cancel-order-button {
-    padding: 10px;
-    font-size: 14px;
-  }
-
-  /* Form groups and rows */
-  .form-row {
-    flex-direction: column;
-    gap: 10px;
-    margin-bottom: 15px;
-  }
-
-  select {
-    padding: 8px;
-    font-size: 13px;
-  }
-
-  /* Buttons */
-  .edit-btn,
-  .delete-btn {
-    width: 100%;
-    margin: 2px 0;
-    padding: 6px 8px;
-    font-size: 11px;
-  }
-
-  /* Loading spinner */
-  .loading-spinner {
-    font-size: 20px;
-    padding: 15px;
-  }
 }
 
-/* Additional mobile adjustments for even smaller screens */
-@media (max-width: 480px) {
+/* Mobil için (480px'e kadar) */
+@media screen and (max-width: 480px) {
   .orders-table {
-    font-size: 11px;
+    display: block;
+    overflow-x: auto;
   }
 
-  .edit-order-title {
-    font-size: 18px;
+  .orders-table th,
+  .orders-table td {
+    padding: 8px;
+    font-size: 14px;
+  }
+
+  .edit-order-btn,
+  .delete-order-btn {
+    padding: 4px 8px;
+    font-size: 12px;
+  }
+
+  .create-order-form {
+    padding: 10px;
   }
 
   .create-order-form h2 {
     font-size: 18px;
   }
 
-  .orders-container {
-    padding: 8px;
+  .create-order-form button {
+    width: 100%;
+    height: 36px;
+    line-height: 36px;
+  }
+
+  .edit-order-modal-content {
+    width: 90%;
+    margin: 10px;
+  }
+
+  .order-modal-save-button,
+  .order-modal-cancel-button {
+    padding: 10px;
+    font-size: 14px;
+  }
+
+  .loading-spinner {
+    font-size: 20px;
+    padding: 15px;
   }
 }
 
-.create-order-form {
-  background: #f9f9f9;
-}
+/* Çok küçük ekranlar için (320px'e kadar) */
+@media screen and (max-width: 320px) {
+  .orders-container {
+    padding: 5px;
+  }
 
-.orders-actions {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 20px;
-}
+  .orders-table th,
+  .orders-table td {
+    padding: 6px;
+    font-size: 12px;
+  }
 
-.orders-actions input {
-  width: 70%;
-  padding: 10px;
-  font-size: 14px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-}
-
-.orders-actions button {
-  padding: 10px 15px;
-  background-color: #3498db;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  font-size: 14px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-
-.orders-actions button:hover {
-  background-color: #2980b9;
-}
-
-
-.form-row {
-  display: flex;
-  gap: 15px;
-  margin-bottom: 20px;
-  align-items: center;
-}
-
-/* Dropdown styling */
-select {
-  width: 100%;
-  padding: 10px;
-  font-size: 14px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  background-color: #f9f9f9;
-  outline: none;
-  transition: border-color 0.3s ease;
-}
-
-select:focus {
-  border-color: #4caf50; /* Green border on focus */
-  background-color: #ffffff;
-}
-
-/* Dropdown option styling */
-option {
-  padding: 10px;
-  font-size: 14px;
-}
-
-.edit-btn {
-  background-color: #3498db;
-  color: white;
-  border: none;
-  padding: 5px 10px;
-  cursor: pointer;
-  border-radius: 4px;
-  
-}
-
-.edit-btn:hover {
-  background-color: #0873bb;
-}
-
-.edit-btn:disabled {
-  visibility: hidden;
-}
-
-
-.delete-btn {
-  background-color: red;
-  color: white;
-  padding: 6px 10px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  margin-right: 5px;
-}
-
-.delete-btn:hover {
-  background-color: #bc2116;
-}
-
-.delete-btn:disabled {
-  visibility: hidden;
-}
-
-button i {
-  margin-right: 5px; /* İkon ile metin arasına boşluk */
-}
-
-h1 {
-  margin-top: 30px;
-}
-/* Container for the Edit Order form */
-.edit-order-container {
-  width: 100%;
-  max-width: 1200px; /* max width to prevent it from becoming too wide */
-  margin: 0 auto;
-  padding: 20px;
-  background-color: #f9f9f9;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-/* Title style */
-.edit-order-title {
-  font-size: 24px;
-  font-weight: bold;
-  margin-bottom: 20px;
-  text-align: center;
-  color: #333;
-}
-
-/* Form styling */
-.edit-order-form {
-  display: flex;
-  justify-content: space-between;
-  gap: 20px;
-  flex-wrap: wrap; /* Allows the input fields to wrap on smaller screens */
-}
-
-/* Input container style for each input field */
-.edit-order-input-container {
-  flex: 1;
-  min-width: 250px; /* Ensures the inputs are not too small */
-  padding: 10px;
-}
-
-/* Input field styling */
-.edit-order-input {
-  width: 100%;
-  padding: 12px;
-  font-size: 16px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  outline: none;
-  transition: border-color 0.3s ease;
-}
-
-.edit-order-input:focus {
-  border-color: #007bff;
-}
-
-/* Button container to ensure button spans full width */
-.edit-order-button-container {
-  width: 100%;
-  padding: 10px;
-}
-
-/* Submit button styling */
-.edit-order-button {
-  padding: 12px;
-  font-size: 16px;
-  color: white;
-  background-color: #4caf50;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-  width: 100%; /* Make button span the full width */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.edit-order-button:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
-}
-
-/* Save icon */
-.fa-save {
-  font-size: 20px;
-  margin-right: 10px;
-}
-
-/* Spinner styling */
-.fa-spinner {
-  font-size: 20px;
-  margin-right: 10px;
-  animation: spin 2s linear infinite; /* Spinner animation */
-}
-
-/* Spinner animation */
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-.edit-order-button:hover {
-  background-color: #0b8e0f;
-}
-
-.edit-order-modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-}
-
-.edit-order-modal-content {
-  background-color: white;
-  padding: 20px;
-  border-radius: 5px;
-  width: 400px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
-
-
-.edit-order-input-container {
-  margin-bottom: 15px;
-}
-
-.edit-order-input {
-  width: 100%;
-  padding: 8px;
-  margin-top: 5px;
-}
-
-.edit-order-button-container {
-  width: 100%;
-  padding: 10px;
-  display: flex;
-  flex-direction: column; /* Buttons will stack vertically */
-  gap: 5px; /* Space between buttons */
-}
-
-.close-modal-btn {
-  background: none;
-  border: none;
-  font-size: 20px;
-  color: #888;
-  cursor: pointer;
-}
-
-.cancel-order-button {
-  padding: 12px;
-  font-size: 16px;
-  color: white;
-  background-color: red;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-  width: 100%; /* Make button span the full width */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.cancel-order-button:hover {
-  background-color: #bc2116;
-}
-
-.edit-order-input[readonly] {
-  background-color: #f5f5f5; /* Gri bir arka plan ekleyerek, kullanıcıya bu inputların değiştirilemez olduğunu göster */
-  cursor: not-allowed; /* Fare işaretçisi değiştirilemez olduğunu gösterecek şekilde değiştirilir */
-}
-
-/* Spinner styling */
-.loading-spinner {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 24px;
-  color: #3498db;
-  background-color: rgba(0, 0, 0, 0.5);
-  padding: 20px;
-  border-radius: 5px;
-  display: none; /* Initially hidden */
-  color: white;
-}
-
-.fa-sort-down, .fa-sort-up {
-  color: #ffffff;
-  transition: transform 0.2s;
-}
-
-.fa-sort-down:hover, .fa-sort-up:hover {
-  opacity: 0.8;
-}
-
-.order-row {
-  transition: background-color 0.2s ease;
-}
-
-.order-row:hover {
-  background-color: #f5f5f5;
-}
-
-/* Ensure buttons and select remain clickable */
-.order-row button,
-.order-row select {
-  position: relative;
-  z-index: 1;
+  .edit-order-btn,
+  .delete-order-btn {
+    padding: 3px 6px;
+    font-size: 11px;
+  }
 }

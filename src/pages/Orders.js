@@ -229,7 +229,7 @@ const Orders = () => {
           <h1>Orders</h1>
 
           {/* Search and Export Actions */}
-          <div className="orders-actions">
+          <div className="orders-export">
             <input
               type="text"
               placeholder="Search by Client, Product, or Status"
@@ -380,19 +380,19 @@ const Orders = () => {
                     </td>
                     <td onClick={(e) => e.stopPropagation()}> {/* Prevent row click when clicking buttons */}
                       <button
-                        className="edit-btn"
+                        className="edit-order-btn"
                         onClick={() => handleEditOrder(order)}
                         disabled={userRole !== 'admin' && order.status !== 'Pending'}
                       >
-                        <i className="fas fa-edit" style={{ marginRight: '5px' }}></i>
+                        <i className="fas fa-edit"></i>
                         Edit
                       </button>
                       <button
-                        className="delete-btn"
+                        className="delete-order-btn"
                         onClick={() => handleDelete(order.id)}
                         disabled={userRole !== 'admin' && order.status !== 'Pending'}
                       >
-                        <i className="fas fa-trash" style={{ marginRight: '5px' }}></i>
+                        <i className="fas fa-trash"></i>
                         Delete
                       </button>
                     </td>
@@ -461,7 +461,7 @@ const Orders = () => {
           />
         </div>
         <div className="edit-order-button-container">
-          <button type="submit" disabled={actionLoading} className="edit-order-button">
+          <button type="submit" disabled={actionLoading} className="order-modal-save-button">
             {actionLoading ? (
               <>
                 <i className="fa fa-spinner fa-spin"></i> Saving...
@@ -475,7 +475,7 @@ const Orders = () => {
           <button
             type="button"
             onClick={() => setSelectedOrder(null)} // Close the modal
-            className="cancel-order-button"
+            className="order-modal-cancel-button"
           >
             <i className="fa fa-times"></i> Cancel
           </button>
@@ -484,11 +484,6 @@ const Orders = () => {
     </div>
   </div>
 )}
-
-
-
-
-
         </div>
       </div>
     </div>
