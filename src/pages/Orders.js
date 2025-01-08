@@ -34,7 +34,7 @@ const Orders = () => {
           headers: { Authorization: `Bearer ${token}` },
         });
         setOrders(ordersResponse.data);
-        setFilteredOrders(ordersResponse.data); // Initialize filtered orders
+        setFilteredOrders(ordersResponse.data);
 
         // Fetch inventory
         const inventoryResponse = await axios.get('http://localhost:5001/api/inventory', {
@@ -301,6 +301,7 @@ const Orders = () => {
                 <tr>
                   <th>Client Name</th>
                   <th>Product Name</th>
+                  <th>Date</th>
                   <th>Quantity</th>
                   <th>Price</th>
                   <th>Status</th>
@@ -312,6 +313,7 @@ const Orders = () => {
                   <tr key={order.id}>
                     <td>{order.clientName}</td>
                     <td>{order.productName}</td>
+                    <td>{order.orderDate ? new Date(order.orderDate).toLocaleString() : 'N/A'}</td>
                     <td>{order.quantity}</td>
                     <td>${order.price}</td>
                     <td>
@@ -331,7 +333,6 @@ const Orders = () => {
                       )}
                     </td>
                     <td>
-                      {/* Edit ve Delete butonları aynı hücrede yer alacak */}
                       <button
                         className="edit-btn"
                         onClick={() => handleEditOrder(order)}

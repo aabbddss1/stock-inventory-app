@@ -31,8 +31,27 @@ router.get('/', authenticate, (req, res) => {
 
   const query =
     role === 'admin'
-      ? 'SELECT * FROM orders'
-      : 'SELECT * FROM orders WHERE clientEmail = ?';
+      ? `SELECT 
+          id,
+          clientName,
+          productName,
+          quantity,
+          price,
+          clientEmail,
+          status,
+          DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') as orderDate 
+        FROM orders`
+      : `SELECT 
+          id,
+          clientName,
+          productName,
+          quantity,
+          price,
+          clientEmail,
+          status,
+          DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') as orderDate 
+        FROM orders 
+        WHERE clientEmail = ?`;
 
   const params = role === 'admin' ? [] : [email];
 
@@ -84,7 +103,8 @@ router.post('/', authenticate, (req, res) => {
     }
 
     const clientName = results[0].name;
-    const query = `INSERT INTO orders (clientName, productName, quantity, price, clientEmail) VALUES (?, ?, ?, ?, ?)`;
+    const query = `INSERT INTO orders (clientName, productName, quantity, price, clientEmail, created_at) 
+                   VALUES (?, ?, ?, ?, ?, NOW())`;
 
     db.query(query, [clientName, productName, quantity, price, clientEmail], async (err, result) => {
       if (err) {
@@ -92,75 +112,90 @@ router.post('/', authenticate, (req, res) => {
         return res.status(500).json({ error: 'Failed to create order' });
       }
 
-      const orderId = result.insertId;
-      const adminEmail = process.env.EMAIL_USER;
+      // Fetch the created order to get the correct orderDate
+      db.query(
+        'SELECT *, DATE_FORMAT(created_at, "%Y-%m-%d %H:%i:%s") as orderDate FROM orders WHERE id = ?',
+        [result.insertId],
+        async (err, orderResults) => {
+          if (err) {
+            console.error('Error fetching created order:', err);
+            return res.status(500).json({ error: 'Order created but failed to fetch details' });
+          }
 
-      // Generate Invoice
-      const invoicePath = `invoices/invoice-${orderId}.pdf`;
-      const totalPrice = (quantity * parseFloat(price)).toFixed(2);
-      const doc = new PDFDocument();
+          const createdOrder = orderResults[0];
+          const orderId = result.insertId;
+          const adminEmail = process.env.EMAIL_USER;
 
-      doc.pipe(fs.createWriteStream(invoicePath));
-      doc.fontSize(20).text('Invoice', { align: 'center' });
-      doc.fontSize(14).text(`Order ID: ${orderId}`);
-      doc.text(`Client Name: ${clientName}`);
-      doc.text(`Client Email: ${clientEmail}`);
-      doc.text('---------------------------');
-      doc.text(`Product: ${productName}`);
-      doc.text(`Quantity: ${quantity}`);
-      doc.text(`Price per unit: $${parseFloat(price).toFixed(2)}`);
-      doc.text(`Total: $${totalPrice}`);
-      doc.text('---------------------------');
-      doc.text(`Thank you for choosing Qubite!`, { align: 'center' });
-      doc.end();
+          // Generate Invoice
+          const invoicePath = `invoices/invoice-${orderId}.pdf`;
+          const totalPrice = (quantity * parseFloat(price)).toFixed(2);
+          const doc = new PDFDocument();
 
-      // Email Content
-      const clientEmailBody = `
-        <h1 style="font-family: Arial, sans-serif; color: #4CAF50;">Order Confirmation</h1>
-        <p style="font-family: Arial, sans-serif; color: #333;">Dear <strong>${clientName}</strong>,</p>
-        <p style="font-family: Arial, sans-serif; color: #555;">Thank you for your order! Attached is your invoice for the order:</p>
-        <ul style="font-family: Arial, sans-serif; color: #555;">
-          <li><strong>Order ID:</strong> ${orderId}</li>
-          <li><strong>Product Name:</strong> ${productName}</li>
-          <li><strong>Quantity:</strong> ${quantity}</li>
-          <li><strong>Total Price:</strong> $${totalPrice}</li>
-        </ul>
-        <p style="font-family: Arial, sans-serif; color: #555;">If you have any questions, contact us at <a href="mailto:${adminEmail}" style="color: #4CAF50; text-decoration: none;">${adminEmail}</a>.</p>
-        <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
-        <p style="font-family: Arial, sans-serif; color: #333; text-align: center;"><strong>Thank you for choosing Qubite!</strong></p>
-      `;
+          doc.pipe(fs.createWriteStream(invoicePath));
+          doc.fontSize(20).text('Invoice', { align: 'center' });
+          doc.fontSize(14).text(`Order ID: ${orderId}`);
+          doc.text(`Date: ${new Date().toLocaleDateString()}`);
+          doc.text(`Client Name: ${clientName}`);
+          doc.text(`Client Email: ${clientEmail}`);
+          doc.text('---------------------------');
+          doc.text(`Product: ${productName}`);
+          doc.text(`Quantity: ${quantity}`);
+          doc.text(`Price per unit: $${parseFloat(price).toFixed(2)}`);
+          doc.text(`Total: $${totalPrice}`);
+          doc.text('---------------------------');
+          doc.text(`Thank you for choosing Qubite!`, { align: 'center' });
+          doc.end();
 
-      try {
-        // Send emails with invoice attachment
-        await sendEmail({
-          to: clientEmail,
-          subject: `Order Confirmation - Order #${orderId}`,
-          html: clientEmailBody,
-          attachments: [
-            {
-              filename: `invoice-${orderId}.pdf`,
-              path: invoicePath,
-            },
-          ],
-        });
+          // Email Content
+          const clientEmailBody = `
+            <h1 style="font-family: Arial, sans-serif; color: #4CAF50;">Order Confirmation</h1>
+            <p style="font-family: Arial, sans-serif; color: #333;">Dear <strong>${clientName}</strong>,</p>
+            <p style="font-family: Arial, sans-serif; color: #555;">Thank you for your order! Attached is your invoice for the order:</p>
+            <ul style="font-family: Arial, sans-serif; color: #555;">
+              <li><strong>Order ID:</strong> ${orderId}</li>
+              <li><strong>Date:</strong> ${new Date().toLocaleDateString()}</li>
+              <li><strong>Product Name:</strong> ${productName}</li>
+              <li><strong>Quantity:</strong> ${quantity}</li>
+              <li><strong>Total Price:</strong> $${totalPrice}</li>
+            </ul>
+            <p style="font-family: Arial, sans-serif; color: #555;">If you have any questions, contact us at <a href="mailto:${adminEmail}" style="color: #4CAF50; text-decoration: none;">${adminEmail}</a>.</p>
+            <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
+            <p style="font-family: Arial, sans-serif; color: #333; text-align: center;"><strong>Thank you for choosing Qubite!</strong></p>
+          `;
 
-        await sendEmail({
-          to: adminEmail,
-          subject: `New Order Created - Order #${orderId}`,
-          html: `<p>A new order has been placed by ${clientName}. Please check the system for more details.</p>`,
-          attachments: [
-            {
-              filename: `invoice-${orderId}.pdf`,
-              path: invoicePath,
-            },
-          ],
-        });
+          try {
+            // Send emails with invoice attachment
+            await sendEmail({
+              to: clientEmail,
+              subject: `Order Confirmation - Order #${orderId}`,
+              html: clientEmailBody,
+              attachments: [
+                {
+                  filename: `invoice-${orderId}.pdf`,
+                  path: invoicePath,
+                },
+              ],
+            });
 
-        res.status(201).json({ id: orderId, clientName, productName, quantity, price, clientEmail });
-      } catch (emailError) {
-        console.error('Error sending emails:', emailError);
-        res.status(500).json({ error: 'Order created, but email notifications failed' });
-      }
+            await sendEmail({
+              to: adminEmail,
+              subject: `New Order Created - Order #${orderId}`,
+              html: `<p>A new order has been placed by ${clientName}. Please check the system for more details.</p>`,
+              attachments: [
+                {
+                  filename: `invoice-${orderId}.pdf`,
+                  path: invoicePath,
+                },
+              ],
+            });
+
+            res.status(201).json(createdOrder); // Send back the complete order with correct date
+          } catch (emailError) {
+            console.error('Error sending emails:', emailError);
+            res.status(500).json({ error: 'Order created, but email notifications failed' });
+          }
+        }
+      );
     });
   });
 });
