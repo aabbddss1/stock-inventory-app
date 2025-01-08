@@ -23,7 +23,9 @@
     "xlsx": "^0.18.5",
     "jspdf": "^2.5.1",
     "jspdf-autotable": "^3.5.28",
-    "react-calendar": "^4.6.0"
+    "react-calendar": "^4.6.0",
+    "bcrypt": "^5.1.1",
+    "bcryptjs": "^2.4.3"
   },
   "scripts": {
     "start": "node backend/server.js",
