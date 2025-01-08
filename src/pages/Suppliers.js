@@ -8,6 +8,7 @@ function Suppliers() {
   const [suppliers, setSuppliers] = useState([
     { id: 1, name: 'Acme Supplies', email: 'info@acme.com', phone: '555-123-4567' },
     { id: 2, name: 'Global Traders', email: 'contact@globaltraders.com', phone: '555-987-6543' },
+    { id: 2, name: 'Global Traders', email: 'contact@globaltraders.com', phone: '555-987-6543' },
   ]);
   const [showModal, setShowModal] = useState(false);
   const [currentSupplier, setCurrentSupplier] = useState(null);
