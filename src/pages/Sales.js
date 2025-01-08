@@ -32,6 +32,22 @@ ChartJS.register(
   Legend
 );
 
+// Add this color configuration near the top of the file
+const statusColors = {
+  backgroundColor: [
+    'rgba(54, 162, 235, 0.8)',   // Blue
+    'rgba(75, 192, 192, 0.8)',   // Teal
+    'rgba(255, 206, 86, 0.8)',   // Yellow
+    'rgba(255, 99, 132, 0.8)'    // Red
+  ],
+  borderColor: [
+    'rgba(54, 162, 235, 1)',
+    'rgba(75, 192, 192, 1)',
+    'rgba(255, 206, 86, 1)',
+    'rgba(255, 99, 132, 1)'
+  ]
+};
+
 const Sales = () => {
   const [sales, setSales] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -47,6 +63,12 @@ const Sales = () => {
     dailySales: {},
     ordersByStatus: {},
     productPerformance: {},
+  });
+  const [expandedSections, setExpandedSections] = useState({
+    Pending: true,    // Start with Pending orders visible
+    Approved: false,
+    'On Process': false,
+    Completed: false
   });
 
   // Fetch orders
@@ -172,21 +194,11 @@ const Sales = () => {
       ordersByStatus: {
         labels: Object.keys(statusCount),
         datasets: [{
-          label: 'Orders by Status',
           data: Object.values(statusCount),
-          backgroundColor: [
-            'rgba(255, 99, 132, 0.5)',
-            'rgba(54, 162, 235, 0.5)',
-            'rgba(255, 206, 86, 0.5)',
-            'rgba(75, 192, 192, 0.5)',
-          ],
-          borderColor: [
-            'rgba(255, 99, 132, 1)',
-            'rgba(54, 162, 235, 1)',
-            'rgba(255, 206, 86, 1)',
-            'rgba(75, 192, 192, 1)',
-          ],
-          borderWidth: 1
+          backgroundColor: statusColors.backgroundColor,
+          borderColor: statusColors.borderColor,
+          borderWidth: 1,
+          hoverOffset: 4
         }]
       },
       productPerformance: {
@@ -200,6 +212,13 @@ const Sales = () => {
         }]
       }
     });
+  };
+
+  const toggleSection = (status) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [status]: !prev[status]
+    }));
   };
 
   return (
@@ -257,16 +276,37 @@ const Sales = () => {
                   </div>
                 </div>
 
-                <div className="chart-card">
+                <div className="chart-card pie-chart-card">
                   <h3>Orders by Status</h3>
                   <div className="chart-wrapper">
                     <Pie 
                       data={chartData.ordersByStatus}
                       options={{
                         responsive: true,
+                        maintainAspectRatio: false,
                         plugins: {
-                          legend: { position: 'top' },
-                          title: { display: false }
+                          legend: {
+                            position: 'right',
+                            labels: {
+                              usePointStyle: true,
+                              padding: 20,
+                              font: {
+                                size: 11
+                              }
+                            }
+                          },
+                          title: { 
+                            display: false 
+                          }
+                        },
+                        layout: {
+                          padding: 10
+                        },
+                        elements: {
+                          arc: {
+                            borderWidth: 1,
+                            borderColor: '#fff'
+                          }
                         }
                       }}
                     />
@@ -299,36 +339,52 @@ const Sales = () => {
               {/* Orders by Status */}
               {['Pending', 'Approved', 'On Process', 'Completed'].map(status => (
                 <div key={status} className="order-section">
-                  <h2>{status} Orders</h2>
-                  <table className="sales-table">
-                    <thead>
-                      <tr>
-                        <th>Order Date</th>
-                        <th>Customer Name</th>
-                        <th>Product Name</th>
-                        <th>Quantity</th>
-                        <th>Price</th>
-                        <th>Total</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {filterOrdersByStatus(status).map((sale) => (
-                        <tr key={sale.id}>
-                          <td>{sale.orderDate}</td>
-                          <td>{sale.customerName}</td>
-                          <td>{sale.productName}</td>
-                          <td>{sale.quantity}</td>
-                          <td>${sale.price}</td>
-                          <td>${sale.total}</td>
-                        </tr>
-                      ))}
-                      {filterOrdersByStatus(status).length === 0 && (
+                  <div 
+                    className="order-section-header" 
+                    onClick={() => toggleSection(status)}
+                  >
+                    <div className="header-content">
+                      <h2>{status} Orders</h2>
+                      <span className="order-count">
+                        {filterOrdersByStatus(status).length} orders
+                      </span>
+                    </div>
+                    <i className={`fas fa-chevron-${expandedSections[status] ? 'up' : 'down'}`} />
+                  </div>
+                  
+                  <div className={`order-section-content ${expandedSections[status] ? 'expanded' : ''}`}>
+                    <table className="sales-table">
+                      <thead>
                         <tr>
-                          <td colSpan="6" className="no-orders">No {status.toLowerCase()} orders</td>
+                          <th>Order Date</th>
+                          <th>Customer Name</th>
+                          <th>Product Name</th>
+                          <th>Quantity</th>
+                          <th>Price</th>
+                          <th>Total</th>
                         </tr>
-                      )}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody>
+                        {filterOrdersByStatus(status).map((sale) => (
+                          <tr key={sale.id}>
+                            <td>{sale.orderDate}</td>
+                            <td>{sale.customerName}</td>
+                            <td>{sale.productName}</td>
+                            <td>{sale.quantity}</td>
+                            <td>${sale.price}</td>
+                            <td>${sale.total}</td>
+                          </tr>
+                        ))}
+                        {filterOrdersByStatus(status).length === 0 && (
+                          <tr>
+                            <td colSpan="6" className="no-orders">
+                              No {status.toLowerCase()} orders
+                            </td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               ))}
             </>
