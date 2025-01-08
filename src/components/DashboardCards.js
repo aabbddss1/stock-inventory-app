@@ -12,7 +12,8 @@ import {
   faListAlt, 
   faPlus, 
   faSync, 
-  faUsers
+  faUsers,
+  faChartLine
 } from '@fortawesome/free-solid-svg-icons';
 import Modal from './Modal';
 import AddCustomer from '../pages/AddCustomer';
@@ -20,6 +21,32 @@ import AddSupplier from '../pages/AddSupplier';
 import axios from 'axios'; // Axios for API calls
 import '../styles/DashboardCards.css';
 import API_BASE_URL from '../config';
+import { Line, Bar, Doughnut } from 'react-chartjs-2';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  ArcElement,
+  Title,
+  Tooltip,
+  Legend
+} from 'chart.js';
+
+// Register ChartJS components
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  ArcElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 function DashboardCards() {
   const [isAddCustomerModalOpen, setIsAddCustomerModalOpen] = useState(false);
@@ -52,6 +79,14 @@ function DashboardCards() {
 
   const [orders, setOrders] = useState([]); // Add this state if you haven't already
 
+  // Add new states for analytics
+  const [analytics, setAnalytics] = useState({
+    dailySales: [],
+    weeklySales: [],
+    salesByStatus: [],
+    inventoryLevels: []
+  });
+
   const fetchData = useCallback(async () => {
     setIsLoading(true);
     setError(null);
@@ -64,12 +99,28 @@ function DashboardCards() {
           axios.get(`${API_BASE_URL}/api/inventory`)
         ]);
 
+      // Store the raw data
       setOrders(ordersResponse.data);
       setTotalOrders(ordersResponse.data.length);
       setPendingOrders(ordersResponse.data.filter(order => order.status === 'Pending').length);
       setNotifications(notificationsResponse.data);
       setUsers(usersResponse.data);
       setInventory(inventoryResponse.data);
+
+      // Calculate analytics with new metrics
+      try {
+        const analyticsData = {
+          dailySales: calculateDailySales(ordersResponse.data || []),
+          weeklySales: calculateWeeklySales(ordersResponse.data || []),
+          salesByStatus: calculateSalesByStatus(ordersResponse.data || []),
+          inventoryLevels: calculateInventoryLevels(inventoryResponse.data || [])
+        };
+        setAnalytics(analyticsData);
+      } catch (analyticsError) {
+        console.error('Error calculating analytics:', analyticsError);
+        setError('Error calculating analytics data');
+      }
+
     } catch (error) {
       setError('Failed to load dashboard data');
       console.error('Error fetching dashboard data:', error);
@@ -132,14 +183,111 @@ function DashboardCards() {
       alert('Failed to add customer. Please try again.');
     }
   };
-  
+
+  // Helper functions for analytics calculations
+  const calculateDailySales = (orders) => {
+    try {
+      // Sort orders by ID (most recent first)
+      const sortedOrders = [...orders].sort((a, b) => b.id - a.id);
+      const last7DaysOrders = sortedOrders.slice(0, 7);
+
+      return {
+        labels: last7DaysOrders.map((_, index) => `Day ${7-index}`),
+        data: last7DaysOrders.map(order => parseInt(order.quantity) || 0)  // Only use quantity
+      };
+    } catch (error) {
+      console.error('Error calculating daily quantities:', error);
+      return { labels: [], data: [] };
+    }
+  };
+
+  const calculateWeeklySales = (orders) => {
+    try {
+      const sortedOrders = [...orders].sort((a, b) => b.id - a.id);
+      const totalOrders = sortedOrders.length;
+      const ordersPerWeek = Math.ceil(totalOrders / 4);
+      
+      const weeklyQuantities = Array.from({ length: 4 }, (_, weekIndex) => {
+        const weekOrders = sortedOrders.slice(
+          weekIndex * ordersPerWeek,
+          (weekIndex + 1) * ordersPerWeek
+        );
+
+        // Sum only quantities for the week
+        return weekOrders.reduce((sum, order) => 
+          sum + (parseInt(order.quantity) || 0), 0
+        );
+      });
+
+      return {
+        labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+        data: weeklyQuantities
+      };
+    } catch (error) {
+      console.error('Error calculating weekly quantities:', error);
+      return { labels: [], data: [] };
+    }
+  };
+
+  const calculateSalesByStatus = (orders) => {
+    try {
+      const statusGroups = {};
+      orders.forEach(order => {
+        if (order.status) {
+          if (!statusGroups[order.status]) {
+            statusGroups[order.status] = 0;
+          }
+          statusGroups[order.status] += Number(order.price) * Number(order.quantity);
+        }
+      });
+
+      return {
+        labels: Object.keys(statusGroups),
+        data: Object.values(statusGroups)
+      };
+    } catch (error) {
+      console.error('Error calculating sales by status:', error);
+      return { labels: [], data: [] };
+    }
+  };
+
+  const calculateInventoryLevels = (inventory) => {
+    try {
+      if (!Array.isArray(inventory) || inventory.length === 0) {
+        return {
+          labels: ['No Data'],
+          data: [0]
+        };
+      }
+
+      const sortedInventory = [...inventory]
+        .filter(item => item && item.name && !isNaN(item.quantity))
+        .sort((a, b) => Number(b.quantity) - Number(a.quantity))
+        .slice(0, 5);
+      
+      if (sortedInventory.length === 0) {
+        return {
+          labels: ['No Data'],
+          data: [0]
+        };
+      }
+      
+      return {
+        labels: sortedInventory.map(item => item.name),
+        data: sortedInventory.map(item => Number(item.quantity))
+      };
+    } catch (error) {
+      console.error('Error calculating inventory levels:', error);
+      return { labels: [], data: [] };
+    }
+  };
 
   const cardsData = [
     {
       title: `${totalOrders} Orders`,
       icon: faListAlt,
       description: `total orders in the system.`,
-      onClick: () => (window.location.href = "http://localhost:3000/orders"),
+      onClick: () => (window.location.href = "http://localhost:3000/sales"),
     },
     {
       title: `${pendingOrders} Pending`,
@@ -187,7 +335,6 @@ function DashboardCards() {
       icon: faShoppingCart,
       onClick: () => (window.location.href = "http://localhost:3000/sales"),
     },
-   
     {
       title: "Inventory",
       icon: faWarehouse,
@@ -201,6 +348,163 @@ function DashboardCards() {
       },
     },
   ];
+
+  const renderGraphs = () => {
+    if (isLoading) return <div className="loading-spinner">Loading...</div>;
+    if (error) return <div className="error-message">{error}</div>;
+
+    return (
+      <div className="dashboard-graphs">
+        <div className="graph-container">
+          <h3>Daily Sales (Last 7 Days)</h3>
+          <Line
+            data={{
+              labels: analytics.dailySales.labels,
+              datasets: [{
+                label: 'Daily Order Quantities',
+                data: analytics.dailySales.data,
+                borderColor: 'rgb(75, 192, 192)',
+                tension: 0.1,
+                fill: false
+              }]
+            }}
+            options={{
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: { position: 'bottom' },
+                tooltip: {
+                  callbacks: {
+                    label: (context) => `Quantity: ${context.raw}`
+                  }
+                }
+              },
+              scales: {
+                y: { 
+                  beginAtZero: true,
+                  title: {
+                    display: true,
+                    text: 'Order Quantity'
+                  }
+                }
+              }
+            }}
+          />
+        </div>
+
+        <div className="graph-container">
+          <h3>Weekly Sales (Last 4 Weeks)</h3>
+          <Bar
+            data={{
+              labels: analytics.weeklySales.labels,
+              datasets: [{
+                label: 'Weekly Order Quantities',
+                data: analytics.weeklySales.data,
+                backgroundColor: 'rgb(54, 162, 235)'
+              }]
+            }}
+            options={{
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: { position: 'bottom' },
+                tooltip: {
+                  callbacks: {
+                    label: (context) => `Quantity: ${context.raw}`
+                  }
+                }
+              },
+              scales: {
+                y: { 
+                  beginAtZero: true,
+                  title: {
+                    display: true,
+                    text: 'Order Quantity'
+                  }
+                }
+              }
+            }}
+          />
+        </div>
+
+        <div className="graph-container">
+          <h3>Sales by Order Status</h3>
+          <Doughnut
+            data={{
+              labels: analytics.salesByStatus.labels,
+              datasets: [{
+                data: analytics.salesByStatus.data,
+                backgroundColor: [
+                  '#FF6384',
+                  '#36A2EB',
+                  '#FFCE56',
+                  '#4BC0C0',
+                  '#9966FF'
+                ]
+              }]
+            }}
+            options={{
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: { position: 'bottom' }
+              }
+            }}
+          />
+        </div>
+
+        <div className="graph-container">
+          <h3>Inventory Levels</h3>
+          <Bar
+            data={{
+              labels: analytics.inventoryLevels.labels,
+              datasets: [{
+                label: 'Stock Quantity',
+                data: analytics.inventoryLevels.data,
+                backgroundColor: 'rgb(75, 192, 192)'
+              }]
+            }}
+            options={{
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: { position: 'bottom' }
+              },
+              scales: {
+                y: { beginAtZero: true }
+              }
+            }}
+          />
+        </div>
+      </div>
+    );
+  };
+
+  // Add console logging to debug data
+  useEffect(() => {
+    if (!isLoading) {
+      console.log('Analytics Data:', analytics);
+      console.log('Raw Orders:', orders);
+      console.log('Raw Users:', users);
+      console.log('Raw Inventory:', inventory);
+    }
+  }, [analytics, orders, users, inventory, isLoading]);
+
+  // Add this debug logging right after setting the analytics state
+  useEffect(() => {
+    if (analytics.dailySales?.data) {
+      console.log('Daily Sales Data:', {
+        labels: analytics.dailySales.labels,
+        data: analytics.dailySales.data
+      });
+    }
+    if (analytics.weeklySales?.data) {
+      console.log('Weekly Sales Data:', {
+        labels: analytics.weeklySales.labels,
+        data: analytics.weeklySales.data
+      });
+    }
+  }, [analytics]);
 
   return (
     <div className="dashboard-container">
@@ -232,7 +536,7 @@ function DashboardCards() {
         {cardsData.map((card, index) => (
           <div 
             key={index} 
-            className="dashboard-card" 
+                        className="dashboard-card" 
             onClick={card.onClick}
             title={card.description}
           >
@@ -428,6 +732,7 @@ function DashboardCards() {
         </div>
       </Modal>
       </div>
+      {renderGraphs()}
     </div>
   );
 }
