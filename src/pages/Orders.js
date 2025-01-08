@@ -90,14 +90,42 @@ const Orders = () => {
 
     const orderData = userRole === 'admin' ? newOrder : { ...newOrder, clientEmail: userData.email };
 
+    // Check if there's enough inventory
+    const selectedProduct = inventory.find(item => item.name === orderData.productName);
+    if (!selectedProduct) {
+      alert('Product not found in inventory!');
+      return;
+    }
+
+    if (selectedProduct.quantity < orderData.quantity) {
+      alert('Not enough inventory available!');
+      return;
+    }
+
     setActionLoading(true);
     try {
-      const response = await axios.post('http://localhost:5001/api/orders', orderData, {
+      // Create the order
+      const orderResponse = await axios.post('http://localhost:5001/api/orders', orderData, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setOrders([...orders, response.data]);
-      setFilteredOrders([...orders, response.data]); // Update filtered orders
+
+      // Update inventory quantity
+      const updatedQuantity = selectedProduct.quantity - orderData.quantity;
+      await axios.put(`http://localhost:5001/api/inventory/${selectedProduct.id}`, 
+        { ...selectedProduct, quantity: updatedQuantity },
+        { headers: { Authorization: `Bearer ${token}` }}
+      );
+
+      // Update local states
+      setOrders([...orders, orderResponse.data]);
+      setFilteredOrders([...orders, orderResponse.data]);
+      setInventory(inventory.map(item => 
+        item.id === selectedProduct.id 
+          ? { ...item, quantity: updatedQuantity }
+          : item
+      ));
       setNewOrder({ clientEmail: '', productName: '', quantity: '', price: '' });
+      
       alert('Order created successfully!');
     } catch (error) {
       console.error('Error creating order:', error);
@@ -112,14 +140,37 @@ const Orders = () => {
     if (window.confirm('Are you sure you want to delete this order?')) {
       setActionLoading(true);
       try {
+        // Get the order being deleted
+        const orderToDelete = orders.find(order => order.id === id);
+        
+        // Find the corresponding inventory item
+        const inventoryItem = inventory.find(item => item.name === orderToDelete.productName);
+        
+        // Delete the order
         await axios.delete(`http://localhost:5001/api/orders/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
+
+        // Return quantity to inventory
+        const updatedQuantity = inventoryItem.quantity + parseInt(orderToDelete.quantity);
+        await axios.put(`http://localhost:5001/api/inventory/${inventoryItem.id}`, 
+          { ...inventoryItem, quantity: updatedQuantity },
+          { headers: { Authorization: `Bearer ${token}` }}
+        );
+
+        // Update local states
         setOrders((prevOrders) => prevOrders.filter((order) => order.id !== id));
         setFilteredOrders((prevOrders) => prevOrders.filter((order) => order.id !== id));
+        setInventory(inventory.map(item => 
+          item.id === inventoryItem.id 
+            ? { ...item, quantity: updatedQuantity }
+            : item
+        ));
+
         alert('Order deleted successfully!');
       } catch (error) {
         console.error('Error deleting order:', error);
+        alert('Failed to delete order. Please try again.');
       } finally {
         setActionLoading(false);
       }
@@ -171,12 +222,32 @@ const Orders = () => {
 
     setActionLoading(true);
     try {
-      // Use correct API endpoint for editing orders
+      // Find the original order to compare quantities
+      const originalOrder = orders.find(order => order.id === selectedOrder.id);
+      const quantityDifference = selectedOrder.quantity - originalOrder.quantity;
+
+      // Find the corresponding inventory item
+      const inventoryItem = inventory.find(item => item.name === selectedOrder.productName);
+
+      // Check if there's enough inventory for the quantity increase
+      if (quantityDifference > 0 && inventoryItem.quantity < quantityDifference) {
+        alert('Not enough inventory available for this quantity increase!');
+        return;
+      }
+
+      // Update the order
       await axios.put(`http://localhost:5001/api/orders/edit/${selectedOrder.id}`, selectedOrder, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      // Update state
+      // Update inventory quantity
+      const updatedQuantity = inventoryItem.quantity - quantityDifference;
+      await axios.put(`http://localhost:5001/api/inventory/${inventoryItem.id}`, 
+        { ...inventoryItem, quantity: updatedQuantity },
+        { headers: { Authorization: `Bearer ${token}` }}
+      );
+
+      // Update local states
       setOrders((prevOrders) =>
         prevOrders.map((order) =>
           order.id === selectedOrder.id ? { ...order, ...selectedOrder } : order
@@ -187,6 +258,11 @@ const Orders = () => {
           order.id === selectedOrder.id ? { ...order, ...selectedOrder } : order
         )
       );
+      setInventory(inventory.map(item => 
+        item.id === inventoryItem.id 
+          ? { ...item, quantity: updatedQuantity }
+          : item
+      ));
 
       setSelectedOrder(null); // Close edit form
       alert('Order updated successfully!');
@@ -350,7 +426,11 @@ const Orders = () => {
                 {filteredOrders.map((order) => (
                   <tr 
                     key={order.id} 
-                    onClick={userRole === 'admin' ? () => handleEditOrder(order) : undefined}
+                    onClick={userRole === 'admin' ? (e) => {
+                      if (!e.target.closest('select') && !e.target.closest('button')) {
+                        handleEditOrder(order);
+                      }
+                    } : undefined}
                     style={{ cursor: userRole === 'admin' ? 'pointer' :'default' }}
                     className={userRole === 'admin' ? 'order-row' :''}
                   >
@@ -362,6 +442,7 @@ const Orders = () => {
                     <td>
                       {userRole === 'admin' ? (
                         <select
+                          onClick={(e) => e.stopPropagation()}
                           onChange={(e) => {
                             e.stopPropagation();
                             handleStatusChange(order.id, e.target.value);
