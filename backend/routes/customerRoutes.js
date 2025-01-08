@@ -73,7 +73,7 @@ router.get('/me', authenticate, (req, res) => {
 
 // Get all customers (Admin only)
 router.get('/', authenticate, requireAdmin, (req, res) => {
-  db.query('SELECT id, name, email, phone FROM customers', (err, results) => {
+  db.query('SELECT id, name, email, phone, role FROM customers', (err, results) => {
     if (err) {
       console.error('Error fetching customers:', err.message);
       return res.status(500).json({ error: 'Failed to fetch customers' });

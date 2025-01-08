@@ -294,9 +294,8 @@ function DashboardCards() {
       icon: faListCheck,
       description: `orders are pending.`,
       onClick: () => {
-        // Filter orders directly from the orders state
         const pending = orders.filter(order => order.status === 'Pending')
-          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)); // Sort by newest first
+          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         setPendingOrdersList(pending);
         setIsPendingOrdersModalOpen(true);
       },
@@ -320,7 +319,7 @@ function DashboardCards() {
       onClick: () => setIsAddCustomerModalOpen(true),
     },
     {
-      title: `${users.length} Customers`,
+      title: `${users.filter(user => user.role?.toLowerCase() === 'user' || !user.role).length} Customers`,
       icon: faUsers,
       description: 'registered customers.',
       onClick: () => (window.location.href = "http://localhost:3000/customers"),

@@ -1,75 +1,99 @@
 import React, { useState, useEffect } from 'react';
 import Sidebar from '../components/Sidebar';
 import TopNavbar from '../components/TopNavbar';
-import { utils as XLSXUtils, writeFile as XLSXWriteFile } from 'xlsx'; // For Excel export
-import jsPDF from 'jspdf'; // For PDF export
-import axios from 'axios'; // Axios for API calls
+import axios from 'axios';
 import '../styles/AdminUsers.css';
 
 const AdminUsers = () => {
-  const [users, setUsers] = useState([]); // List of users
+  const [users, setUsers] = useState([]);
   const [formData, setFormData] = useState({
     username: '',
     email: '',
-    role: 'Viewer',
+    role: 'admin',
     status: 'Active',
     password: '',
-  }); // Form data for adding/editing users
-  const [searchTerm, setSearchTerm] = useState(''); // Search input
-  const [selectedUser, setSelectedUser] = useState(null); // User being edited
-  const [loading, setLoading] = useState(true); // Loading state
+  });
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchUsers();
   }, []);
 
-  // Fetch users from backend
   const fetchUsers = async () => {
     try {
-      const response = await axios.get('http://localhost:5001/api/admin-users', {
+      const response = await axios.get('http://localhost:5001/api/customers', {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
       });
-      setUsers(response.data);
+      
+      const transformedUsers = response.data
+        .filter(customer => customer.role?.toLowerCase() === 'admin')
+        .map(customer => ({
+          id: customer.id,
+          username: customer.name,
+          email: customer.email,
+          role: customer.role,
+          status: 'Active'
+        }));
+      
+      setUsers(transformedUsers);
       setLoading(false);
     } catch (error) {
       console.error('Error fetching users:', error);
     }
   };
 
-  // Handle form input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
-  // Add or update user
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
       if (selectedUser) {
-        // Update existing user
-        await axios.put(`http://localhost:5001/api/admin-users/${selectedUser.id}`, formData, {
+        await axios.put(`http://localhost:5001/api/customers/${selectedUser.id}`, {
+          name: formData.username,
+          email: formData.email,
+          password: formData.password,
+          phone: '',
+          role: 'admin',
+        }, {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
         });
         alert('User updated successfully');
       } else {
-        // Add new user
-        await axios.post('http://localhost:5001/api/admin-users', formData, {
+        const userData = {
+          name: formData.username,
+          email: formData.email,
+          password: formData.password,
+          phone: '',
+          role: 'admin',
+        };
+        
+        await axios.post('http://localhost:5001/api/customers', userData, {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
         });
         alert('User added successfully');
       }
 
-      setFormData({ username: '', email: '', role: 'Viewer', status: 'Active', password: '' });
+      setFormData({
+        username: '',
+        email: '',
+        role: 'admin',
+        status: 'Active',
+        password: ''
+      });
       setSelectedUser(null);
       fetchUsers();
     } catch (error) {
       console.error('Error saving user:', error);
+      alert(error.response?.data?.error || 'Error saving user');
     }
   };
 
-  // Edit user
   const handleEdit = (user) => {
     setSelectedUser(user);
     setFormData({
@@ -80,11 +104,10 @@ const AdminUsers = () => {
     });
   };
 
-  // Delete user
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this user?')) {
       try {
-        await axios.delete(`http://localhost:5001/api/admin-users/${id}`, {
+        await axios.delete(`http://localhost:5001/api/customers/${id}`, {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
         });
         alert('User deleted successfully');
@@ -95,32 +118,8 @@ const AdminUsers = () => {
     }
   };
 
-  // Search users
   const handleSearch = (e) => {
     setSearchTerm(e.target.value.toLowerCase());
-  };
-
-  // Export to Excel
-  const exportAsExcel = () => {
-    const worksheet = XLSXUtils.json_to_sheet(users);
-    const workbook = XLSXUtils.book_new();
-    XLSXUtils.book_append_sheet(workbook, worksheet, 'Users');
-    XLSXWriteFile(workbook, 'users_data.xlsx');
-  };
-
-  // Export to PDF
-  const exportAsPDF = () => {
-    const doc = new jsPDF();
-    doc.text('User Management Report', 10, 10);
-    let yPosition = 20;
-
-    users.forEach((user, index) => {
-      doc.text(`${index + 1}. ${user.username} (${user.email})`, 10, yPosition);
-      doc.text(`   Role: ${user.role}, Status: ${user.status}`, 10, yPosition + 10);
-      yPosition += 20;
-    });
-
-    doc.save('users_report.pdf');
   };
 
   return (
@@ -129,9 +128,8 @@ const AdminUsers = () => {
       <div className="main-content">
         <TopNavbar />
         <div className="admin-users-container">
-          <h1>User Management</h1>
+          <h1>Admin Management</h1>
 
-          {/* Search and Export */}
           <div className="admin-users-actions">
             <input
               type="text"
@@ -139,11 +137,8 @@ const AdminUsers = () => {
               value={searchTerm}
               onChange={handleSearch}
             />
-            <button onClick={exportAsExcel}>Export as Excel</button>
-            <button onClick={exportAsPDF}>Export as PDF</button>
           </div>
 
-          {/* Add/Edit User Form */}
           <form className="admin-users-form" onSubmit={handleSubmit}>
             <input
               type="text"
@@ -169,31 +164,11 @@ const AdminUsers = () => {
               onChange={handleChange}
               required={!selectedUser}
             />
-            <select
-              name="role"
-              value={formData.role}
-              onChange={handleChange}
-              required
-            >
-              <option value="Admin">Admin</option>
-              <option value="Manager">Manager</option>
-              <option value="Viewer">Viewer</option>
-            </select>
-            <select
-              name="status"
-              value={formData.status}
-              onChange={handleChange}
-              required
-            >
-              <option value="Active">Active</option>
-              <option value="Suspended">Suspended</option>
-            </select>
             <button type="submit">
-              {selectedUser ? 'Update User' : 'Add User'}
+              {selectedUser ? 'Update Admin' : 'Add Admin'}
             </button>
           </form>
 
-          {/* Users List Table */}
           {loading ? (
             <p>Loading users...</p>
           ) : (

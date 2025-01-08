@@ -28,7 +28,10 @@ function Customers() {
     axiosInstance
       .get('/customers')
       .then((response) => {
-        setCustomers(response.data);
+        const userCustomers = response.data.filter(customer => 
+          customer.role?.toLowerCase() === 'user' || !customer.role
+        );
+        setCustomers(userCustomers);
         setLoading(false);
       })
       .catch((error) => {
@@ -58,15 +61,15 @@ function Customers() {
         'http://localhost:5001/api/customers',
         {
           ...customer,
-          role: 'user', // Ensure role is sent (or 'admin' if needed)
+          role: 'user', // Ensure new customers are created as users
         },
         {
           headers: { Authorization: `Bearer ${token}` },
         }
       )
       .then((response) => {
-        setCustomers([...customers, response.data]); // Add the new customer
-        setShowModal(false); // Close the modal
+        setCustomers([...customers, response.data]);
+        setShowModal(false);
       })
       .catch((error) => {
         console.error('Error adding customer:', error);
