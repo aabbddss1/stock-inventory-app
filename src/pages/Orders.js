@@ -350,7 +350,11 @@ const Orders = () => {
                 {filteredOrders.map((order) => (
                   <tr 
                     key={order.id} 
-                    onClick={userRole === 'admin' ? () => handleEditOrder(order) : undefined}
+                    onClick={userRole === 'admin' ? (e) => {
+                      if (!e.target.closest('select') && !e.target.closest('button')) {
+                        handleEditOrder(order);
+                      }
+                    } : undefined}
                     style={{ cursor: userRole === 'admin' ? 'pointer' :'default' }}
                     className={userRole === 'admin' ? 'order-row' :''}
                   >
@@ -362,6 +366,7 @@ const Orders = () => {
                     <td>
                       {userRole === 'admin' ? (
                         <select
+                          onClick={(e) => e.stopPropagation()}
                           onChange={(e) => {
                             e.stopPropagation();
                             handleStatusChange(order.id, e.target.value);
