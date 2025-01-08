@@ -68,28 +68,42 @@ app.get('/api/notifications', authenticateToken, (req, res) => {
     res.json(notifications);
 });
 
-// Serve static files from the React build directory
-app.use(express.static(path.join(__dirname, '../build')));
-
-// Your API routes
+// Register routes
 app.use('/api/customers', customerRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/sales', salesRoutes);
 app.use('/api/inventory', inventoryRoutes);
 app.use('/api/documents', documentRoutes);
-app.use('/api/admin-users', adminUsersRoutes);
-
-// API test endpoint
-app.get('/api', (req, res) => {
+app.use('/api/admin-users', adminUsersRoutes); // Register the route
+// Test Root
+app.get('/', (req, res) => {
     res.send('Welcome to the Stock Inventory API!');
 });
 
-// Handle React routing
-app.get('/*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../build', 'index.html'));
+// Add login endpoint
+app.post('/api/login', async (req, res) => {
+  const { username, password } = req.body;
+  
+  // Add your user verification logic here
+  // if (user is verified) {
+    const token = jwt.sign(
+      { username: username }, 
+      JWT_SECRET, 
+      { expiresIn: '24h' } // Set token expiration to 24 hours
+    );
+    res.json({ token });
+  // }
 });
 
-// Error handlers
+// Serve static files from the React build directory
+app.use(express.static(path.join(__dirname, '../build')));
+
+// Handle React routing, return all requests to React app
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../build', 'index.html'));
+});
+
+// Global Error Handler
 app.use((err, req, res, next) => {
     console.error('Internal Server Error:', err.stack);
     res.status(500).json({ error: 'Internal Server Error' });
