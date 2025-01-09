@@ -4,6 +4,7 @@ import { resources } from './translations';
 import { dashboardTranslations } from './dashboardTranslations';
 import { ordersTranslation } from './ordersTranslation';
 import { inventoryTranslation } from './inventoryTranslation';
+import { customersTranslation } from './customersTranslation';
 
 // Merge dashboard translations with existing resources
 const mergedResources = {
@@ -12,7 +13,8 @@ const mergedResources = {
       ...resources.en.translation,
       ...dashboardTranslations.en,
       ...ordersTranslation.en,
-      inventoryTranslation: inventoryTranslation.en
+      inventoryTranslation: inventoryTranslation.en,
+      ...customersTranslation.en
     }
   },
   tr: {
@@ -20,7 +22,8 @@ const mergedResources = {
       ...resources.tr.translation,
       ...dashboardTranslations.tr,
       ...ordersTranslation.tr,
-      inventoryTranslation: inventoryTranslation.tr
+      inventoryTranslation: inventoryTranslation.tr,
+      ...customersTranslation.tr
     }
   }
 };

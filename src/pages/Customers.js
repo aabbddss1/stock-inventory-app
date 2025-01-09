@@ -3,8 +3,10 @@ import Sidebar from '../components/Sidebar';
 import TopNavbar from '../components/TopNavbar';
 import '../styles/Customers.css';
 import axios from 'axios';
+import { useTranslation } from 'react-i18next';
 
 function Customers() {
+  const { t } = useTranslation();
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -86,7 +88,7 @@ function Customers() {
   // Handle deleting a customer
   const handleDelete = (id) => {
     const customerName = customers.find((customer) => customer.id === id)?.name;
-    if (window.confirm(`Are you sure you want to delete ${customerName}?`)) {
+    if (window.confirm(`${t('customers.confirmDelete')} ${customerName}?`)) {
       axiosInstance
         .delete(`/customers/${id}`)
         .then(() => {
@@ -110,24 +112,23 @@ function Customers() {
         <TopNavbar />
         <div className="dashboard-main">
           <div className="customers-header">
-            <h2>Customers</h2>
+            <h2>{t('customers.title')}</h2>
             <button className="add-customer-btn" onClick={handleAdd}>
-  <i className="fa fa-user-plus"></i> Add Customer
-</button>
-
+              <i className="fa fa-user-plus"></i> {t('customers.addCustomer')}
+            </button>
           </div>
           {loading ? (
-            <p>Loading...</p>
+            <p>{t('customers.loading')}</p>
           ) : (
             <table className="customers-table">
               <thead>
                 <tr>
-                  <th>ID</th>
-                  <th>Name</th>
-                  <th>Email</th>
-                  <th>Phone</th>
-                  <th>Password</th>
-                  <th>Actions</th>
+                  <th>{t('customers.tableHeaders.id')}</th>
+                  <th>{t('customers.tableHeaders.name')}</th>
+                  <th>{t('customers.tableHeaders.email')}</th>
+                  <th>{t('customers.tableHeaders.phone')}</th>
+                  <th>{t('customers.tableHeaders.password')}</th>
+                  <th>{t('customers.tableHeaders.actions')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -147,14 +148,14 @@ function Customers() {
                         }}
                       >
                         <i className="fas fa-edit"></i>
-                        Edit
+                        {t('customers.actions.edit')}
                       </button>
                       <button
                         className="customers-delete-btn"
                         onClick={() => handleDelete(customer.id)}
                       >
                         <i className="fas fa-trash"></i>
-                        Delete
+                        {t('customers.actions.delete')}
                       </button>
                     </td>
                   </tr>
@@ -177,6 +178,7 @@ function Customers() {
 
 // Modal component for adding/editing customer details
 function CustomerModal({ customer, onSave, onClose }) {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState(
     customer || { name: '', email: '', phone: '', password: '' }
   );
@@ -193,19 +195,19 @@ function CustomerModal({ customer, onSave, onClose }) {
 
   const validate = () => {
     const newErrors = {};
-    if (!formData.name.trim()) newErrors.name = 'Name is required';
+    if (!formData.name.trim()) newErrors.name = t('customers.validation.nameRequired');
     if (!formData.email.trim()) {
-      newErrors.email = 'Email is required';
+      newErrors.email = t('customers.validation.emailRequired');
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Invalid email format';
+      newErrors.email = t('customers.validation.emailInvalid');
     }
     if (!formData.phone.trim()) {
-      newErrors.phone = 'Phone number is required';
+      newErrors.phone = t('customers.validation.phoneRequired');
     } else if (!/^\d{10,15}$/.test(formData.phone)) {
-      newErrors.phone = 'Phone number must be 10-15 digits';
+      newErrors.phone = t('customers.validation.phoneInvalid');
     }
     if (!formData.password.trim()) {
-      newErrors.password = 'Password is required';
+      newErrors.password = t('customers.validation.passwordRequired');
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -227,49 +229,49 @@ function CustomerModal({ customer, onSave, onClose }) {
   return (
     <div className="modal-overlay">
       <div className="modal-content">
-        <h3>{customer ? 'Edit Customer' : 'Add Customer'}</h3>
+        <h3>{customer ? t('customers.modal.editCustomer') : t('customers.modal.addCustomer')}</h3>
         <form onSubmit={handleSubmit}>
-          <label>Name:</label>
+          <label>{t('customers.modal.name')}</label>
           <input
             type="text"
             name="name"
             value={formData.name}
             onChange={handleChange}
-            placeholder="Enter full name"
+            placeholder={t('customers.modal.enterFullName')}
             required
           />
           {errors.name && <p className="error-text">{errors.name}</p>}
 
-          <label>Email:</label>
+          <label>{t('customers.modal.email')}</label>
           <input
             type="email"
             name="email"
             value={formData.email}
             onChange={handleChange}
-            placeholder="Enter email address"
+            placeholder={t('customers.modal.enterEmail')}
             required
           />
           {errors.email && <p className="error-text">{errors.email}</p>}
 
-          <label>Phone:</label>
+          <label>{t('customers.modal.phone')}</label>
           <input
             type="text"
             name="phone"
             value={formData.phone}
             onChange={handleChange}
-            placeholder="Enter phone number"
+            placeholder={t('customers.modal.enterPhone')}
             required
           />
           {errors.phone && <p className="error-text">{errors.phone}</p>}
 
-          <label>Password:</label>
+          <label>{t('customers.modal.password')}</label>
           <div className="password-container">
             <input
               type="text"
               name="password"
               value={formData.password}
               onChange={handleChange}
-              placeholder="Enter or generate a password"
+              placeholder={t('customers.modal.enterPassword')}
               required
             />
             <button
@@ -278,7 +280,7 @@ function CustomerModal({ customer, onSave, onClose }) {
               onClick={generateRandomPassword}
             >
               <i className="fa fa-random"></i>
-              Randomize
+              {t('customers.modal.randomize')}
             </button>
           </div>
           {errors.password && <p className="error-text">{errors.password}</p>}
@@ -286,11 +288,11 @@ function CustomerModal({ customer, onSave, onClose }) {
           <div className="modal-actions">
             <button type="submit" className="save-btn">
               <i className="fa fa-save"></i>
-              Save
+              {t('customers.modal.save')}
             </button>
             <button type="button" className="cancel-btn" onClick={onClose}>
               <i className="fa fa-x"></i>
-              Cancel
+              {t('customers.modal.cancel')}
             </button>
           </div>
         </form>
