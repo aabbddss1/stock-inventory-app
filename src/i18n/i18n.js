@@ -1,17 +1,33 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
-import LanguageDetector from 'i18next-browser-languagedetector';
 import { resources } from './translations';
+import { dashboardTranslations } from './dashboardTranslations';
+
+// Merge dashboard translations with existing resources
+const mergedResources = {
+  en: {
+    translation: {
+      ...resources.en.translation,
+      ...dashboardTranslations.en
+    }
+  },
+  tr: {
+    translation: {
+      ...resources.tr.translation,
+      ...dashboardTranslations.tr
+    }
+  }
+};
 
 i18n
-  .use(LanguageDetector)
   .use(initReactI18next)
   .init({
-    resources,
+    resources: mergedResources,
+    lng: localStorage.getItem('language') || 'en',
     fallbackLng: 'en',
     interpolation: {
-      escapeValue: false,
-    },
+      escapeValue: false
+    }
   });
 
 export default i18n; 
