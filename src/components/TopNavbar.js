@@ -7,6 +7,7 @@ function TopNavbar() {
   const userRole = localStorage.getItem('role');
   const [menuOpen, setMenuOpen] = useState(false);
   const [timeLeft, setTimeLeft] = useState('');
+  const [languageMenuOpen, setLanguageMenuOpen] = useState(false);
 
   useEffect(() => {
     const checkTokenExpiration = () => {
@@ -54,6 +55,17 @@ function TopNavbar() {
     setMenuOpen(!menuOpen);
   };
 
+  const toggleLanguageMenu = () => {
+    setLanguageMenuOpen(!languageMenuOpen);
+  };
+
+  const handleLanguageChange = (language) => {
+    // Here you can add logic to change the language
+    // For example, storing the selected language in localStorage
+    localStorage.setItem('language', language);
+    setLanguageMenuOpen(false);
+  };
+
   return (
     <div className="top-navbar">
       <div className="title">
@@ -75,7 +87,17 @@ function TopNavbar() {
           <Link to="/user/profile">My Account ▼</Link>
         )}
 
-        <Link to="/language">Language ▼</Link>
+        <div className="language-dropdown">
+          <button className="language-btn" onClick={toggleLanguageMenu}>
+            Language ▼
+          </button>
+          {languageMenuOpen && (
+            <div className="language-menu">
+              <button onClick={() => handleLanguageChange('en')}>English</button>
+              <button onClick={() => handleLanguageChange('tr')}>Türkçe</button>
+            </div>
+          )}
+        </div>
 
         {/* Add session timer */}
         {timeLeft && (

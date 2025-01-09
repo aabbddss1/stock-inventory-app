@@ -115,3 +115,42 @@ body {
     display: block;
   }
 }
+
+.language-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.language-btn {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 10px;
+  font-size: 16px;
+}
+
+.language-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background-color: white;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  border-radius: 4px;
+  min-width: 120px;
+  z-index: 1000;
+}
+
+.language-menu button {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  text-align: left;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+.language-menu button:hover {
+  background-color: #f0f0f0;
+}
