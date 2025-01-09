@@ -34,7 +34,6 @@ import {
   Tooltip,
   Legend
 } from 'chart.js';
-import { useTranslation } from 'react-i18next';
 
 // Register ChartJS components
 ChartJS.register(
@@ -50,7 +49,6 @@ ChartJS.register(
 );
 
 function DashboardCards() {
-  const { t } = useTranslation();
   const [isAddCustomerModalOpen, setIsAddCustomerModalOpen] = useState(false);
   const [isAddSupplierModalOpen, setIsAddSupplierModalOpen] = useState(false);
   const [isQuickOrderModalOpen, setIsQuickOrderModalOpen] = useState(false);
@@ -286,15 +284,15 @@ function DashboardCards() {
 
   const cardsData = [
     {
-      title: t('totalOrders', { count: totalOrders }),
+      title: `${totalOrders} Orders`,
       icon: faListAlt,
-      description: t('totalOrdersDescription'),
+      description: `total orders in the system.`,
       onClick: () => (window.location.href = "http://localhost:3000/sales"),
     },
     {
-      title: t('pendingOrders', { count: pendingOrders }),
+      title: `${pendingOrders} Pending`,
       icon: faListCheck,
-      description: t('pendingOrdersDescription'),
+      description: `orders are pending.`,
       onClick: () => {
         const pending = orders.filter(order => order.status === 'Pending')
           .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
@@ -303,46 +301,46 @@ function DashboardCards() {
       },
     },
     {
-      title: t('notifications'),
+      title: "Notifications",
       icon: faBell,
-      description: t('notificationsAvailable', { count: notifications.length }),
+      description: `${notifications.length} notifications available.`,
       badge: notifications.length > 0 ? notifications.length : null,
       onClick: () => setIsNotificationsModalOpen(true),
     },
     {
-      title: t('quickOrder'),
+      title: "Quick Order",
       icon: faPlus,
-      description: t('quickOrderDescription'),
+      description: "Create a quick order.",
       onClick: () => setIsQuickOrderModalOpen(true),
     },
     {
-      title: t('addCustomer'),
+      title: "Add Customer",
       icon: faUserPlus,
       onClick: () => setIsAddCustomerModalOpen(true),
     },
     {
-      title: t('customers', { count: users.filter(user => user.role?.toLowerCase() === 'user' || !user.role).length }),
+      title: `${users.filter(user => user.role?.toLowerCase() === 'user' || !user.role).length} Customers`,
       icon: faUsers,
-      description: t('registeredCustomers'),
+      description: 'registered customers.',
       onClick: () => (window.location.href = "http://localhost:3000/customers"),
     },
     {
-      title: t('addSuppliers'),
+      title: "Add Suppliers",
       icon: faTruck,
       onClick: () => setIsAddSupplierModalOpen(true),
     },
     {
-      title: t('sales'),
+      title: "Sales",
       icon: faShoppingCart,
       onClick: () => (window.location.href = "http://localhost:3000/sales"),
     },
     {
-      title: t('inventory'),
+      title: "Inventory",
       icon: faWarehouse,
       onClick: () => (window.location.href = "http://localhost:3000/inventory"),
     },
     {
-      title: t('mails'),
+      title: "Mails",
       icon: faEnvelope,
       onClick: () => {
         window.location.href = "mailto:qubite.net@gmail.com?subject=Hello%20Qubite&body=Write%20your%20message%20here";
@@ -351,13 +349,13 @@ function DashboardCards() {
   ];
 
   const renderGraphs = () => {
-    if (isLoading) return <div className="loading-spinner">{t('loading')}</div>;
+    if (isLoading) return <div className="loading-spinner">Loading...</div>;
     if (error) return <div className="error-message">{error}</div>;
 
     return (
       <div className="dashboard-graphs">
         <div className="graph-container">
-          <h3>{t('dailySales')}</h3>
+          <h3>Daily Sales (Last 7 Days)</h3>
           <Line
             data={{
               labels: analytics.dailySales.labels,
@@ -394,7 +392,7 @@ function DashboardCards() {
         </div>
 
         <div className="graph-container">
-          <h3>{t('weeklySales')}</h3>
+          <h3>Weekly Sales (Last 4 Weeks)</h3>
           <Bar
             data={{
               labels: analytics.weeklySales.labels,
@@ -429,7 +427,7 @@ function DashboardCards() {
         </div>
 
         <div className="graph-container">
-          <h3>{t('salesByStatus')}</h3>
+          <h3>Sales by Order Status</h3>
           <Doughnut
             data={{
               labels: analytics.salesByStatus.labels,
@@ -455,7 +453,7 @@ function DashboardCards() {
         </div>
 
         <div className="graph-container">
-          <h3>{t('inventoryLevels')}</h3>
+          <h3>Inventory Levels</h3>
           <Bar
             data={{
               labels: analytics.inventoryLevels.labels,
@@ -510,10 +508,10 @@ function DashboardCards() {
   return (
     <div className="dashboard-container">
       <div className="dashboard-header">
-        <h2>{t('adminDashboard')}</h2>
+        <h2>Admin Dashboard</h2>
         <div className="dashboard-controls">
           <span className="last-refresh">
-            {t('lastUpdated')}: {lastRefresh.toLocaleTimeString()}
+            Last updated: {lastRefresh.toLocaleTimeString()}
           </span>
           <button 
             onClick={handleRefresh}
@@ -677,7 +675,7 @@ function DashboardCards() {
 
       {/* Notifications Modal */}
       <Modal isOpen={isNotificationsModalOpen} onClose={() => setIsNotificationsModalOpen(false)}>
-        <h2>{t('notifications')}</h2>
+        <h2>Notifications</h2>
         <div className="notifications-list">
           {notifications.length > 0 ? (
             notifications.map((notification, index) => (
@@ -689,7 +687,7 @@ function DashboardCards() {
             ))
           ) : (
             <div className="no-notifications">
-              <p>{t('noNotifications')}</p>
+              <p>No notifications available</p>
             </div>
           )}
         </div>
@@ -698,7 +696,7 @@ function DashboardCards() {
       {/* Pending Orders Modal */}
       <Modal isOpen={isPendingOrdersModalOpen} onClose={() => setIsPendingOrdersModalOpen(false)}>
         <div className="dashboard-pending-orders">
-          <h2>{t('pendingOrders', { count: pendingOrders })}</h2>
+          <h2>Pending Orders</h2>
           <div className="dashboard-pending-list">
             {pendingOrdersList.length > 0 ? (
               <table className="dashboard-pending-table">
@@ -726,7 +724,7 @@ function DashboardCards() {
               </table>
             ) : (
               <div className="dashboard-no-pending">
-                <p>{t('noPendingOrders')}</p>
+                <p>No pending orders available</p>
               </div>
             )}
           </div>
