@@ -4,8 +4,11 @@ import TopNavbar from '../components/TopNavbar';
 import { utils as XLSXUtils, writeFile as XLSXWriteFile } from 'xlsx'; // For Excel export
 import axios from 'axios';
 import '../styles/Orders.css';
+import { useTranslation } from 'react-i18next';
+import { ordersTranslation } from '../i18n/ordersTranslation';
 
 const Orders = () => {
+  const { t, i18n } = useTranslation();
   const [orders, setOrders] = useState([]);
   const [filteredOrders, setFilteredOrders] = useState([]); // For search functionality
   const [searchTerm, setSearchTerm] = useState(''); // Search input state
@@ -93,12 +96,12 @@ const Orders = () => {
     // Check if there's enough inventory
     const selectedProduct = inventory.find(item => item.name === orderData.productName);
     if (!selectedProduct) {
-      alert('Product not found in inventory!');
+      alert(t('productNotFound'));
       return;
     }
 
     if (selectedProduct.quantity < orderData.quantity) {
-      alert('Not enough inventory available!');
+      alert(t('notEnoughInventory'));
       return;
     }
 
@@ -302,24 +305,24 @@ const Orders = () => {
       <div className="main-content">
         <TopNavbar />
         <div className="orders-container">
-          <h1>Orders</h1>
+          <h1>{t('title')}</h1>
 
           {/* Search and Export Actions */}
           <div className="orders-export">
             <input
               type="text"
-              placeholder="Search by Client, Product, or Status"
+              placeholder={t('search')}
               value={searchTerm}
               onChange={handleSearch}
             />
             <button onClick={exportToExcel}>
-              <i className="fa fa-th"></i> Export to Excel
+              <i className="fa fa-th"></i> {t('exportButton')}
             </button>
           </div>
 
           {/* Create Order Form */}
           <div className="create-order-form">
-            <h2>Create New Order</h2>
+            <h2>{t('createOrder')}</h2>
             <form onSubmit={handleCreateOrder}>
               {userRole === 'admin' && (
                 <div className="form-row">
@@ -330,7 +333,7 @@ const Orders = () => {
                     }
                     required
                   >
-                    <option value="">Select a User</option>
+                    <option value="">{t('selectUser')}</option>
                     {users.map((user) => (
                       <option key={user.email} value={user.email}>
                         {user.name} ({user.email})
@@ -353,10 +356,10 @@ const Orders = () => {
                   }
                   required
                 >
-                  <option value="">Select a Product</option>
+                  <option value="">{t('selectProduct')}</option>
                   {inventory.map((item) => (
                     <option key={item.id} value={item.name}>
-                      {item.name} (Stock: {item.quantity})
+                      {item.name} ({t('stock')} {item.quantity})
                     </option>
                   ))}
                 </select>
@@ -364,7 +367,7 @@ const Orders = () => {
               <div className="form-row">
                 <input
                   type="number"
-                  placeholder="Quantity"
+                  placeholder={t('quantity')}
                   value={newOrder.quantity}
                   onChange={(e) =>
                     setNewOrder({ ...newOrder, quantity: e.target.value })
@@ -373,7 +376,7 @@ const Orders = () => {
                 />
                 <input
                   type="number"
-                  placeholder="Price"
+                  placeholder={t('price')}
                   value={newOrder.price}
                   readOnly
                   required
@@ -382,11 +385,11 @@ const Orders = () => {
               <button type="submit" disabled={actionLoading}>
                 {actionLoading ? (
                   <>
-                    <i className="fa fa-spinner fa-spin"></i> Processing...
+                    <i className="fa fa-spinner fa-spin"></i> {t('processing')}
                   </>
                 ) : (
                   <>
-                    <i className="fa fa-plus"></i> Create Order
+                    <i className="fa fa-plus"></i> {t('createOrderButton')}
                   </>
                 )}
               </button>
@@ -394,32 +397,18 @@ const Orders = () => {
           </div>
 
           {loading ? (
-            <p>Loading orders...</p>
+            <p>{t('loading')}</p>
           ) : (
             <table className="orders-table">
               <thead>
                 <tr>
-                  <th>Client Name</th>
-                  <th>Product Name</th>
-                  <th>
-                    Date 
-                    <i 
-                      className={`fas fa-sort${sortOrder === 'desc' ? '-down' : '-up'}`} 
-                      onClick={toggleSortOrder}
-                      style={{ marginLeft: '5px', cursor: 'pointer' }}
-                    />
-                  </th>
-                  <th>
-                    Quantity
-                    <i 
-                      className={`fas fa-sort${quantitySortOrder === 'desc' ? '-down' : '-up'}`} 
-                      onClick={toggleQuantitySort}
-                      style={{ marginLeft: '5px', cursor: 'pointer' }}
-                    />
-                  </th>
-                  <th>Price</th>
-                  <th>Status</th>
-                  <th>Actions</th> 
+                  <th>{t('clientName')}</th>
+                  <th>{t('productName')}</th>
+                  <th>{t('date')}</th>
+                  <th>{t('quantity')}</th>
+                  <th>{t('price')}</th>
+                  <th>{t('status')}</th>
+                  <th>{t('actions')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -450,10 +439,10 @@ const Orders = () => {
                           value={order.status}
                           disabled={actionLoading}
                         >
-                          <option value="Pending">Pending</option>
-                          <option value="Approved">Approved</option>
-                          <option value="On Process">On Process</option>
-                          <option value="Completed">Completed</option>
+                          <option value="Pending">{t('pending')}</option>
+                          <option value="Approved">{t('approved')}</option>
+                          <option value="On Process">{t('onProcess')}</option>
+                          <option value="Completed">{t('completed')}</option>
                         </select>
                       ) : (
                         order.status
@@ -466,7 +455,7 @@ const Orders = () => {
                         disabled={userRole !== 'admin' && order.status !== 'Pending'}
                       >
                         <i className="fas fa-edit" style={{ marginRight: '5px' }}></i>
-                        Edit
+                        {t('edit')}
                       </button>
                       <button
                         className="delete-order-btn"
@@ -474,7 +463,7 @@ const Orders = () => {
                         disabled={userRole !== 'admin' && order.status !== 'Pending'}
                       >
                         <i className="fas fa-trash" style={{ marginRight:'5px' }}></i>
-                        Delete
+                        {t('delete')}
                       </button>
                     </td>
                   </tr>
@@ -483,88 +472,88 @@ const Orders = () => {
             </table>
           )}
 
-{selectedOrder && (
-  <div className="edit-order-modal">
-    <div className="edit-order-modal-content">
-      <h2>Edit Order</h2>
-      <form onSubmit={handleSaveOrder} className="edit-order-form">
-        <div className="edit-order-input-container">
-          <label htmlFor="productName">Order Name</label>
-          <input
-            id="productName"
-            type="text"
-            value={selectedOrder.productName}
-            onChange={(e) =>
-              setSelectedOrder({
-                ...selectedOrder,
-                productName: e.target.value,
-              })
-            }
-            placeholder="Order Name"
-            required
-            className="edit-order-input"
-            readOnly // Değiştirilemez yapıldı
-          />
-        </div>
-        <div className="edit-order-input-container">
-          <label htmlFor="quantity">Quantity</label>
-          <input
-            id="quantity"
-            type="number"
-            value={selectedOrder.quantity}
-            onChange={(e) =>
-              setSelectedOrder({
-                ...selectedOrder,
-                quantity: e.target.value,
-              })
-            }
-            placeholder="Quantity"
-            required
-            className="edit-order-input"
-          />
-        </div>
-        <div className="edit-order-input-container">
-          <label htmlFor="price">Price</label>
-          <input
-            id="price"
-            type="number"
-            value={selectedOrder.price}
-            onChange={(e) =>
-              setSelectedOrder({
-                ...selectedOrder,
-                price: e.target.value,
-              })
-            }
-            placeholder="Price"
-            required
-            className="edit-order-input"
-            readOnly // Değiştirilemez yapıldı
-          />
-        </div>
-        <div className="edit-order-button-container">
-          <button type="submit" disabled={actionLoading} className="order-modal-save-button">
-            {actionLoading ? (
-              <>
-                <i className="fa fa-spinner fa-spin"></i> Saving...
-              </>
-            ) : (
-              <>
-                <i className="fa fa-save"></i> Save Changes
-              </>
-            )}
-          </button>
-          <button
-            type="button"
-            onClick={() => setSelectedOrder(null)} // Close the modal
-            className="order-modal-cancel-button"
-          >
-            <i className="fa fa-times"></i> Cancel
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-)}
+          {selectedOrder && (
+            <div className="edit-order-modal">
+              <div className="edit-order-modal-content">
+                <h2>{t('editOrder')}</h2>
+                <form onSubmit={handleSaveOrder} className="edit-order-form">
+                  <div className="edit-order-input-container">
+                    <label htmlFor="productName">{t('orderName')}</label>
+                    <input
+                      id="productName"
+                      type="text"
+                      value={selectedOrder.productName}
+                      onChange={(e) =>
+                        setSelectedOrder({
+                          ...selectedOrder,
+                          productName: e.target.value,
+                        })
+                      }
+                      placeholder={t('orderName')}
+                      required
+                      className="edit-order-input"
+                      readOnly // Değiştirilemez yapıldı
+                    />
+                  </div>
+                  <div className="edit-order-input-container">
+                    <label htmlFor="quantity">{t('quantity')}</label>
+                    <input
+                      id="quantity"
+                      type="number"
+                      value={selectedOrder.quantity}
+                      onChange={(e) =>
+                        setSelectedOrder({
+                          ...selectedOrder,
+                          quantity: e.target.value,
+                        })
+                      }
+                      placeholder={t('quantity')}
+                      required
+                      className="edit-order-input"
+                    />
+                  </div>
+                  <div className="edit-order-input-container">
+                    <label htmlFor="price">{t('price')}</label>
+                    <input
+                      id="price"
+                      type="number"
+                      value={selectedOrder.price}
+                      onChange={(e) =>
+                        setSelectedOrder({
+                          ...selectedOrder,
+                          price: e.target.value,
+                        })
+                      }
+                      placeholder={t('price')}
+                      required
+                      className="edit-order-input"
+                      readOnly // Değiştirilemez yapıldı
+                    />
+                  </div>
+                  <div className="edit-order-button-container">
+                    <button type="submit" disabled={actionLoading} className="order-modal-save-button">
+                      {actionLoading ? (
+                        <>
+                          <i className="fa fa-spinner fa-spin"></i> {t('saving')}
+                        </>
+                      ) : (
+                        <>
+                          <i className="fa fa-save"></i> {t('saveChanges')}
+                        </>
+                      )}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedOrder(null)} // Close the modal
+                      className="order-modal-cancel-button"
+                    >
+                      <i className="fa fa-times"></i> {t('cancel')}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

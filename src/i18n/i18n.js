@@ -2,19 +2,22 @@ import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import { resources } from './translations';
 import { dashboardTranslations } from './dashboardTranslations';
+import { ordersTranslation } from './ordersTranslation';
 
 // Merge dashboard translations with existing resources
 const mergedResources = {
   en: {
     translation: {
       ...resources.en.translation,
-      ...dashboardTranslations.en
+      ...dashboardTranslations.en,
+      ...ordersTranslation.en
     }
   },
   tr: {
     translation: {
       ...resources.tr.translation,
-      ...dashboardTranslations.tr
+      ...dashboardTranslations.tr,
+      ...ordersTranslation.tr
     }
   }
 };
