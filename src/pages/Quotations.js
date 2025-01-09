@@ -5,9 +5,12 @@ import TopNavbar from '../components/TopNavbar';
 import { utils as XLSXUtils, writeFile as XLSXWriteFile } from 'xlsx';
 import jsPDF from 'jspdf';
 import '../styles/Quotations.css';
+import { useTranslation } from 'react-i18next';
 
 
 const Quotations = () => {
+  const { t } = useTranslation();
+
   const [quotations, setQuotations] = useState([
     {
       id: 1,
@@ -112,14 +115,14 @@ const Quotations = () => {
       <div className="main-content">
         <TopNavbar />
         <div className="quotations-container">
-          <h1>Quotations</h1>
+          <h1>{t('quotations')}</h1>
 
           {/* Add/Edit Quotation Form */}
           <form className="quotation-form" onSubmit={handleSubmit}>
             <input
               type="text"
               name="clientName"
-              placeholder="Client Name"
+              placeholder={t('clientName')}
               value={formData.clientName}
               onChange={handleChange}
               required
@@ -136,7 +139,7 @@ const Quotations = () => {
                 <div key={index} className="item-row">
                   <input
                     type="text"
-                    placeholder="Product Name"
+                    placeholder={t('productName')}
                     value={item.productName}
                     onChange={(e) => {
                       const updatedItems = [...formData.items];
@@ -147,7 +150,7 @@ const Quotations = () => {
                   />
                   <input
                     type="number"
-                    placeholder="Quantity"
+                    placeholder={t('quantity')}
                     value={item.quantity}
                     onChange={(e) => {
                       const updatedItems = [...formData.items];
@@ -158,7 +161,7 @@ const Quotations = () => {
                   />
                   <input
                     type="number"
-                    placeholder="Price"
+                    placeholder={t('price')}
                     value={item.price}
                     onChange={(e) => {
                       const updatedItems = [...formData.items];
@@ -178,27 +181,29 @@ const Quotations = () => {
                   })
                 }
               >
-                Add Item
+                {t('addItem')}
               </button>
             </div>
-            <button type="submit">{selectedQuotation ? 'Update' : 'Add'} Quotation</button>
+            <button type="submit">
+              {selectedQuotation ? t('updateQuotation') : t('addQuotation')}
+            </button>
           </form>
 
           {/* Export Buttons */}
           <div className="quotations-actions">
-            <button onClick={exportAsExcel}>Export as Excel</button>
-            <button onClick={exportAsPDF}>Export as PDF</button>
+            <button onClick={exportAsExcel}>{t('exportAsExcel')}</button>
+            <button onClick={exportAsPDF}>{t('exportAsPDF')}</button>
           </div>
 
           {/* Quotations Table */}
           <table className="quotations-table">
             <thead>
               <tr>
-                <th>Client Name</th>
-                <th>Date</th>
-                <th>Total</th>
-                <th>Status</th>
-                <th>Actions</th>
+                <th>{t('clientName')}</th>
+                <th>{t('date')}</th>
+                <th>{t('total')}</th>
+                <th>{t('status')}</th>
+                <th>{t('actions')}</th>
               </tr>
             </thead>
             <tbody>
@@ -209,7 +214,7 @@ const Quotations = () => {
                   <td>${quotation.total}</td>
                   <td>{quotation.status}</td>
                   <td>
-                    <button onClick={() => handleEdit(quotation)}>Edit</button>
+                    <button onClick={() => handleEdit(quotation)}>{t('edit')}</button>
                   </td>
                 </tr>
               ))}

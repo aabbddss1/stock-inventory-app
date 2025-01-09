@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import '../styles/TopNavbar.css';
 
 function TopNavbar() {
@@ -8,6 +9,7 @@ function TopNavbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [timeLeft, setTimeLeft] = useState('');
   const [languageMenuOpen, setLanguageMenuOpen] = useState(false);
+  const { t, i18n } = useTranslation();
 
   useEffect(() => {
     const checkTokenExpiration = () => {
@@ -51,17 +53,8 @@ function TopNavbar() {
     navigate('/');
   };
 
-  const toggleMenu = () => {
-    setMenuOpen(!menuOpen);
-  };
-
-  const toggleLanguageMenu = () => {
-    setLanguageMenuOpen(!languageMenuOpen);
-  };
-
   const handleLanguageChange = (language) => {
-    // Here you can add logic to change the language
-    // For example, storing the selected language in localStorage
+    i18n.changeLanguage(language);
     localStorage.setItem('language', language);
     setLanguageMenuOpen(false);
   };
@@ -69,27 +62,25 @@ function TopNavbar() {
   return (
     <div className="top-navbar">
       <div className="title">
-        {userRole === 'admin'
-          ? 'Qubite Stock Management Systems'
-          : 'Qubite User Dashboard'}
+        {userRole === 'admin' ? t('title') : t('userDashboard')}
       </div>
 
-      <div className="hamburger" onClick={toggleMenu}>
+      <div className="hamburger" onClick={() => setMenuOpen(!menuOpen)}>
         ☰
       </div>
 
       <div className={`nav-links ${menuOpen ? 'open' : ''}`}>
-        <Link to="/help-center">Help Center</Link>
+        <Link to="/help-center">{t('helpCenter')}</Link>
 
         {userRole === 'admin' ? (
-          <Link to="/admin-users">Admin Users ▼</Link>
+          <Link to="/admin-users">{t('adminUsers')} ▼</Link>
         ) : (
-          <Link to="/user/profile">My Account ▼</Link>
+          <Link to="/user/profile">{t('myAccount')} ▼</Link>
         )}
 
         <div className="language-dropdown">
-          <button className="language-btn" onClick={toggleLanguageMenu}>
-            Language ▼
+          <button className="language-btn" onClick={() => setLanguageMenuOpen(!languageMenuOpen)}>
+            {t('language')} ▼
           </button>
           {languageMenuOpen && (
             <div className="language-menu">
@@ -99,15 +90,14 @@ function TopNavbar() {
           )}
         </div>
 
-        {/* Add session timer */}
         {timeLeft && (
           <span className="session-timer">
-            Session expires in: {timeLeft}
+            {t('sessionExpires')} {timeLeft}
           </span>
         )}
 
         <a href="#" onClick={handleLogout}>
-          Logout ▼
+          {t('logout')} ▼
         </a>
       </div>
     </div>
