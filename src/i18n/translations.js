@@ -1,3 +1,4 @@
+//quotations page translations
 export const resources = {
   en: {
     translation: {

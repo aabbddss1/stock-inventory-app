@@ -4,12 +4,15 @@ import Sidebar from '../components/Sidebar';
 import TopNavbar from '../components/TopNavbar';
 import { utils as XLSXUtils, writeFile as XLSXWriteFile } from 'xlsx'; // For Excel export
 import '../styles/Inventory.css';
+import { useTranslation } from 'react-i18next';
+import { inventoryTranslation } from '../i18n/inventoryTranslation';
 
 // Set Axios base URL and Authorization header
 axios.defaults.baseURL = 'http://localhost:5001'; // Replace with your backend URL
 axios.defaults.headers.common['Authorization'] = `Bearer ${localStorage.getItem('token')}`;
 
 const Inventory = () => {
+  const { t, i18n } = useTranslation();
   const [products, setProducts] = useState([]);
   const [formData, setFormData] = useState({
     name: '',
@@ -145,18 +148,18 @@ const Inventory = () => {
       <div className="main-content">
         <TopNavbar />
         <div className="inventory-container">
-          <h1>Inventory</h1>
+          <h1>{t('inventoryTranslation.title')}</h1>
 
           {/* Search and Export */}
           <div className="inventory-export">
             <input
               type="text"
-              placeholder="Search by name or category"
+              placeholder={t('inventoryTranslation.search')}
               value={searchTerm}
               onChange={handleSearch}
             />
             <button onClick={exportAsExcel} className="excel-export-btn">
-              <i className="fa fa-th"></i> Export to Excel
+              <i className="fa fa-th"></i> {t('inventoryTranslation.exportBtn')}
             </button>
           </div>
 
@@ -165,7 +168,7 @@ const Inventory = () => {
             <input
               type="text"
               name="name"
-              placeholder="Product Name"
+              placeholder={t('inventoryTranslation.form.productName')}
               value={formData.name}
               onChange={handleChange}
               required
@@ -173,7 +176,7 @@ const Inventory = () => {
             <input
               type="text"
               name="category"
-              placeholder="Category"
+              placeholder={t('inventoryTranslation.form.category')}
               value={formData.category}
               onChange={handleChange}
               required
@@ -181,7 +184,7 @@ const Inventory = () => {
             <input
               type="number"
               name="quantity"
-              placeholder="Quantity"
+              placeholder={t('inventoryTranslation.form.quantity')}
               value={formData.quantity}
               onChange={handleChange}
               required
@@ -189,7 +192,7 @@ const Inventory = () => {
             <input
               type="number"
               name="price"
-              placeholder="Price"
+              placeholder={t('inventoryTranslation.form.price')}
               value={formData.price}
               onChange={handleChange}
               required
@@ -197,11 +200,11 @@ const Inventory = () => {
             <button type="submit">
               {selectedProduct ? (
                 <>
-                  <i className="fa fa-edit"></i> Update Product
+                  <i className="fa fa-edit"></i> {t('inventoryTranslation.form.updateProduct')}
                 </>
               ) : (
                 <>
-                  <i className="fa fa-plus"></i> Add Product
+                  <i className="fa fa-plus"></i> {t('inventoryTranslation.form.addProduct')}
                 </>
               )}
             </button>
@@ -211,12 +214,12 @@ const Inventory = () => {
           <table className="inventory-table">
             <thead>
               <tr>
-                <th>Product Name</th>
-                <th>Category</th>
-                <th>Quantity</th>
-                <th>Price</th>
-                <th>Status</th>
-                <th>Actions</th>
+                <th>{t('inventoryTranslation.table.productName')}</th>
+                <th>{t('inventoryTranslation.table.category')}</th>
+                <th>{t('inventoryTranslation.table.quantity')}</th>
+                <th>{t('inventoryTranslation.table.price')}</th>
+                <th>{t('inventoryTranslation.table.status')}</th>
+                <th>{t('inventoryTranslation.table.actions')}</th>
               </tr>
             </thead>
             <tbody>
@@ -233,11 +236,11 @@ const Inventory = () => {
                     <div>
                       <button className="inventory-edit-btn" onClick={() => handleEdit(product)}>
                         <i className="fas fa-edit" style={{ marginRight: '5px' }}></i>
-                        Edit
+                        {t('inventoryTranslation.buttons.edit')}
                       </button>
                       <button className="inventory-delete-btn" onClick={() => handleDelete(product.id)}>
                         <i className="fas fa-trash" style={{ marginRight: '5px' }}></i>
-                        Delete
+                        {t('inventoryTranslation.buttons.delete')}
                       </button>
                     </div>
                   </td>

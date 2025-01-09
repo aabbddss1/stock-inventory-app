@@ -3,6 +3,7 @@ import { initReactI18next } from 'react-i18next';
 import { resources } from './translations';
 import { dashboardTranslations } from './dashboardTranslations';
 import { ordersTranslation } from './ordersTranslation';
+import { inventoryTranslation } from './inventoryTranslation';
 
 // Merge dashboard translations with existing resources
 const mergedResources = {
@@ -10,14 +11,16 @@ const mergedResources = {
     translation: {
       ...resources.en.translation,
       ...dashboardTranslations.en,
-      ...ordersTranslation.en
+      ...ordersTranslation.en,
+      inventoryTranslation: inventoryTranslation.en
     }
   },
   tr: {
     translation: {
       ...resources.tr.translation,
       ...dashboardTranslations.tr,
-      ...ordersTranslation.tr
+      ...ordersTranslation.tr,
+      inventoryTranslation: inventoryTranslation.tr
     }
   }
 };
