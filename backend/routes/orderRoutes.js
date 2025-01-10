@@ -27,6 +27,17 @@ if (!fs.existsSync(invoiceDir)) {
   fs.mkdirSync(invoiceDir);
 }
 
+// Add CORS headers middleware
+router.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', 'http://37.148.210.169:3000');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(200);
+  }
+  next();
+});
+
 // Get all orders
 router.get('/', authenticate, (req, res) => {
   const { role, email } = req.user;
@@ -69,17 +80,23 @@ router.get('/', authenticate, (req, res) => {
 // Delete an order
 router.delete('/:id', authenticate, (req, res) => {
   const { id } = req.params;
+  const { role } = req.user;
 
-  const query = 'DELETE FROM orders WHERE id = ?';
+  // Only admin or the order owner can delete
+  const query = role === 'admin' 
+    ? 'DELETE FROM orders WHERE id = ?' 
+    : 'DELETE FROM orders WHERE id = ? AND clientEmail = ?';
 
-  db.query(query, [id], (err, result) => {
+  const params = role === 'admin' ? [id] : [id, req.user.email];
+
+  db.query(query, params, (err, result) => {
     if (err) {
       console.error(`Error deleting order with ID ${id}:`, err);
       return res.status(500).json({ error: 'Failed to delete order' });
     }
 
     if (result.affectedRows === 0) {
-      return res.status(404).json({ error: 'Order not found' });
+      return res.status(404).json({ error: 'Order not found or unauthorized' });
     }
 
     res.json({ message: `Order with ID ${id} deleted successfully` });
@@ -230,94 +247,34 @@ router.put('/edit/:id', authenticate, (req, res) => {
 
 
 // Update an order status
-router.put('/:id', authenticate, (req, res) => {
+router.put('/:id', authenticate, async (req, res) => {
   const { id } = req.params;
   const { status } = req.body;
+  const { role } = req.user;
 
-  const query = `UPDATE orders SET status = ? WHERE id = ?`;
+  // Validate status
+  const validStatuses = ['Pending', 'Approved', 'On Process', 'Completed'];
+  if (!validStatuses.includes(status)) {
+    return res.status(400).json({ error: 'Invalid status' });
+  }
 
-  db.query(query, [status, id], async (err, result) => {
-    if (err) {
-      console.error(`Error updating order status for ID ${id}:`, err);
-      return res.status(500).json({ error: 'Failed to update order status' });
-    }
+  // Only admin can update any order, users can only update their own orders
+  const query = role === 'admin'
+    ? 'UPDATE orders SET status = ? WHERE id = ?'
+    : 'UPDATE orders SET status = ? WHERE id = ? AND clientEmail = ?';
+
+  const params = role === 'admin' ? [status, id] : [status, id, req.user.email];
+
+  try {
+    const result = await db.query(query, params);
     if (result.affectedRows === 0) {
-      return res.status(404).json({ error: 'Order not found' });
+      return res.status(404).json({ error: 'Order not found or unauthorized' });
     }
-
-    db.query('SELECT * FROM orders WHERE id = ?', [id], async (err, results) => {
-      if (err || results.length === 0) {
-        console.error('Error fetching order details:', err);
-        return res.status(500).json({ error: 'Failed to fetch order details' });
-      }
-
-      const order = results[0];
-      const clientEmail = order.clientEmail;
-      const clientName = order.clientName;
-      const productName = order.productName;
-
-      const adminEmail = process.env.EMAIL_USER;
-      const clientEmailBody = `
-        <h1 style="font-family: Arial, sans-serif; color: #4CAF50;">Order Status Update</h1>
-        <p style="font-family: Arial, sans-serif; color: #333;">Dear ${clientName},</p>
-        <p style="font-family: Arial, sans-serif; color: #555;">The status of your order has been updated. Below are the details:</p>
-        <table style="font-family: Arial, sans-serif; border-collapse: collapse; width: 100%; margin-top: 20px;">
-          <thead>
-            <tr style="background-color: #f2f2f2;">
-              <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Order ID</th>
-              <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Product Name</th>
-              <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">New Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td style="border: 1px solid #ddd; padding: 8px;">${id}</td>
-              <td style="border: 1px solid #ddd; padding: 8px;">${productName}</td>
-              <td style="border: 1px solid #ddd; padding: 8px;">${status}</td>
-            </tr>
-          </tbody>
-        </table>
-        <p style="font-family: Arial, sans-serif; color: #555; margin-top: 20px;">If you have questions, contact us at <a href="mailto:${adminEmail}" style="color: #4CAF50; text-decoration: none;">${adminEmail}</a>.</p>
-        <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
-        <p style="font-family: Arial, sans-serif; color: #333; text-align: center;"><strong>Thank you for choosing Qubite!</strong></p>`;
-
-      const adminEmailBody = `
-        <h1 style="font-family: Arial, sans-serif; color: #2196F3;">Order Status Updated</h1>
-        <p style="font-family: Arial, sans-serif; color: #333;">Hello Admin,</p>
-        <p style="font-family: Arial, sans-serif; color: #555;">The status of Order #${id} has been updated. Below are the details:</p>
-        <table style="font-family: Arial, sans-serif; border-collapse: collapse; width: 100%; margin-top: 20px;">
-          <thead>
-            <tr style="background-color: #f2f2f2;">
-              <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Order ID</th>
-              <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Product Name</th>
-              <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">New Status</th>
-              <th style="border: 1px solid #ddd; padding: 8px;">Client Name</th>
-              <th style="border: 1px solid #ddd; padding: 8px;">Client Email</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td style="border: 1px solid #ddd; padding: 8px;">${id}</td>
-              <td style="border: 1px solid #ddd; padding: 8px;">${productName}</td>
-              <td style="border: 1px solid #ddd; padding: 8px;">${status}</td>
-              <td style="border: 1px solid #ddd; padding: 8px;">${clientName}</td>
-              <td style="border: 1px solid #ddd; padding: 8px;">${clientEmail}</td>
-            </tr>
-          </tbody>
-        </table>
-        <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
-        <p style="font-family: Arial, sans-serif; color: #333; text-align: center;"><strong>Qubite Admin Team</strong></p>`;
-
-      try {
-        await sendEmail({ to: clientEmail, subject: `Order Status Updated - Order #${id}`, html: clientEmailBody });
-        await sendEmail({ to: adminEmail, subject: `Order Status Updated - Order #${id}`, html: adminEmailBody });
-        res.json({ id, status });
-      } catch (emailError) {
-        console.error('Error sending emails:', emailError);
-        res.status(500).json({ error: 'Order status updated, but email notifications failed' });
-      }
-    });
-  });
+    res.json({ message: 'Order status updated successfully', id, status });
+  } catch (error) {
+    console.error('Error updating order status:', error);
+    res.status(500).json({ error: 'Failed to update order status' });
+  }
 });
 
 module.exports = router;

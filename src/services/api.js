@@ -1,7 +1,7 @@
 // src/services/api.js
 import axios from 'axios';
 
-const API_URL = 'http://localhost:3000/api'; // Replace with actual backend URL
+const API_URL = 'http://37.148.210.169:5001/api'; // Replace with actual backend URL
 
 export const loginUser = async (username, password) => {
   try {
