@@ -36,21 +36,21 @@ const Orders = () => {
     const fetchData = async () => {
       try {
         // Fetch orders
-        const ordersResponse = await axios.get('http://37.148.210.169:5001/api/orders', {
+        const ordersResponse = await axios.get(`${api}/orders`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setOrders(ordersResponse.data);
         setFilteredOrders(ordersResponse.data);
 
         // Fetch inventory
-        const inventoryResponse = await axios.get('http://37.148.210.169:5001/api/orders', {
+        const inventoryResponse = await axios.get(`${api}/inventory`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setInventory(inventoryResponse.data);
 
         // Fetch users for admin
         if (userRole === 'admin') {
-          const usersResponse = await axios.get('http://37.148.210.169:5001/api/orders', {
+          const usersResponse = await axios.get(`${api}/users`, {
             headers: { Authorization: `Bearer ${token}` },
           });
           setUsers(usersResponse.data);
@@ -109,13 +109,13 @@ const Orders = () => {
     setActionLoading(true);
     try {
       // Create the order
-      const orderResponse = await axios.post('http://37.148.210.169:5001/api/orders', orderData, {
+      const orderResponse = await axios.post(`${api}/orders`, orderData, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
       // Update inventory quantity
       const updatedQuantity = selectedProduct.quantity - orderData.quantity;
-      await axios.put(`http://37.148.210.169:5001/api/inventory/${selectedProduct.id}`, 
+      await axios.put(`${api}/inventory/${selectedProduct.id}`, 
         { ...selectedProduct, quantity: updatedQuantity },
         { headers: { Authorization: `Bearer ${token}` }}
       );
@@ -151,13 +151,13 @@ const Orders = () => {
         const inventoryItem = inventory.find(item => item.name === orderToDelete.productName);
         
         // Delete the order
-        await axios.delete(`http://37.148.210.169:5001/api/orders/${id}`, {
+        await axios.delete(`${api}/orders/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
         // Return quantity to inventory
         const updatedQuantity = inventoryItem.quantity + parseInt(orderToDelete.quantity);
-        await axios.put(`http://37.148.210.169:5001/api/inventory/${inventoryItem.id}`, 
+        await axios.put(`${api}/inventory/${inventoryItem.id}`, 
           { ...inventoryItem, quantity: updatedQuantity },
           { headers: { Authorization: `Bearer ${token}` }}
         );
@@ -188,7 +188,7 @@ const Orders = () => {
 
     setActionLoading(true);
     try {
-      await axios.put(`http://37.148.210.169:5001/api/orders/${id}`, updatedOrder, {
+      await axios.put(`${api}/orders/${id}`, updatedOrder, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setOrders((prevOrders) =>
@@ -240,13 +240,13 @@ const Orders = () => {
       }
 
       // Update the order
-      await axios.put(`http://37.148.210.169:5001/api/orders/edit/${selectedOrder.id}`, selectedOrder, {
+      await axios.put(`${api}/orders/edit/${selectedOrder.id}`, selectedOrder, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
       // Update inventory quantity
       const updatedQuantity = inventoryItem.quantity - quantityDifference;
-      await axios.put(`http://37.148.210.169:5001/api/inventory/${inventoryItem.id}`, 
+      await axios.put(`${api}/inventory/${inventoryItem.id}`, 
         { ...inventoryItem, quantity: updatedQuantity },
         { headers: { Authorization: `Bearer ${token}` }}
       );
@@ -336,8 +336,8 @@ const Orders = () => {
                   >
                     <option value="">{t('selectUser')}</option>
                     {users.map((user) => (
-                      <option key={user.email} value={user.email}>
-                        {user.name} ({user.email})
+                      <option key={user.id || user.email} value={user.email}>
+                        {user.name || user.email}
                       </option>
                     ))}
                   </select>
@@ -350,9 +350,7 @@ const Orders = () => {
                     setNewOrder({
                       ...newOrder,
                       productName: e.target.value,
-                      price:
-                        inventory.find((item) => item.name === e.target.value)
-                          ?.price || '',
+                      price: inventory.find((item) => item.name === e.target.value)?.price || '',
                     })
                   }
                   required
@@ -360,7 +358,7 @@ const Orders = () => {
                   <option value="">{t('selectProduct')}</option>
                   {inventory.map((item) => (
                     <option key={item.id} value={item.name}>
-                      {item.name} ({t('stock')} {item.quantity})
+                      {item.name} ({t('stock')}: {item.quantity})
                     </option>
                   ))}
                 </select>
