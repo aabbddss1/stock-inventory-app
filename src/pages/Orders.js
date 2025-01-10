@@ -1,34 +1,32 @@
 import React, { useState, useEffect } from 'react';
-import { api } from '../config/api';  // Import the api instance
+import { api } from '../config/api';
 import Sidebar from '../components/Sidebar';
 import TopNavbar from '../components/TopNavbar';
 import '../styles/Orders.css';
 import { useTranslation } from 'react-i18next';
+import { utils as XLSXUtils, writeFile as XLSXWriteFile } from 'xlsx';
 
 const Orders = () => {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const [orders, setOrders] = useState([]);
-  const [filteredOrders, setFilteredOrders] = useState([]); // For search functionality
-  const [searchTerm, setSearchTerm] = useState(''); // Search input state
-  const [inventory, setInventory] = useState([]); // Inventory data
-  const [users, setUsers] = useState([]); // List of registered users for admin
+  const [filteredOrders, setFilteredOrders] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [inventory, setInventory] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [actionLoading, setActionLoading] = useState(false); // Action-specific loading state
-  const [selectedOrder, setSelectedOrder] = useState(null); // For editing orders
+  const [error, setError] = useState(null);
+  const [actionLoading, setActionLoading] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState(null);
   const [newOrder, setNewOrder] = useState({
     clientEmail: '',
     productName: '',
     quantity: '',
     price: '',
   });
-  const [sortOrder, setSortOrder] = useState('desc');
-  const [quantitySortOrder, setQuantitySortOrder] = useState('desc');
 
   const token = localStorage.getItem('token');
-  const userData = JSON.parse(atob(token.split('.')[1])); // Decode token to get user data
-  const userRole = userData.role; // User role (admin or user)
+  const userData = JSON.parse(atob(token.split('.')[1]));
+  const userRole = userData.role;
 
-  // Fetch orders, users, and inventory
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -54,7 +52,6 @@ const Orders = () => {
     fetchData();
   }, [token, userRole]);
 
-  // Handle search functionality
   const handleSearch = (e) => {
     const value = e.target.value.toLowerCase();
     setSearchTerm(value);
@@ -68,7 +65,6 @@ const Orders = () => {
     setFilteredOrders(filtered);
   };
 
-  // Export to Excel functionality
   const exportToExcel = () => {
     const worksheet = XLSXUtils.json_to_sheet(filteredOrders);
     const workbook = XLSXUtils.book_new();
@@ -76,7 +72,6 @@ const Orders = () => {
     XLSXWriteFile(workbook, 'orders_data.xlsx');
   };
 
-  // Handle creating a new order
   const handleCreateOrder = async (e) => {
     e.preventDefault();
     setActionLoading(true);
@@ -99,7 +94,6 @@ const Orders = () => {
     }
   };
 
-  // Handle deleting an order
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this order?')) {
       try {
@@ -113,7 +107,6 @@ const Orders = () => {
     }
   };
 
-  // Handle changing the order status
   const handleStatusChange = async (orderId, newStatus) => {
     try {
       await api.put(`/api/orders/${orderId}/status`, { status: newStatus });
@@ -129,12 +122,10 @@ const Orders = () => {
     }
   };
 
-  // Handle editing an order (pop-up)
   const handleEditOrder = (order) => {
     setSelectedOrder(order);
   };
 
-  // Handle saving changes to an order
   const handleSaveOrder = async (e) => {
     e.preventDefault();
     setActionLoading(true);
@@ -156,28 +147,6 @@ const Orders = () => {
     }
   };
 
-  const toggleSortOrder = () => {
-    const newOrder = sortOrder === 'desc' ? 'asc' : 'desc';
-    setSortOrder(newOrder);
-    const sorted = [...filteredOrders].sort((a, b) => {
-      return newOrder === 'desc' 
-        ? new Date(b.orderDate) - new Date(a.orderDate)
-        : new Date(a.orderDate) - new Date(b.orderDate);
-    });
-    setFilteredOrders(sorted);
-  };
-
-  const toggleQuantitySort = () => {
-    const newOrder = quantitySortOrder === 'desc' ? 'asc' : 'desc';
-    setQuantitySortOrder(newOrder);
-    const sorted = [...filteredOrders].sort((a, b) => {
-      return newOrder === 'desc' 
-        ? b.quantity - a.quantity
-        : a.quantity - b.quantity;
-    });
-    setFilteredOrders(sorted);
-  };
-
   return (
     <div className="orders-page">
       <Sidebar />
@@ -186,7 +155,6 @@ const Orders = () => {
         <div className="orders-container">
           <h1>{t('title')}</h1>
 
-          {/* Search and Export Actions */}
           <div className="orders-export">
             <input
               type="text"
@@ -199,7 +167,6 @@ const Orders = () => {
             </button>
           </div>
 
-          {/* Create Order Form */}
           <div className="create-order-form">
             <h2>{t('createOrder')}</h2>
             <form onSubmit={handleCreateOrder}>
@@ -371,7 +338,7 @@ const Orders = () => {
                       placeholder={t('orderName')}
                       required
                       className="edit-order-input"
-                      readOnly // Değiştirilemez yapıldı
+                      readOnly
                     />
                   </div>
                   <div className="edit-order-input-container">
@@ -406,7 +373,7 @@ const Orders = () => {
                       placeholder={t('price')}
                       required
                       className="edit-order-input"
-                      readOnly // Değiştirilemez yapıldı
+                      readOnly
                     />
                   </div>
                   <div className="edit-order-button-container">
@@ -423,7 +390,7 @@ const Orders = () => {
                     </button>
                     <button
                       type="button"
-                      onClick={() => setSelectedOrder(null)} // Close the modal
+                      onClick={() => setSelectedOrder(null)}
                       className="order-modal-cancel-button"
                     >
                       <i className="fa fa-times"></i> {t('cancel')}
