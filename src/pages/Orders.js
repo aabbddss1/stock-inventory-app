@@ -1,12 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { api } from '../config/api';  // Import the api instance
 import Sidebar from '../components/Sidebar';
 import TopNavbar from '../components/TopNavbar';
-import { utils as XLSXUtils, writeFile as XLSXWriteFile } from 'xlsx'; // For Excel export
-import axios from 'axios';
-import { api } from '../config/api';
 import '../styles/Orders.css';
 import { useTranslation } from 'react-i18next';
-import { ordersTranslation } from '../i18n/ordersTranslation';
 
 const Orders = () => {
   const { t, i18n } = useTranslation();
@@ -35,30 +32,21 @@ const Orders = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch orders
-        const ordersResponse = await axios.get('/api/orders', {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        setLoading(true);
+        const [ordersResponse, usersResponse, inventoryResponse] = await Promise.all([
+          api.get('/api/orders'),
+          api.get('/api/customers'),
+          api.get('/api/inventory')
+        ]);
+
         setOrders(ordersResponse.data);
         setFilteredOrders(ordersResponse.data);
-
-        // Fetch inventory
-        const inventoryResponse = await axios.get('/api/inventory', {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        setUsers(usersResponse.data);
         setInventory(inventoryResponse.data);
-
-        // Fetch users for admin
-        if (userRole === 'admin') {
-          const usersResponse = await axios.get('/api/customers', {
-            headers: { Authorization: `Bearer ${token}` },
-          });
-          setUsers(usersResponse.data);
-        }
-
-        setLoading(false);
       } catch (error) {
         console.error('Error fetching data:', error);
+        setError('Failed to load data');
+      } finally {
         setLoading(false);
       }
     };
@@ -91,49 +79,21 @@ const Orders = () => {
   // Handle creating a new order
   const handleCreateOrder = async (e) => {
     e.preventDefault();
-
-    const orderData = userRole === 'admin' ? newOrder : { ...newOrder, clientEmail: userData.email };
-
-    // Check if there's enough inventory
-    const selectedProduct = inventory.find(item => item.name === orderData.productName);
-    if (!selectedProduct) {
-      alert(t('productNotFound'));
-      return;
-    }
-
-    if (selectedProduct.quantity < orderData.quantity) {
-      alert(t('notEnoughInventory'));
-      return;
-    }
-
     setActionLoading(true);
     try {
-      // Create the order
-      const orderResponse = await axios.post('/api/orders', orderData, {
-        headers: { Authorization: `Bearer ${token}` },
+      const response = await api.post('/api/orders', newOrder);
+      setOrders([...orders, response.data]);
+      setFilteredOrders([...filteredOrders, response.data]);
+      setNewOrder({
+        clientEmail: '',
+        productName: '',
+        quantity: '',
+        price: '',
       });
-
-      // Update inventory quantity
-      const updatedQuantity = selectedProduct.quantity - orderData.quantity;
-      await axios.put(`/api/inventory/${selectedProduct.id}`, 
-        { ...selectedProduct, quantity: updatedQuantity },
-        { headers: { Authorization: `Bearer ${token}` }}
-      );
-
-      // Update local states
-      setOrders([...orders, orderResponse.data]);
-      setFilteredOrders([...orders, orderResponse.data]);
-      setInventory(inventory.map(item => 
-        item.id === selectedProduct.id 
-          ? { ...item, quantity: updatedQuantity }
-          : item
-      ));
-      setNewOrder({ clientEmail: '', productName: '', quantity: '', price: '' });
-      
       alert('Order created successfully!');
     } catch (error) {
       console.error('Error creating order:', error);
-      alert('Failed to create order. Please try again.');
+      alert('Failed to create order');
     } finally {
       setActionLoading(false);
     }
@@ -142,70 +102,30 @@ const Orders = () => {
   // Handle deleting an order
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this order?')) {
-      setActionLoading(true);
       try {
-        // Get the order being deleted
-        const orderToDelete = orders.find(order => order.id === id);
-        
-        // Find the corresponding inventory item
-        const inventoryItem = inventory.find(item => item.name === orderToDelete.productName);
-        
-        // Delete the order
-        await axios.delete(`/api/orders/${id}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        // Return quantity to inventory
-        const updatedQuantity = inventoryItem.quantity + parseInt(orderToDelete.quantity);
-        await axios.put(`/api/inventory/${inventoryItem.id}`, 
-          { ...inventoryItem, quantity: updatedQuantity },
-          { headers: { Authorization: `Bearer ${token}` }}
-        );
-
-        // Update local states
-        setOrders((prevOrders) => prevOrders.filter((order) => order.id !== id));
-        setFilteredOrders((prevOrders) => prevOrders.filter((order) => order.id !== id));
-        setInventory(inventory.map(item => 
-          item.id === inventoryItem.id 
-            ? { ...item, quantity: updatedQuantity }
-            : item
-        ));
-
-        alert('Order deleted successfully!');
+        await api.delete(`/api/orders/${id}`);
+        setOrders(orders.filter(order => order.id !== id));
+        setFilteredOrders(filteredOrders.filter(order => order.id !== id));
       } catch (error) {
         console.error('Error deleting order:', error);
-        alert('Failed to delete order. Please try again.');
-      } finally {
-        setActionLoading(false);
+        alert('Failed to delete order');
       }
     }
   };
 
   // Handle changing the order status
-  const handleStatusChange = async (id, newStatus) => {
-    const updatedOrder = orders.find((order) => order.id === id);
-    updatedOrder.status = newStatus;
-
-    setActionLoading(true);
+  const handleStatusChange = async (orderId, newStatus) => {
     try {
-      await axios.put(`/api/orders/${id}`, updatedOrder, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setOrders((prevOrders) =>
-        prevOrders.map((order) =>
-          order.id === id ? { ...order, status: newStatus } : order
-        )
-      );
-      setFilteredOrders((prevOrders) =>
-        prevOrders.map((order) =>
-          order.id === id ? { ...order, status: newStatus } : order
-        )
-      );
-      alert('Order status updated successfully!');
+      await api.put(`/api/orders/${orderId}/status`, { status: newStatus });
+      setOrders(orders.map(order =>
+        order.id === orderId ? { ...order, status: newStatus } : order
+      ));
+      setFilteredOrders(filteredOrders.map(order =>
+        order.id === orderId ? { ...order, status: newStatus } : order
+      ));
     } catch (error) {
       console.error('Error updating order status:', error);
-    } finally {
-      setActionLoading(false);
+      alert('Failed to update order status');
     }
   };
 
@@ -217,62 +137,20 @@ const Orders = () => {
   // Handle saving changes to an order
   const handleSaveOrder = async (e) => {
     e.preventDefault();
-
-    // Validate selectedOrder data
-    if (!selectedOrder.productName || !selectedOrder.quantity || !selectedOrder.price) {
-      alert('All fields are required.');
-      return;
-    }
-
     setActionLoading(true);
     try {
-      // Find the original order to compare quantities
-      const originalOrder = orders.find(order => order.id === selectedOrder.id);
-      const quantityDifference = selectedOrder.quantity - originalOrder.quantity;
-
-      // Find the corresponding inventory item
-      const inventoryItem = inventory.find(item => item.name === selectedOrder.productName);
-
-      // Check if there's enough inventory for the quantity increase
-      if (quantityDifference > 0 && inventoryItem.quantity < quantityDifference) {
-        alert('Not enough inventory available for this quantity increase!');
-        return;
-      }
-
-      // Update the order
-      await axios.put(`/api/orders/edit/${selectedOrder.id}`, selectedOrder, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      // Update inventory quantity
-      const updatedQuantity = inventoryItem.quantity - quantityDifference;
-      await axios.put(`/api/inventory/${inventoryItem.id}`, 
-        { ...inventoryItem, quantity: updatedQuantity },
-        { headers: { Authorization: `Bearer ${token}` }}
-      );
-
-      // Update local states
-      setOrders((prevOrders) =>
-        prevOrders.map((order) =>
-          order.id === selectedOrder.id ? { ...order, ...selectedOrder } : order
-        )
-      );
-      setFilteredOrders((prevOrders) =>
-        prevOrders.map((order) =>
-          order.id === selectedOrder.id ? { ...order, ...selectedOrder } : order
-        )
-      );
-      setInventory(inventory.map(item => 
-        item.id === inventoryItem.id 
-          ? { ...item, quantity: updatedQuantity }
-          : item
+      await api.put(`/api/orders/${selectedOrder.id}`, selectedOrder);
+      setOrders(orders.map(order =>
+        order.id === selectedOrder.id ? selectedOrder : order
       ));
-
-      setSelectedOrder(null); // Close edit form
+      setFilteredOrders(filteredOrders.map(order =>
+        order.id === selectedOrder.id ? selectedOrder : order
+      ));
+      setSelectedOrder(null);
       alert('Order updated successfully!');
     } catch (error) {
       console.error('Error saving order changes:', error);
-      alert('Failed to save changes. Please try again.');
+      alert('Failed to save changes');
     } finally {
       setActionLoading(false);
     }
