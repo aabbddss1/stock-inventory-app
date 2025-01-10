@@ -18,12 +18,11 @@ const app = express();
 // CORS configuration
 app.use(cors({
   origin: ['http://37.148.210.169:3000', 'http://37.148.210.169'],
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  credentials: true
 }));
 
 // Middleware
+app.use(cors()); // Enable CORS
 app.use(bodyParser.json()); // Parse JSON bodies
 
 // Debug Middleware
@@ -95,6 +94,6 @@ app.use((err, req, res, next) => {
 
 // Start the server
 const PORT = process.env.PORT || 5001;
-app.listen(PORT, '0.0.0.0', () => {
+app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
