@@ -213,56 +213,65 @@ router.put('/edit/:id', authenticate, (req, res) => {
 });
 
 
-// Update an order status
-router.put('/:id', authenticate, async (req, res) => {
+// Update order status
+router.put('/:id', authenticate, (req, res) => {
   const { id } = req.params;
   const { status } = req.body;
 
-  try {
-    console.log('Updating order status:', { id, status });
+  console.log('Received status update request:', { id, status });
 
-    // Validate status
-    const validStatuses = ['Pending', 'Approved', 'On Process', 'Completed'];
-    if (!validStatuses.includes(status)) {
-      return res.status(400).json({ 
-        error: 'Invalid status',
-        received: status,
-        valid: validStatuses 
-      });
-    }
-
-    // Update the order status
-    const [result] = await db.query(
-      'UPDATE orders SET status = ? WHERE id = ?',
-      [status, id]
-    );
-
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ 
-        error: 'Order not found',
-        orderId: id 
-      });
-    }
-
-    // Fetch updated order
-    const [updatedOrder] = await db.query(
-      'SELECT * FROM orders WHERE id = ?',
-      [id]
-    );
-
-    console.log('Updated order:', updatedOrder[0]);
-    res.json({
-      message: 'Order status updated successfully',
-      order: updatedOrder[0]
-    });
-
-  } catch (error) {
-    console.error('Error updating order status:', error);
-    res.status(500).json({ 
-      error: 'Failed to update order status',
-      details: error.message 
+  // Validate status
+  const validStatuses = ['Pending', 'Approved', 'On Process', 'Completed'];
+  if (!validStatuses.includes(status)) {
+    return res.status(400).json({ 
+      error: 'Invalid status',
+      received: status,
+      valid: validStatuses 
     });
   }
+
+  // Update the order status using callback style
+  db.query(
+    'UPDATE orders SET status = ? WHERE id = ?',
+    [status, id],
+    (updateErr, updateResult) => {
+      if (updateErr) {
+        console.error('Error updating order status:', updateErr);
+        return res.status(500).json({ 
+          error: 'Failed to update order status',
+          details: updateErr.message 
+        });
+      }
+
+      if (updateResult.affectedRows === 0) {
+        return res.status(404).json({ 
+          error: 'Order not found',
+          orderId: id 
+        });
+      }
+
+      // Fetch the updated order
+      db.query(
+        'SELECT * FROM orders WHERE id = ?',
+        [id],
+        (selectErr, selectResult) => {
+          if (selectErr) {
+            console.error('Error fetching updated order:', selectErr);
+            return res.status(500).json({ 
+              error: 'Failed to fetch updated order',
+              details: selectErr.message 
+            });
+          }
+
+          console.log('Order status updated successfully:', selectResult[0]);
+          res.json({
+            message: 'Order status updated successfully',
+            order: selectResult[0]
+          });
+        }
+      );
+    }
+  );
 });
 
 module.exports = router;
