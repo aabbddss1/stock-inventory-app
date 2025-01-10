@@ -7,7 +7,7 @@ const authenticate = require('../middleware/authenticate'); // Authentication mi
 const sendEmail = require('../utils/emailUtils'); // Email utility for sending emails
 const PDFDocument = require('pdfkit');
 const fs = require('fs');
-import { api } from '../config/api';
+
 
 
 // Multer setup for file uploads
