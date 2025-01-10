@@ -18,7 +18,7 @@ import {
 import Modal from './Modal';
 import AddCustomer from '../pages/AddCustomer';
 import AddSupplier from '../pages/AddSupplier';
-import { api } from '../config/api'; // Import api instance instead of axios
+import axios from 'axios'; // Axios for API calls
 import '../styles/DashboardCards.css';
 import API_BASE_URL from '../config';
 import { Line, Bar, Doughnut } from 'react-chartjs-2';
@@ -96,10 +96,10 @@ function DashboardCards() {
     try {
       const [ordersResponse, notificationsResponse, usersResponse, inventoryResponse] = 
         await Promise.all([
-          api.get('/api/orders'),
-          api.get('/api/notifications'),
-          api.get('/api/customers'),
-          api.get('/api/inventory')
+          axios.get(`${API_BASE_URL}/api/orders`),
+          axios.get(`${API_BASE_URL}/api/notifications`),
+          axios.get(`${API_BASE_URL}/api/customers`),
+          axios.get(`${API_BASE_URL}/api/inventory`)
         ]);
 
       // Store the raw data
@@ -160,7 +160,7 @@ function DashboardCards() {
 
     setActionLoading(true);
     try {
-      await api.post('/api/orders', newOrder);
+      await axios.post(`${API_BASE_URL}/api/orders`, newOrder);
       alert('Quick order created successfully!');
       setNewOrder({ clientEmail: '', productName: '', quantity: '', price: '' });
       setIsQuickOrderModalOpen(false); // Close modal after creation
@@ -175,7 +175,7 @@ function DashboardCards() {
   // Handle saving a new customer
   const handleSaveCustomer = async (customer) => {
     try {
-      const response = await api.post('/api/customers', {
+      const response = await axios.post(`${API_BASE_URL}/api/customers`, {
         ...customer,
         role: 'user', // Default role for quick addition
       });
@@ -290,7 +290,7 @@ function DashboardCards() {
       title: `${totalOrders} ${t('orders')}`,
       icon: faListAlt,
       description: t('totalOrdersDesc'),
-      onClick: () => (window.location.href = "/orders"),
+      onClick: () => (window.location.href = "http://localhost:3000/orders"),
     },
     {
       title: `${pendingOrders} ${t('pending')}`,
@@ -326,7 +326,7 @@ function DashboardCards() {
       title: t('customerCount', { count: users.filter(user => user.role?.toLowerCase() === 'user' || !user.role).length }),
       icon: faUsers,
       description: t('registeredCustomers'),
-      onClick: () => (window.location.href = "/customers"),
+      onClick: () => (window.location.href = "http://localhost:3000/customers"),
     },
     {
       title: t('addSuppliers'),
@@ -338,13 +338,13 @@ function DashboardCards() {
       title: t('sales'),
       icon: faShoppingCart,
       description: t('salesDesc'),
-      onClick: () => (window.location.href = "/sales"),
+      onClick: () => (window.location.href = "http://localhost:3000/sales"),
     },
     {
       title: t('inventory'),
       icon: faWarehouse,
       description: t('inventoryDesc'),
-      onClick: () => (window.location.href = "/inventory"),
+      onClick: () => (window.location.href = "http://localhost:3000/inventory"),
     },
     {
       title: t('mails'),
