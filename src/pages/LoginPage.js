@@ -1,7 +1,7 @@
 // src/pages/LoginPage.js
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { api } from '../config/api';
 import '../styles/LoginPage.css';
 
 function LoginPage() {
@@ -23,7 +23,7 @@ function LoginPage() {
     setErrorMessage(''); // Clear any previous errors
 
     try {
-      const response = await axios.post('http://37.148.210.169:5001/api/customers/login', {
+      const response = await api.post('/api/customers/login', {
         email,
         password,
       });

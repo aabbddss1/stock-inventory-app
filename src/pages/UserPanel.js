@@ -9,6 +9,14 @@ import Notifications from '../components/Notifications';
 import '../styles/UserPanel.css';
 import '../styles/UserEnhancements.css';
 
+// Create an axios instance with the base URL
+const api = axios.create({
+  baseURL: 'http://37.148.210.169:5001',
+  headers: {
+    'Content-Type': 'application/json'
+  }
+});
+
 const UserPanel = () => {
   const [user, setUser] = useState(null);
   const [error, setError] = useState('');
@@ -28,20 +36,19 @@ const UserPanel = () => {
         }
 
         // Fetch user details
-        const userResponse = await axios.get('http://localhost:5001/api/customers/me', {
-          headers: { Authorization: `Bearer ${token}` },
+        const response = await api.get('/api/customers/me', {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
         });
-        setUser({
-          ...userResponse.data,
-          lastLoggedIn: '2024-06-12 10:00 AM', // Mocked for now
-        });
+        setUser(response.data);
 
         // Fetch orders and notifications
-        fetchUserOrders(userResponse.data.id);
+        fetchUserOrders(response.data.id);
         fetchNotifications();
-      } catch (err) {
-        console.error('Error fetching user:', err);
-        setError(err.response?.data?.error || 'Failed to fetch user details');
+      } catch (error) {
+        console.error('Error fetching user:', error);
+        setError('Failed to fetch user data');
       }
     };
 
@@ -50,7 +57,7 @@ const UserPanel = () => {
 
   const fetchNotifications = async () => {
     try {
-      const response = await axios.get('http://localhost:5001/api/notifications');
+      const response = await api.get('/api/notifications');
       setNotifications(response.data);
     } catch (error) {
       console.error('Error fetching notifications:', error);
@@ -59,7 +66,7 @@ const UserPanel = () => {
 
   const fetchUserOrders = async (userId) => {
     try {
-      const response = await axios.get(`http://localhost:5001/api/orders?userId=${userId}`, {
+      const response = await api.get(`/api/orders?userId=${userId}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
       });
       setOrders(response.data);
