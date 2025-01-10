@@ -196,14 +196,25 @@ const Orders = () => {
           headers: { Authorization: `Bearer ${token}` }
         });
         
-        // Return quantity to inventory
+        // Return quantity to inventory with all required fields
+        const inventoryUpdateData = {
+          name: product.name,
+          quantity: product.quantity + orderToDelete.quantity,
+          price: product.price,
+          description: product.description || '',
+          category: product.category || '',
+          supplier: product.supplier || ''
+        };
+
+        // Update inventory
         await axios.put(
           `http://37.148.210.169:5001/api/inventory/${product.id}`,
+          inventoryUpdateData,
           {
-            quantity: product.quantity + orderToDelete.quantity
-          },
-          {
-            headers: { Authorization: `Bearer ${token}` }
+            headers: { 
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
           }
         );
         
@@ -219,6 +230,7 @@ const Orders = () => {
         );
       } catch (error) {
         console.error('Error deleting order:', error);
+        console.error('Error response:', error.response?.data);
         alert('Failed to delete order');
       }
     }
@@ -287,7 +299,10 @@ const Orders = () => {
       const inventoryUpdateData = {
         name: product.name,
         quantity: newQuantity,
-        price: product.price
+        price: product.price,
+        description: product.description || '',
+        category: product.category || '',
+        supplier: product.supplier || ''
       };
 
       // Update order
@@ -328,7 +343,7 @@ const Orders = () => {
       setInventory(prevInventory =>
         prevInventory.map(item =>
           item.id === product.id
-            ? { ...item, quantity: item.quantity + quantityDifference }
+            ? { ...item, quantity: newQuantity }
             : item
         )
       );
