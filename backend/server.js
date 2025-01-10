@@ -15,6 +15,12 @@ dotenv.config();
 
 const app = express();
 
+// CORS configuration
+app.use(cors({
+  origin: ['http://37.148.210.169:3000', 'http://37.148.210.169'],
+  credentials: true
+}));
+
 // Middleware
 app.use(cors()); // Enable CORS
 app.use(bodyParser.json()); // Parse JSON bodies

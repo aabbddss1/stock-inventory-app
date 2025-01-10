@@ -23,7 +23,7 @@ function LoginPage() {
     setErrorMessage(''); // Clear any previous errors
 
     try {
-      const response = await axios.post('http://localhost:5001/api/customers/login', {
+      const response = await axios.post('http://37.148.210.169:5001/api/customers/login', {
         email,
         password,
       });
