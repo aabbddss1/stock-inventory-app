@@ -37,21 +37,30 @@ const Orders = () => {
       try {
         // Fetch orders
         const ordersResponse = await axios.get(`${api}/orders`, {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: { 
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
         });
         setOrders(ordersResponse.data);
         setFilteredOrders(ordersResponse.data);
 
         // Fetch inventory
         const inventoryResponse = await axios.get(`${api}/inventory`, {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: { 
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
         });
         setInventory(inventoryResponse.data);
 
         // Fetch users for admin
         if (userRole === 'admin') {
           const usersResponse = await axios.get(`${api}/users`, {
-            headers: { Authorization: `Bearer ${token}` },
+            headers: { 
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
           });
           setUsers(usersResponse.data);
         }
@@ -63,8 +72,10 @@ const Orders = () => {
       }
     };
 
-    fetchData();
-  }, [token, userRole]);
+    if (token) {  // Only fetch if token exists
+      fetchData();
+    }
+  }, [token, userRole, api]); // Added api to dependencies
 
   // Handle search functionality
   const handleSearch = (e) => {
