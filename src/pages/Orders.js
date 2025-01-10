@@ -102,12 +102,28 @@ const Orders = () => {
         throw new Error('Insufficient inventory');
       }
 
+      const newQuantity = selectedProduct.quantity - parseInt(newOrder.quantity);
+      console.log('Updating inventory with:', {
+        productId: selectedProduct.id,
+        currentQuantity: selectedProduct.quantity,
+        orderQuantity: parseInt(newOrder.quantity),
+        newQuantity: newQuantity
+      });
+
+      // Create order first
       const orderData = {
         clientEmail: newOrder.clientEmail,
         productName: newOrder.productName,
         quantity: parseInt(newOrder.quantity),
         price: parseFloat(newOrder.price),
         status: 'Pending'
+      };
+
+      // Update inventory with complete payload
+      const inventoryUpdateData = {
+        name: selectedProduct.name,
+        quantity: newQuantity,
+        price: selectedProduct.price
       };
 
       // Create order
@@ -125,11 +141,12 @@ const Orders = () => {
       // Update inventory
       await axios.put(
         `http://37.148.210.169:5001/api/inventory/${selectedProduct.id}`,
+        inventoryUpdateData,
         {
-          quantity: selectedProduct.quantity - parseInt(newOrder.quantity)
-        },
-        {
-          headers: { Authorization: `Bearer ${token}` }
+          headers: { 
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
         }
       );
 
@@ -155,6 +172,7 @@ const Orders = () => {
       alert('Order created successfully!');
     } catch (error) {
       console.error('Error creating order:', error);
+      console.error('Error response:', error.response?.data);
       alert(error.message === 'Insufficient inventory' 
         ? 'Insufficient inventory available' 
         : 'Failed to create order');
@@ -248,29 +266,48 @@ const Orders = () => {
       
       // Calculate quantity difference
       const quantityDifference = originalOrder.quantity - selectedOrder.quantity;
+      const newQuantity = product.quantity + quantityDifference;
       
+      console.log('Updating inventory with:', {
+        productId: product.id,
+        currentQuantity: product.quantity,
+        quantityDifference: quantityDifference,
+        newQuantity: newQuantity
+      });
+
       // Check if enough inventory is available for increase
       if (quantityDifference < 0 && Math.abs(quantityDifference) > product.quantity) {
         throw new Error('Insufficient inventory');
       }
+
+      // Update inventory with complete payload
+      const inventoryUpdateData = {
+        name: product.name,
+        quantity: newQuantity,
+        price: product.price
+      };
 
       // Update order
       const response = await axios.put(
         `http://37.148.210.169:5001/api/orders/edit/${selectedOrder.id}`,
         selectedOrder,
         {
-          headers: { Authorization: `Bearer ${token}` }
+          headers: { 
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
         }
       );
 
       // Update inventory
       await axios.put(
         `http://37.148.210.169:5001/api/inventory/${product.id}`,
+        inventoryUpdateData,
         {
-          quantity: product.quantity + quantityDifference
-        },
-        {
-          headers: { Authorization: `Bearer ${token}` }
+          headers: { 
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
         }
       );
       
@@ -295,6 +332,7 @@ const Orders = () => {
       setSelectedOrder(null);
     } catch (error) {
       console.error('Error saving order:', error);
+      console.error('Error response:', error.response?.data);
       alert(error.message === 'Insufficient inventory' 
         ? 'Insufficient inventory available' 
         : 'Failed to save order changes');
