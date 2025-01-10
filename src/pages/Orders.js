@@ -119,13 +119,6 @@ const Orders = () => {
         status: 'Pending'
       };
 
-      // Update inventory with complete payload
-      const inventoryUpdateData = {
-        name: selectedProduct.name,
-        quantity: newQuantity,
-        price: selectedProduct.price
-      };
-
       // Create order
       const orderResponse = await axios.post(
         'http://37.148.210.169:5001/api/orders',
@@ -137,6 +130,16 @@ const Orders = () => {
           }
         }
       );
+
+      // Update inventory with complete payload
+      const inventoryUpdateData = {
+        name: selectedProduct.name,
+        quantity: newQuantity,
+        price: selectedProduct.price,
+        description: selectedProduct.description || '',
+        category: selectedProduct.category || '',
+        supplier: selectedProduct.supplier || ''
+      };
 
       // Update inventory
       await axios.put(
@@ -156,7 +159,7 @@ const Orders = () => {
       setInventory(prevInventory => 
         prevInventory.map(item => 
           item.id === selectedProduct.id 
-            ? { ...item, quantity: item.quantity - parseInt(newOrder.quantity) }
+            ? { ...item, quantity: newQuantity }
             : item
         )
       );
