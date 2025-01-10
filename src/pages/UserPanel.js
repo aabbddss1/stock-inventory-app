@@ -1,21 +1,12 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate, Routes, Route, Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import TopNavbar from '../components/TopNavbar';
-import axios from 'axios';
-import UserInventory from './UserInventory';
+import { api } from '../config/api';
 import Calendar from '../components/Calendar';
 import Notifications from '../components/Notifications';
 import '../styles/UserPanel.css';
 import '../styles/UserEnhancements.css';
-
-// Create an axios instance with the base URL
-const api = axios.create({
-  baseURL: 'http://37.148.210.169:5001',
-  headers: {
-    'Content-Type': 'application/json'
-  }
-});
 
 const UserPanel = () => {
   const [user, setUser] = useState(null);

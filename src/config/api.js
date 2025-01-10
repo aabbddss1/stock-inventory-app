@@ -1,3 +1,5 @@
+import axios from 'axios';
+
 const API_BASE_URL = 'http://37.148.210.169:5001';
 
 export const api = axios.create({
