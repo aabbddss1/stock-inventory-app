@@ -27,6 +27,7 @@ const Orders = () => {
   });
   const [sortOrder, setSortOrder] = useState('desc');
   const [quantitySortOrder, setQuantitySortOrder] = useState('desc');
+  const [statusLoading, setStatusLoading] = useState(null); // Track which order is updating status
 
   const token = localStorage.getItem('token');
   const userData = JSON.parse(atob(token.split('.')[1])); // Decode token to get user data
@@ -239,6 +240,7 @@ const Orders = () => {
   // Handle changing the order status
   const handleStatusChange = async (orderId, newStatus) => {
     try {
+      setStatusLoading(orderId); // Set loading state for this specific order
       console.log('Updating status:', { orderId, newStatus });
 
       const response = await axios.put(
@@ -263,6 +265,8 @@ const Orders = () => {
     } catch (error) {
       console.error('Error updating status:', error.response?.data || error);
       alert(`Failed to update status: ${error.response?.data?.error || 'Unknown error'}`);
+    } finally {
+      setStatusLoading(null); // Clear loading state
     }
   };
 
@@ -519,12 +523,17 @@ const Orders = () => {
                           value={order.status}
                           onChange={(e) => handleStatusChange(order.id, e.target.value)}
                           className="status-select"
+                          disabled={statusLoading === order.id}
                         >
-                          {statusOptions.map((status) => (
-                            <option key={status} value={status}>
-                              {status}
-                            </option>
-                          ))}
+                          {statusLoading === order.id ? (
+                            <option>Loading...</option>
+                          ) : (
+                            statusOptions.map((status) => (
+                              <option key={status} value={status}>
+                                {status}
+                              </option>
+                            ))
+                          )}
                         </select>
                       ) : (
                         order.status
