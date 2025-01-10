@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Sidebar from '../components/Sidebar';
 import TopNavbar from '../components/TopNavbar';
 import '../styles/Customers.css';
-import axios from 'axios';
+import { api } from '../config/api';
 import { useTranslation } from 'react-i18next';
 
 function Customers() {
@@ -14,7 +14,7 @@ function Customers() {
 
   const token = localStorage.getItem('token');
   const axiosInstance = React.useMemo(() => {
-    return axios.create({
+    return api.create({
       baseURL: 'http://localhost:5001/api',
       headers: { Authorization: `Bearer ${token}` },
     });
@@ -27,8 +27,7 @@ function Customers() {
       return;
     }
 
-    axiosInstance
-      .get('/customers')
+    api.get('/api/customers')
       .then((response) => {
         const userCustomers = response.data.filter(customer => 
           customer.role?.toLowerCase() === 'user' || !customer.role
@@ -55,32 +54,22 @@ function Customers() {
 
   // Handle saving a customer (add or edit)
   const handleSave = (customer) => {
-    const token = localStorage.getItem('token');
-  
-    // Add a new customer
-    axios
-      .post(
-        'http://localhost:5001/api/customers',
-        {
-          ...customer,
-          role: 'user', // Ensure new customers are created as users
-        },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      )
-      .then((response) => {
-        setCustomers([...customers, response.data]);
-        setShowModal(false);
-      })
-      .catch((error) => {
-        console.error('Error adding customer:', error);
-        if (error.response?.status === 401) {
-          alert('Session expired. Please log in again.');
-          localStorage.removeItem('token');
-          window.location.href = '/';
-        }
-      });
+    api.post('/api/customers', {
+      ...customer,
+      role: 'user',
+    })
+    .then((response) => {
+      setCustomers([...customers, response.data]);
+      setShowModal(false);
+    })
+    .catch((error) => {
+      console.error('Error adding customer:', error);
+      if (error.response?.status === 401) {
+        alert('Session expired. Please log in again.');
+        localStorage.removeItem('token');
+        window.location.href = '/';
+      }
+    });
   };
   
   
@@ -89,8 +78,7 @@ function Customers() {
   const handleDelete = (id) => {
     const customerName = customers.find((customer) => customer.id === id)?.name;
     if (window.confirm(`${t('customers.confirmDelete')} ${customerName}?`)) {
-      axiosInstance
-        .delete(`/customers/${id}`)
+      api.delete(`/api/customers/${id}`)
         .then(() => {
           setCustomers((prev) => prev.filter((customer) => customer.id !== id));
         })

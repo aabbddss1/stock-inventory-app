@@ -1,15 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios'; // For API calls
+import { api } from '../config/api'; // Import the api instance instead of axios
 import Sidebar from '../components/Sidebar';
 import TopNavbar from '../components/TopNavbar';
 import { utils as XLSXUtils, writeFile as XLSXWriteFile } from 'xlsx'; // For Excel export
 import '../styles/Inventory.css';
 import { useTranslation } from 'react-i18next';
 import { inventoryTranslation } from '../i18n/inventoryTranslation';
-
-// Set Axios base URL and Authorization header
-axios.defaults.baseURL = 'http://localhost:5001'; // Replace with your backend URL
-axios.defaults.headers.common['Authorization'] = `Bearer ${localStorage.getItem('token')}`;
 
 const Inventory = () => {
   const { t, i18n } = useTranslation();
@@ -33,7 +29,7 @@ const Inventory = () => {
   const fetchInventory = async () => {
     try {
       console.log('Fetching inventory...');
-      const response = await axios.get('/api/inventory');
+      const response = await api.get('/api/inventory');
       console.log('Inventory fetched:', response.data);
       setProducts(response.data);
       setFilteredProducts(response.data); // Initialize filtered products
@@ -61,7 +57,7 @@ const Inventory = () => {
     try {
       if (selectedProduct) {
         // Update product
-        const response = await axios.put(`/api/inventory/${selectedProduct.id}`, formData);
+        const response = await api.put(`/api/inventory/${selectedProduct.id}`, formData);
         console.log('Product updated:', response.data);
 
         setProducts((prev) =>
@@ -76,7 +72,7 @@ const Inventory = () => {
         );
       } else {
         // Add new product
-        const response = await axios.post('/api/inventory', formData);
+        const response = await api.post('/api/inventory', formData);
         console.log('Product added:', response.data);
 
         setProducts((prev) => [...prev, response.data]);
@@ -88,7 +84,7 @@ const Inventory = () => {
       setSelectedProduct(null);
     } catch (error) {
       console.error('Error saving product:', error);
-      if (error.response && error.response.status === 401) {
+      if (error.response?.status === 401) {
         alert('Your session has expired. Please log in again.');
         localStorage.removeItem('token');
         window.location.href = '/login';
@@ -112,7 +108,7 @@ const Inventory = () => {
   const handleDelete = async (id) => {
     console.log('Deleting product with ID:', id);
     try {
-      await axios.delete(`/api/inventory/${id}`);
+      await api.delete(`/api/inventory/${id}`);
       setProducts((prev) => prev.filter((product) => product.id !== id));
       setFilteredProducts((prev) => prev.filter((product) => product.id !== id));
       console.log('Product deleted successfully');
