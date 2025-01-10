@@ -18,6 +18,7 @@ import { Line, Bar, Pie } from 'react-chartjs-2';
 import Sidebar from '../components/Sidebar';
 import TopNavbar from '../components/TopNavbar';
 import '../styles/Sales.css';
+import { useTranslation } from 'react-i18next';
 
 // Register ChartJS components
 ChartJS.register(
@@ -49,6 +50,7 @@ const statusColors = {
 };
 
 const Sales = () => {
+  const { t } = useTranslation();
   const [sales, setSales] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -227,33 +229,33 @@ const Sales = () => {
       <div className="main-content">
         <TopNavbar />
         <div className="sales-container">
-          <h1>Sales Dashboard</h1>
+          <h1>{t('salesDashboard')}</h1>
 
-          {error && <div className="error-message">{error}</div>}
+          {error && <div className="error-message">{t('errorFetching', { message: error })}</div>}
           {loading ? (
-            <div className="loading">Loading sales data...</div>
+            <div className="loading">{t('loading')}</div>
           ) : (
             <>
-              {/* Sales Metrics Cards */}
+              {/* Metrics Cards */}
               <div className="metrics-container">
                 <div className="metric-card">
-                  <h3>Total Sales</h3>
-                  <p>${salesMetrics.totalSales.toFixed(2)}</p>
+                  <h3>{t('totalSales')}</h3>
+                  <p>{t('currency')}{salesMetrics.totalSales.toFixed(2)}</p>
                 </div>
                 <div className="metric-card">
-                  <h3>Total Orders</h3>
+                  <h3>{t('totalOrders')}</h3>
                   <p>{salesMetrics.totalOrders}</p>
                 </div>
                 <div className="metric-card">
-                  <h3>Average Order Value</h3>
-                  <p>${salesMetrics.averageOrderValue.toFixed(2)}</p>
+                  <h3>{t('averageOrderValue')}</h3>
+                  <p>{t('currency')}{salesMetrics.averageOrderValue.toFixed(2)}</p>
                 </div>
                 <div className="metric-card">
-                  <h3>Pending Orders</h3>
+                  <h3>{t('pendingOrders')}</h3>
                   <p>{salesMetrics.pendingOrders}</p>
                 </div>
                 <div className="metric-card">
-                  <h3>Completed Orders</h3>
+                  <h3>{t('completedOrders')}</h3>
                   <p>{salesMetrics.completedOrders}</p>
                 </div>
               </div>
@@ -261,7 +263,7 @@ const Sales = () => {
               {/* Charts Section */}
               <div className="charts-container">
                 <div className="chart-card">
-                  <h3>Daily Sales Trend</h3>
+                  <h3>{t('dailySalesTrend')}</h3>
                   <div className="chart-wrapper">
                     <Line 
                       data={chartData.dailySales}
@@ -277,7 +279,7 @@ const Sales = () => {
                 </div>
 
                 <div className="chart-card pie-chart-card">
-                  <h3>Orders by Status</h3>
+                  <h3>{t('ordersByStatus')}</h3>
                   <div className="chart-wrapper">
                     <Pie 
                       data={chartData.ordersByStatus}
@@ -314,7 +316,7 @@ const Sales = () => {
                 </div>
 
                 <div className="chart-card">
-                  <h3>Product Performance</h3>
+                  <h3>{t('productPerformance')}</h3>
                   <div className="chart-wrapper">
                     <Bar 
                       data={chartData.productPerformance}
@@ -332,8 +334,8 @@ const Sales = () => {
 
               {/* Export Buttons */}
               <div className="sales-actions">
-                <button onClick={exportAsExcel}>Export as Excel</button>
-                <button onClick={exportAsPDF}>Export as PDF</button>
+                <button onClick={exportAsExcel}>{t('exportAsExcel')}</button>
+                <button onClick={exportAsPDF}>{t('exportAsPDF')}</button>
               </div>
 
               {/* Orders by Status */}
@@ -344,9 +346,9 @@ const Sales = () => {
                     onClick={() => toggleSection(status)}
                   >
                     <div className="header-content">
-                      <h2>{status} Orders</h2>
+                      <h2>{t(`${status.toLowerCase().replace(' ', '')}OrdersTitle`)}</h2>
                       <span className="order-count">
-                        {filterOrdersByStatus(status).length} orders
+                        {filterOrdersByStatus(status).length} {t('orders')}
                       </span>
                     </div>
                     <i className={`fas fa-chevron-${expandedSections[status] ? 'up' : 'down'}`} />
@@ -356,12 +358,12 @@ const Sales = () => {
                     <table className="sales-table">
                       <thead>
                         <tr>
-                          <th>Order Date</th>
-                          <th>Customer Name</th>
-                          <th>Product Name</th>
-                          <th>Quantity</th>
-                          <th>Price</th>
-                          <th>Total</th>
+                          <th>{t('orderDate')}</th>
+                          <th>{t('customerName')}</th>
+                          <th>{t('productName')}</th>
+                          <th>{t('quantity')}</th>
+                          <th>{t('price')}</th>
+                          <th>{t('total')}</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -371,14 +373,14 @@ const Sales = () => {
                             <td>{sale.customerName}</td>
                             <td>{sale.productName}</td>
                             <td>{sale.quantity}</td>
-                            <td>${sale.price}</td>
-                            <td>${sale.total}</td>
+                            <td>{t('currency')}{sale.price}</td>
+                            <td>{t('currency')}{sale.total}</td>
                           </tr>
                         ))}
                         {filterOrdersByStatus(status).length === 0 && (
                           <tr>
                             <td colSpan="6" className="no-orders">
-                              No {status.toLowerCase()} orders
+                              {t('noOrders', { status: t(status.toLowerCase()) })}
                             </td>
                           </tr>
                         )}

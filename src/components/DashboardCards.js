@@ -34,6 +34,8 @@ import {
   Tooltip,
   Legend
 } from 'chart.js';
+import { useTranslation } from 'react-i18next';
+import { dashboardTranslations } from '../i18n/dashboardTranslations';
 
 // Register ChartJS components
 ChartJS.register(
@@ -49,6 +51,7 @@ ChartJS.register(
 );
 
 function DashboardCards() {
+  const { t, i18n } = useTranslation();
   const [isAddCustomerModalOpen, setIsAddCustomerModalOpen] = useState(false);
   const [isAddSupplierModalOpen, setIsAddSupplierModalOpen] = useState(false);
   const [isQuickOrderModalOpen, setIsQuickOrderModalOpen] = useState(false);
@@ -284,15 +287,15 @@ function DashboardCards() {
 
   const cardsData = [
     {
-      title: `${totalOrders} Orders`,
+      title: `${totalOrders} ${t('orders')}`,
       icon: faListAlt,
-      description: `total orders in the system.`,
-      onClick: () => (window.location.href = "http://localhost:3000/sales"),
+      description: t('totalOrdersDesc'),
+      onClick: () => (window.location.href = "http://localhost:3000/orders"),
     },
     {
-      title: `${pendingOrders} Pending`,
+      title: `${pendingOrders} ${t('pending')}`,
       icon: faListCheck,
-      description: `orders are pending.`,
+      description: t('pendingOrdersDesc'),
       onClick: () => {
         const pending = orders.filter(order => order.status === 'Pending')
           .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
@@ -301,47 +304,52 @@ function DashboardCards() {
       },
     },
     {
-      title: "Notifications",
+      title: t('notifications'),
       icon: faBell,
-      description: `${notifications.length} notifications available.`,
+      description: t('notificationsDesc'),
       badge: notifications.length > 0 ? notifications.length : null,
       onClick: () => setIsNotificationsModalOpen(true),
     },
     {
-      title: "Quick Order",
+      title: t('quickOrder'),
       icon: faPlus,
-      description: "Create a quick order.",
+      description: t('quickOrderDesc'),
       onClick: () => setIsQuickOrderModalOpen(true),
     },
     {
-      title: "Add Customer",
+      title: t('addCustomer'),
       icon: faUserPlus,
+      description: t('addCustomerDesc'),
       onClick: () => setIsAddCustomerModalOpen(true),
     },
     {
-      title: `${users.filter(user => user.role?.toLowerCase() === 'user' || !user.role).length} Customers`,
+      title: t('customerCount', { count: users.filter(user => user.role?.toLowerCase() === 'user' || !user.role).length }),
       icon: faUsers,
-      description: 'registered customers.',
+      description: t('registeredCustomers'),
       onClick: () => (window.location.href = "http://localhost:3000/customers"),
     },
     {
-      title: "Add Suppliers",
+      title: t('addSuppliers'),
       icon: faTruck,
+      description: t('addSupplierDesc'),
       onClick: () => setIsAddSupplierModalOpen(true),
     },
     {
-      title: "Sales",
+      title: t('sales'),
       icon: faShoppingCart,
+      description: t('salesDesc'),
       onClick: () => (window.location.href = "http://localhost:3000/sales"),
     },
     {
-      title: "Inventory",
+      title: t('inventory'),
       icon: faWarehouse,
+      description: t('inventoryDesc'),
       onClick: () => (window.location.href = "http://localhost:3000/inventory"),
     },
     {
-      title: "Mails",
+      title: t('mails'),
       icon: faEnvelope,
+      description: t('mailsDesc'),
       onClick: () => {
         window.location.href = "mailto:qubite.net@gmail.com?subject=Hello%20Qubite&body=Write%20your%20message%20here";
       },
@@ -355,7 +363,7 @@ function DashboardCards() {
     return (
       <div className="dashboard-graphs">
         <div className="graph-container">
-          <h3>Daily Sales (Last 7 Days)</h3>
+          <h3>{t('dailySales')}</h3>
           <Line
             data={{
               labels: analytics.dailySales.labels,
@@ -374,7 +382,7 @@ function DashboardCards() {
                 legend: { position: 'bottom' },
                 tooltip: {
                   callbacks: {
-                    label: (context) => `Quantity: ${context.raw}`
+                    label: (context) => `${t('orderQuantity')}: ${context.raw}`
                   }
                 }
               },
@@ -383,7 +391,7 @@ function DashboardCards() {
                   beginAtZero: true,
                   title: {
                     display: true,
-                    text: 'Order Quantity'
+                    text: t('orderQuantity')
                   }
                 }
               }
@@ -392,7 +400,7 @@ function DashboardCards() {
         </div>
 
         <div className="graph-container">
-          <h3>Weekly Sales (Last 4 Weeks)</h3>
+          <h3>{t('weeklySales')}</h3>
           <Bar
             data={{
               labels: analytics.weeklySales.labels,
@@ -409,7 +417,7 @@ function DashboardCards() {
                 legend: { position: 'bottom' },
                 tooltip: {
                   callbacks: {
-                    label: (context) => `Quantity: ${context.raw}`
+                    label: (context) => `${t('orderQuantity')}: ${context.raw}`
                   }
                 }
               },
@@ -418,7 +426,7 @@ function DashboardCards() {
                   beginAtZero: true,
                   title: {
                     display: true,
-                    text: 'Order Quantity'
+                    text: t('orderQuantity')
                   }
                 }
               }
@@ -427,7 +435,7 @@ function DashboardCards() {
         </div>
 
         <div className="graph-container">
-          <h3>Sales by Order Status</h3>
+          <h3>{t('salesByStatus')}</h3>
           <Doughnut
             data={{
               labels: analytics.salesByStatus.labels,
@@ -453,7 +461,7 @@ function DashboardCards() {
         </div>
 
         <div className="graph-container">
-          <h3>Inventory Levels</h3>
+          <h3>{t('inventoryLevels')}</h3>
           <Bar
             data={{
               labels: analytics.inventoryLevels.labels,
@@ -508,10 +516,10 @@ function DashboardCards() {
   return (
     <div className="dashboard-container">
       <div className="dashboard-header">
-        <h2>Admin Dashboard</h2>
+        <h2>{t('adminDashboard')}</h2>
         <div className="dashboard-controls">
           <span className="last-refresh">
-            Last updated: {lastRefresh.toLocaleTimeString()}
+            {t('lastUpdated')}: {lastRefresh.toLocaleTimeString()}
           </span>
           <button 
             onClick={handleRefresh}
@@ -527,8 +535,8 @@ function DashboardCards() {
       </div>
       {error && (
         <div className="error-message">
-          {error}
-          <button onClick={handleRefresh}>Try Again</button>
+          {t('errorLoadingData')}
+          <button onClick={handleRefresh}>{t('tryAgain')}</button>
         </div>
       )}
       <div className="dashboard-cards">
@@ -582,17 +590,15 @@ function DashboardCards() {
 
         {/* Quick Order Modal */}
         <Modal isOpen={isQuickOrderModalOpen} onClose={() => setIsQuickOrderModalOpen(false)}>
-          <h2>Quick Order Creation</h2>
+          <h2>{t('quickOrderCreation')}</h2>
           <form onSubmit={handleCreateOrder}>
             <div className="form-row">
               <select
                 value={newOrder.clientEmail}
-                onChange={(e) =>
-                  setNewOrder({ ...newOrder, clientEmail: e.target.value })
-                }
+                onChange={(e) => setNewOrder({ ...newOrder, clientEmail: e.target.value })}
                 required
               >
-                <option value="">Select a User</option>
+                <option value="">{t('selectAUser')}</option>
                 {users.map((user) => (
                   <option key={user.email} value={user.email}>
                     {user.name} ({user.email})
@@ -615,10 +621,10 @@ function DashboardCards() {
                 }}
                 required
               >
-                <option value="">Select a Product</option>
+                <option value="">{t('selectAProduct')}</option>
                 {inventory.map((item) => (
                   <option key={item.id} value={item.name}>
-                    {item.name} (Stock: {item.quantity})
+                    {item.name} ({t('stock')}: {item.quantity})
                   </option>
                 ))}
               </select>
@@ -650,7 +656,7 @@ function DashboardCards() {
     <i className="fa fa-spinner fa-spin"></i> // Dönen yuvarlak
   ) : (
     <>
-      <i className="fa fa-plus"></i> Create Order
+      <i className="fa fa-plus"></i> {t('createOrder')}
     </>
   )}
 </button>
@@ -687,7 +693,7 @@ function DashboardCards() {
             ))
           ) : (
             <div className="no-notifications">
-              <p>No notifications available</p>
+              <p>{t('noNotifications')}</p>
             </div>
           )}
         </div>
@@ -724,7 +730,7 @@ function DashboardCards() {
               </table>
             ) : (
               <div className="dashboard-no-pending">
-                <p>No pending orders available</p>
+                <p>{t('noPendingOrders')}</p>
               </div>
             )}
           </div>

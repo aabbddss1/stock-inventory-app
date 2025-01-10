@@ -62,7 +62,7 @@ function TopNavbar() {
   return (
     <div className="top-navbar">
       <div className="title">
-        {userRole === 'admin' ? t('title') : t('userDashboard')}
+        {userRole === 'admin' ? t('Qubite Stock Management Systems') : t('userDashboard')}
       </div>
 
       <div className="hamburger" onClick={() => setMenuOpen(!menuOpen)}>

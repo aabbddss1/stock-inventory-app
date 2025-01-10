@@ -3,8 +3,10 @@ import Sidebar from '../components/Sidebar';
 import TopNavbar from '../components/TopNavbar';
 import axios from 'axios';
 import '../styles/Documents.css';
+import { useTranslation } from 'react-i18next';
 
 const Documents = () => {
+  const { t } = useTranslation();
   const [documents, setDocuments] = useState([]); // Document list
   const [formData, setFormData] = useState({
     name: '',
@@ -70,12 +72,12 @@ const Documents = () => {
       const response = await axios.post(`${API_BASE_URL}/api/documents/upload`, uploadFormData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
-      alert('Document uploaded successfully!');
+      alert(t('uploadSuccess'));
       fetchDocuments(); // Refresh document list
       setFormData({ name: '', category: '', file: null, customerId: '' }); // Reset form
     } catch (error) {
       console.error('Error uploading document:', error.response?.data || error.message);
-      alert('Failed to upload document.');
+      alert(t('uploadError'));
     } finally {
       setIsUploading(false);
     }
@@ -83,14 +85,14 @@ const Documents = () => {
 
   // Delete document
   const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this document?')) {
+    if (window.confirm(t('deleteConfirm'))) {
       try {
         await axios.delete(`${API_BASE_URL}/api/documents/${id}`);
-        alert('Document deleted successfully!');
+        alert(t('deleteSuccess'));
         fetchDocuments(); // Refresh document list
       } catch (error) {
         console.error('Error deleting document:', error.response?.data || error.message);
-        alert('Failed to delete document.');
+        alert(t('deleteError'));
       }
     }
   };
@@ -140,13 +142,13 @@ const Documents = () => {
       <div className="main-content">
         <TopNavbar />
         <div className="documents-container">
-          <h1>Documents</h1>
+          <h1>{t('documents')}</h1>
 
           {/* Search */}
           <div className="documents-actions">
             <input
               type="text"
-              placeholder="Search documents"
+              placeholder={t('searchDocuments')}
               value={searchTerm}
               onChange={handleSearch}
             />
@@ -157,7 +159,7 @@ const Documents = () => {
             <input
               type="text"
               name="customerId"
-              placeholder="Customer ID"
+              placeholder={t('customerId')}
               value={formData.customerId}
               onChange={handleChange}
               required
@@ -165,7 +167,7 @@ const Documents = () => {
             <input
               type="text"
               name="name"
-              placeholder="Document Name"
+              placeholder={t('documentName')}
               value={formData.name}
               onChange={handleChange}
               required
@@ -176,11 +178,11 @@ const Documents = () => {
               onChange={handleChange}
               required
             >
-              <option value="">Select Category</option>
-              <option value="Invoice">Invoice</option>
-              <option value="Contract">Contract</option>
-              <option value="Report">Report</option>
-              <option value="Other">Other</option>
+              <option value="">{t('selectCategory')}</option>
+              <option value="Invoice">{t('invoice')}</option>
+              <option value="Contract">{t('contract')}</option>
+              <option value="Report">{t('report')}</option>
+              <option value="Other">{t('other')}</option>
             </select>
             <input
               type="file"
@@ -190,24 +192,23 @@ const Documents = () => {
               required
             />
             <button type="submit" disabled={isUploading}>
-  <i className="fa fa-upload"></i> {isUploading ? 'Uploading...' : 'Upload'}
-</button>
-
+              <i className="fa fa-upload"></i> {isUploading ? t('uploading') : t('upload')}
+            </button>
           </form>
 
           {/* Document List */}
           {loading ? (
-            <p>Loading documents...</p>
+            <p>{t('loading')}</p>
           ) : filteredDocuments.length > 0 ? (
             <>
               <table className="documents-table">
                 <thead>
                   <tr>
-                    <th>Name</th>
-                    <th>Category</th>
-                    <th>Customer ID</th>
-                    <th>Upload Date</th>
-                    <th>Actions</th>
+                    <th>{t('name')}</th>
+                    <th>{t('category')}</th>
+                    <th>{t('customerIdHeader')}</th>
+                    <th>{t('uploadDate')}</th>
+                    <th>{t('actions')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -218,20 +219,19 @@ const Documents = () => {
                       <td>{doc.customer_id}</td>
                       <td>{new Date(doc.upload_date).toLocaleDateString()}</td>
                       <td>
-  <button
-    className="download-btn"
-    onClick={() => handleDownload(doc.id)}
-  >
-    <i className="fas fa-download"></i> Download
-  </button>
-  <button
-    className="delete-btn"
-    onClick={() => handleDelete(doc.id)}
-  >
-    <i className="fas fa-trash"></i> Delete
-  </button>
-</td>
-
+                        <button
+                          className="download-btn"
+                          onClick={() => handleDownload(doc.id)}
+                        >
+                          <i className="fas fa-download"></i> {t('download')}
+                        </button>
+                        <button
+                          className="delete-btn"
+                          onClick={() => handleDelete(doc.id)}
+                        >
+                          <i className="fas fa-trash"></i> {t('delete')}
+                        </button>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -239,19 +239,25 @@ const Documents = () => {
 
               {/* Pagination Controls */}
               <div className="pagination">
-                <button onClick={() => handlePageChange(page - 1)} disabled={page === 1}>
-                  Previous
+                <button 
+                  onClick={() => handlePageChange(page - 1)} 
+                  disabled={page === 1}
+                >
+                  {t('previous')}
                 </button>
                 <span>
-                  Page {page} of {totalPages}
+                  {t('pageOf', { current: page, total: totalPages })}
                 </span>
-                <button onClick={() => handlePageChange(page + 1)} disabled={page === totalPages}>
-                  Next
+                <button 
+                  onClick={() => handlePageChange(page + 1)} 
+                  disabled={page === totalPages}
+                >
+                  {t('next')}
                 </button>
               </div>
             </>
           ) : (
-            <p>No documents found.</p>
+            <p>{t('noDocuments')}</p>
           )}
         </div>
       </div>

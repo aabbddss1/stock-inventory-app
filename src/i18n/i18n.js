@@ -5,8 +5,10 @@ import { dashboardTranslations } from './dashboardTranslations';
 import { ordersTranslation } from './ordersTranslation';
 import { inventoryTranslation } from './inventoryTranslation';
 import { customersTranslation } from './customersTranslation';
+import { documentsTranslations } from './documentsTranslations';
+import { salesTranslations } from './salesTranslations';
+import { sidebarTranslations } from './sidebarTranslations';
 
-// Merge dashboard translations with existing resources
 const mergedResources = {
   en: {
     translation: {
@@ -14,8 +16,11 @@ const mergedResources = {
       ...dashboardTranslations.en,
       ...ordersTranslation.en,
       inventoryTranslation: inventoryTranslation.en,
-      ...customersTranslation.en
-    }
+      ...customersTranslation.en,
+      ...documentsTranslations.en,
+      ...salesTranslations.en,
+    },
+    sidebar: sidebarTranslations.en.sidebar
   },
   tr: {
     translation: {
@@ -23,8 +28,11 @@ const mergedResources = {
       ...dashboardTranslations.tr,
       ...ordersTranslation.tr,
       inventoryTranslation: inventoryTranslation.tr,
-      ...customersTranslation.tr
-    }
+      ...customersTranslation.tr,
+      ...documentsTranslations.tr,
+      ...salesTranslations.tr,
+    },
+    sidebar: sidebarTranslations.tr.sidebar
   }
 };
 
