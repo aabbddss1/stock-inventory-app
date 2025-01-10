@@ -16,6 +16,7 @@ const Orders = () => {
   const [error, setError] = useState(null);
   const [actionLoading, setActionLoading] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
   const [newOrder, setNewOrder] = useState({
     clientEmail: '',
     productName: '',
@@ -51,6 +52,19 @@ const Orders = () => {
 
     fetchData();
   }, [token, userRole]);
+
+  useEffect(() => {
+    if (searchTerm) {
+      const filtered = orders.filter(order => 
+        order.clientName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        order.productName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        order.status?.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      setFilteredOrders(filtered);
+    } else {
+      setFilteredOrders(orders);
+    }
+  }, [searchTerm, orders]);
 
   const handleSearch = (e) => {
     const value = e.target.value.toLowerCase();
@@ -146,6 +160,10 @@ const Orders = () => {
       setActionLoading(false);
     }
   };
+
+  if (error) {
+    return <div className="error-message">{error}</div>;
+  }
 
   return (
     <div className="orders-page">
