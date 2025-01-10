@@ -104,86 +104,112 @@ router.delete('/:id', authenticate, (req, res) => {
 });
 
 // Create a new order
-router.post('/', authenticate, async (req, res) => {
-  const { clientEmail, productName, quantity, price, status } = req.body;
+router.post('/', authenticate, (req, res) => {
+  const { clientEmail, productName, quantity, price } = req.body;
 
-  try {
-    console.log('Received order data:', req.body);
+  console.log('Received order data:', req.body);
 
-    // Validate required fields
-    if (!clientEmail || !productName || !quantity || !price) {
-      return res.status(400).json({ 
-        error: 'All fields are required',
-        received: { clientEmail, productName, quantity, price }
-      });
-    }
-
-    // Get client name from customers table
-    const [clientResults] = await db.query(
-      'SELECT name FROM customers WHERE email = ?',
-      [clientEmail]
-    );
-
-    if (clientResults.length === 0) {
-      return res.status(404).json({ 
-        error: 'Client not found',
-        email: clientEmail 
-      });
-    }
-
-    const clientName = clientResults[0].name;
-
-    // Check if product exists and has enough quantity
-    const [productResults] = await db.query(
-      'SELECT quantity FROM inventory WHERE name = ?',
-      [productName]
-    );
-
-    if (productResults.length === 0) {
-      return res.status(404).json({ 
-        error: 'Product not found',
-        product: productName 
-      });
-    }
-
-    if (productResults[0].quantity < quantity) {
-      return res.status(400).json({ 
-        error: 'Insufficient inventory',
-        available: productResults[0].quantity,
-        requested: quantity
-      });
-    }
-
-    // Insert new order
-    const [result] = await db.query(
-      `INSERT INTO orders (clientName, clientEmail, productName, quantity, price, status, created_at) 
-       VALUES (?, ?, ?, ?, ?, ?, NOW())`,
-      [clientName, clientEmail, productName, quantity, price, status || 'Pending']
-    );
-
-    // Update inventory quantity
-    await db.query(
-      'UPDATE inventory SET quantity = quantity - ? WHERE name = ?',
-      [quantity, productName]
-    );
-
-    // Fetch and return the created order
-    const [newOrder] = await db.query(
-      `SELECT *, DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') as orderDate 
-       FROM orders WHERE id = ?`,
-      [result.insertId]
-    );
-
-    console.log('Created order:', newOrder[0]);
-    res.status(201).json(newOrder[0]);
-
-  } catch (error) {
-    console.error('Error creating order:', error);
-    res.status(500).json({ 
-      error: 'Failed to create order',
-      details: error.message 
+  // Validate required fields
+  if (!clientEmail || !productName || !quantity || !price) {
+    return res.status(400).json({ 
+      error: 'All fields are required',
+      received: { clientEmail, productName, quantity, price }
     });
   }
+
+  // Get client name from customers table
+  db.query(
+    'SELECT name FROM customers WHERE email = ?',
+    [clientEmail],
+    (clientErr, clientResults) => {
+      if (clientErr) {
+        console.error('Error fetching client:', clientErr);
+        return res.status(500).json({ error: 'Failed to fetch client details' });
+      }
+
+      if (clientResults.length === 0) {
+        return res.status(404).json({ error: 'Client not found' });
+      }
+
+      const clientName = clientResults[0].name;
+
+      // Check inventory
+      db.query(
+        'SELECT quantity FROM inventory WHERE name = ?',
+        [productName],
+        (inventoryErr, inventoryResults) => {
+          if (inventoryErr) {
+            console.error('Error checking inventory:', inventoryErr);
+            return res.status(500).json({ error: 'Failed to check inventory' });
+          }
+
+          if (inventoryResults.length === 0) {
+            return res.status(404).json({ error: 'Product not found' });
+          }
+
+          if (inventoryResults[0].quantity < quantity) {
+            return res.status(400).json({ 
+              error: 'Insufficient inventory',
+              available: inventoryResults[0].quantity,
+              requested: quantity
+            });
+          }
+
+          // Create order
+          db.query(
+            `INSERT INTO orders (clientName, clientEmail, productName, quantity, price, status, created_at) 
+             VALUES (?, ?, ?, ?, ?, 'Pending', NOW())`,
+            [clientName, clientEmail, productName, quantity, price],
+            (orderErr, orderResult) => {
+              if (orderErr) {
+                console.error('Error creating order:', orderErr);
+                return res.status(500).json({ error: 'Failed to create order' });
+              }
+
+              // Update inventory
+              db.query(
+                'UPDATE inventory SET quantity = quantity - ? WHERE name = ?',
+                [quantity, productName],
+                async (updateErr) => {
+                  if (updateErr) {
+                    console.error('Error updating inventory:', updateErr);
+                    return res.status(500).json({ error: 'Failed to update inventory' });
+                  }
+
+                  // Send email notification
+                  try {
+                    await sendEmail(
+                      clientEmail,
+                      'Order Confirmation',
+                      `Dear ${clientName},\n\nYour order for ${quantity} ${productName}(s) has been received and is being processed.\n\nOrder Details:\nProduct: ${productName}\nQuantity: ${quantity}\nTotal Price: $${price}\n\nThank you for your business!`
+                    );
+                  } catch (emailErr) {
+                    console.error('Error sending email:', emailErr);
+                    // Don't return here, continue with the response
+                  }
+
+                  // Fetch the created order
+                  db.query(
+                    `SELECT *, DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') as orderDate 
+                     FROM orders WHERE id = ?`,
+                    [orderResult.insertId],
+                    (fetchErr, fetchResults) => {
+                      if (fetchErr) {
+                        console.error('Error fetching created order:', fetchErr);
+                        return res.status(500).json({ error: 'Failed to fetch created order' });
+                      }
+
+                      res.status(201).json(fetchResults[0]);
+                    }
+                  );
+                }
+              );
+            }
+          );
+        }
+      );
+    }
+  );
 });
 
 // Update order details
@@ -230,43 +256,47 @@ router.put('/:id', authenticate, (req, res) => {
     });
   }
 
-  // Update the order status using callback style
+  // Update the order status
   db.query(
     'UPDATE orders SET status = ? WHERE id = ?',
     [status, id],
-    (updateErr, updateResult) => {
+    async (updateErr, updateResult) => {
       if (updateErr) {
         console.error('Error updating order status:', updateErr);
-        return res.status(500).json({ 
-          error: 'Failed to update order status',
-          details: updateErr.message 
-        });
+        return res.status(500).json({ error: 'Failed to update order status' });
       }
 
       if (updateResult.affectedRows === 0) {
-        return res.status(404).json({ 
-          error: 'Order not found',
-          orderId: id 
-        });
+        return res.status(404).json({ error: 'Order not found' });
       }
 
       // Fetch the updated order
       db.query(
         'SELECT * FROM orders WHERE id = ?',
         [id],
-        (selectErr, selectResult) => {
+        async (selectErr, selectResult) => {
           if (selectErr) {
             console.error('Error fetching updated order:', selectErr);
-            return res.status(500).json({ 
-              error: 'Failed to fetch updated order',
-              details: selectErr.message 
-            });
+            return res.status(500).json({ error: 'Failed to fetch updated order' });
           }
 
-          console.log('Order status updated successfully:', selectResult[0]);
+          const order = selectResult[0];
+
+          // Send email notification about status change
+          try {
+            await sendEmail(
+              order.clientEmail,
+              'Order Status Update',
+              `Dear ${order.clientName},\n\nYour order #${order.id} status has been updated to ${status}.\n\nOrder Details:\nProduct: ${order.productName}\nQuantity: ${order.quantity}\nStatus: ${status}\n\nThank you for your business!`
+            );
+          } catch (emailErr) {
+            console.error('Error sending status update email:', emailErr);
+            // Continue with the response even if email fails
+          }
+
           res.json({
             message: 'Order status updated successfully',
-            order: selectResult[0]
+            order: order
           });
         }
       );
