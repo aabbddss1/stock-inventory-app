@@ -490,11 +490,15 @@ const Orders = () => {
           ) : (
             <table className="orders-table">
               <thead>
-                <tr>
+              <tr>
                   <th>{t('clientName')}</th>
                   <th>{t('productName')}</th>
-                  <th>{t('date')}</th>
-                  <th>{t('quantity')}</th>
+                  <th onClick={toggleSortOrder} style={{ cursor: 'pointer' }}>
+                    {t('date')} {sortOrder === 'desc' ? '▼' : '▲'}
+                  </th>
+                  <th onClick={toggleQuantitySort} style={{ cursor: 'pointer' }}>
+                    {t('quantity')} {quantitySortOrder === 'desc' ? '▼' : '▲'}
+                  </th>
                   <th>{t('price')}</th>
                   <th>{t('status')}</th>
                   <th>{t('actions')}</th>
