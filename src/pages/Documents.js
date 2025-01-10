@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Sidebar from '../components/Sidebar';
 import TopNavbar from '../components/TopNavbar';
-import axios from 'axios';
+import { api } from '../config/api';
 import '../styles/Documents.css';
 import { useTranslation } from 'react-i18next';
 
@@ -20,8 +20,6 @@ const Documents = () => {
   const [page, setPage] = useState(1); // Current page
   const [totalPages, setTotalPages] = useState(1); // Total pages for pagination
 
-  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:5001';
-
   useEffect(() => {
     fetchDocuments();
   }, [page]);
@@ -30,13 +28,13 @@ const Documents = () => {
   const fetchDocuments = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${API_BASE_URL}/api/documents`, {
+      const response = await api.get('/api/documents', {
         params: { page, limit: 10 },
       });
       setDocuments(response.data.documents || []);
       setTotalPages(response.data.totalPages || 1); // Total pages for pagination
     } catch (error) {
-      console.error('Error fetching documents:', error.response?.data || error.message);
+      console.error('Error fetching documents:', error);
       alert('Failed to fetch documents.');
     } finally {
       setLoading(false);
@@ -69,14 +67,14 @@ const Documents = () => {
 
     try {
       setIsUploading(true);
-      const response = await axios.post(`${API_BASE_URL}/api/documents/upload`, uploadFormData, {
+      const response = await api.post('/api/documents/upload', uploadFormData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       alert(t('uploadSuccess'));
       fetchDocuments(); // Refresh document list
       setFormData({ name: '', category: '', file: null, customerId: '' }); // Reset form
     } catch (error) {
-      console.error('Error uploading document:', error.response?.data || error.message);
+      console.error('Error uploading document:', error);
       alert(t('uploadError'));
     } finally {
       setIsUploading(false);
@@ -87,11 +85,11 @@ const Documents = () => {
   const handleDelete = async (id) => {
     if (window.confirm(t('deleteConfirm'))) {
       try {
-        await axios.delete(`${API_BASE_URL}/api/documents/${id}`);
+        await api.delete(`/api/documents/${id}`);
         alert(t('deleteSuccess'));
         fetchDocuments(); // Refresh document list
       } catch (error) {
-        console.error('Error deleting document:', error.response?.data || error.message);
+        console.error('Error deleting document:', error);
         alert(t('deleteError'));
       }
     }
@@ -100,7 +98,7 @@ const Documents = () => {
   // Download document
   const handleDownload = async (id) => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/api/documents/download/${id}`);
+      const response = await api.get(`/api/documents/download/${id}`);
       const signedUrl = response.data.signedUrl;
 
       // Trigger file download
@@ -112,7 +110,7 @@ const Documents = () => {
       link.click();
       link.remove();
     } catch (error) {
-      console.error('Error downloading document:', error.response?.data || error.message);
+      console.error('Error downloading document:', error);
       alert('Failed to download document.');
     }
   };

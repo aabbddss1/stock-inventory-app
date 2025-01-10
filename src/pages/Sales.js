@@ -78,7 +78,7 @@ const Sales = () => {
     const fetchOrders = async () => {
       try {
         setLoading(true);
-        const response = await fetch('http://localhost:5001/api/orders', {
+        const response = await fetch('http://37.148.210.169:5001/api/orders', {
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`
           }
