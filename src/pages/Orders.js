@@ -25,17 +25,24 @@ const Orders = () => {
   });
 
   const token = localStorage.getItem('token');
-  const userData = JSON.parse(atob(token.split('.')[1]));
-  const userRole = userData.role;
 
   useEffect(() => {
+    if (!token) {
+      setError('No authentication token found');
+      return;
+    }
+
     const fetchData = async () => {
       try {
         setLoading(true);
+        const config = {
+          headers: { Authorization: `Bearer ${token}` }
+        };
+
         const [ordersResponse, usersResponse, inventoryResponse] = await Promise.all([
-          api.get('/api/orders'),
-          api.get('/api/customers'),
-          api.get('/api/inventory')
+          api.get('/api/orders', config),
+          api.get('/api/customers', config),
+          api.get('/api/inventory', config)
         ]);
 
         setOrders(ordersResponse.data);
@@ -44,6 +51,10 @@ const Orders = () => {
         setInventory(inventoryResponse.data);
       } catch (error) {
         console.error('Error fetching data:', error);
+        if (error.response?.status === 401) {
+          localStorage.removeItem('token');
+          window.location.href = '/login';
+        }
         setError('Failed to load data');
       } finally {
         setLoading(false);
@@ -51,7 +62,7 @@ const Orders = () => {
     };
 
     fetchData();
-  }, [token, userRole]);
+  }, [token]);
 
   useEffect(() => {
     if (searchTerm) {
@@ -90,7 +101,10 @@ const Orders = () => {
     e.preventDefault();
     setActionLoading(true);
     try {
-      const response = await api.post('/api/orders', newOrder);
+      const config = {
+        headers: { Authorization: `Bearer ${token}` }
+      };
+      const response = await api.post('/api/orders', newOrder, config);
       setOrders([...orders, response.data]);
       setFilteredOrders([...filteredOrders, response.data]);
       setNewOrder({
@@ -102,6 +116,10 @@ const Orders = () => {
       alert('Order created successfully!');
     } catch (error) {
       console.error('Error creating order:', error);
+      if (error.response?.status === 401) {
+        localStorage.removeItem('token');
+        window.location.href = '/login';
+      }
       alert('Failed to create order');
     } finally {
       setActionLoading(false);
@@ -111,11 +129,18 @@ const Orders = () => {
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this order?')) {
       try {
-        await api.delete(`/api/orders/${id}`);
+        const config = {
+          headers: { Authorization: `Bearer ${token}` }
+        };
+        await api.delete(`/api/orders/${id}`, config);
         setOrders(orders.filter(order => order.id !== id));
         setFilteredOrders(filteredOrders.filter(order => order.id !== id));
       } catch (error) {
         console.error('Error deleting order:', error);
+        if (error.response?.status === 401) {
+          localStorage.removeItem('token');
+          window.location.href = '/login';
+        }
         alert('Failed to delete order');
       }
     }
