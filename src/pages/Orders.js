@@ -18,6 +18,7 @@ const Orders = () => {
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false); // Action-specific loading state
   const [selectedOrder, setSelectedOrder] = useState(null); // For editing orders
+  const [isQuickOrderModalOpen, setIsQuickOrderModalOpen] = useState(false);
   const [newOrder, setNewOrder] = useState({
     clientEmail: '',
     productName: '',
