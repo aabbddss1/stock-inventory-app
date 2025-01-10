@@ -96,10 +96,10 @@ function DashboardCards() {
     try {
       const [ordersResponse, notificationsResponse, usersResponse, inventoryResponse] = 
         await Promise.all([
-          axios.get(`${API_BASE_URL}/api/orders`),
-          axios.get(`${API_BASE_URL}/api/notifications`),
-          axios.get(`${API_BASE_URL}/api/customers`),
-          axios.get(`${API_BASE_URL}/api/inventory`)
+          axios.get(`${API_BASE_URL}'http://37.148.210.169:5001/api/orders`),
+          axios.get(`${API_BASE_URL}'http://37.148.210.169:5001/api/notifications`),
+          axios.get(`${API_BASE_URL}'http://37.148.210.169:5001/api/customers`),
+          axios.get(`${API_BASE_URL}'http://37.148.210.169:5001/api/inventory`)
         ]);
 
       // Store the raw data
@@ -175,7 +175,7 @@ function DashboardCards() {
   // Handle saving a new customer
   const handleSaveCustomer = async (customer) => {
     try {
-      const response = await axios.post(`${API_BASE_URL}/api/customers`, {
+      const response = await axios.post(`${API_BASE_URL}'http://37.148.210.169:5001/api/customers`, {
         ...customer,
         role: 'user', // Default role for quick addition
       });
