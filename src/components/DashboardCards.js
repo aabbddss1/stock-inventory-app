@@ -20,7 +20,6 @@ import AddCustomer from '../pages/AddCustomer';
 import AddSupplier from '../pages/AddSupplier';
 import axios from 'axios'; // Axios for API calls
 import '../styles/DashboardCards.css';
-import API_BASE_URL from '../config';
 import { Line, Bar, Doughnut } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -96,10 +95,18 @@ function DashboardCards() {
     try {
       const [ordersResponse, notificationsResponse, usersResponse, inventoryResponse] = 
         await Promise.all([
-          axios.get(`${API_BASE_URL}'http://37.148.210.169:5001/api/orders`),
-          axios.get(`${API_BASE_URL}'http://37.148.210.169:5001/api/notifications`),
-          axios.get(`${API_BASE_URL}'http://37.148.210.169:5001/api/customers`),
-          axios.get(`${API_BASE_URL}'http://37.148.210.169:5001/api/inventory`)
+          axios.get('http://37.148.210.169:5001/api/orders', {
+            headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+          }),
+          axios.get('http://37.148.210.169:5001/api/notifications', {
+            headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+          }),
+          axios.get('http://37.148.210.169:5001/api/customers', {
+            headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+          }),
+          axios.get('http://37.148.210.169:5001/api/inventory', {
+            headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+          })
         ]);
 
       // Store the raw data
@@ -160,10 +167,12 @@ function DashboardCards() {
 
     setActionLoading(true);
     try {
-      await axios.post(`${API_BASE_URL}/api/orders`, newOrder);
+      await axios.post('http://37.148.210.169:5001/api/orders', newOrder, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+      });
       alert('Quick order created successfully!');
       setNewOrder({ clientEmail: '', productName: '', quantity: '', price: '' });
-      setIsQuickOrderModalOpen(false); // Close modal after creation
+      setIsQuickOrderModalOpen(false);
     } catch (error) {
       console.error('Error creating order:', error);
       alert('Failed to create quick order.');
@@ -175,12 +184,17 @@ function DashboardCards() {
   // Handle saving a new customer
   const handleSaveCustomer = async (customer) => {
     try {
-      const response = await axios.post(`${API_BASE_URL}'http://37.148.210.169:5001/api/customers`, {
-        ...customer,
-        role: 'user', // Default role for quick addition
-      });
+      const response = await axios.post('http://37.148.210.169:5001/api/customers', 
+        {
+          ...customer,
+          role: 'user',
+        },
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+        }
+      );
       alert(`Customer ${response.data.name} added successfully!`);
-      setIsAddCustomerModalOpen(false); // Close the modal after successful save
+      setIsAddCustomerModalOpen(false);
     } catch (error) {
       console.error('Error adding customer:', error);
       alert('Failed to add customer. Please try again.');
@@ -290,7 +304,7 @@ function DashboardCards() {
       title: `${totalOrders} ${t('orders')}`,
       icon: faListAlt,
       description: t('totalOrdersDesc'),
-      onClick: () => (window.location.href = "http://localhost:3000/orders"),
+      onClick: () => (window.location.href = "http://37.148.210.169:3000/orders"),
     },
     {
       title: `${pendingOrders} ${t('pending')}`,
@@ -326,7 +340,7 @@ function DashboardCards() {
       title: t('customerCount', { count: users.filter(user => user.role?.toLowerCase() === 'user' || !user.role).length }),
       icon: faUsers,
       description: t('registeredCustomers'),
-      onClick: () => (window.location.href = "http://localhost:3000/customers"),
+      onClick: () => (window.location.href = "http://37.148.210.169:3000/customers"),
     },
     {
       title: t('addSuppliers'),
@@ -338,13 +352,13 @@ function DashboardCards() {
       title: t('sales'),
       icon: faShoppingCart,
       description: t('salesDesc'),
-      onClick: () => (window.location.href = "http://localhost:3000/sales"),
+      onClick: () => (window.location.href = "http://37.148.210.169:3000/sales"),
     },
     {
       title: t('inventory'),
       icon: faWarehouse,
       description: t('inventoryDesc'),
-      onClick: () => (window.location.href = "http://localhost:3000/inventory"),
+      onClick: () => (window.location.href = "http://37.148.210.169:3000/inventory"),
     },
     {
       title: t('mails'),
