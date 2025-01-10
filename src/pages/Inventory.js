@@ -8,7 +8,7 @@ import { useTranslation } from 'react-i18next';
 import { inventoryTranslation } from '../i18n/inventoryTranslation';
 
 // Set Axios base URL and Authorization header
-axios.defaults.baseURL = 'http://localhost:5001'; // Replace with your backend URL
+// axios.defaults.baseURL = 'http://localhost:5001'; // Replace with your backend URL
 axios.defaults.headers.common['Authorization'] = `Bearer ${localStorage.getItem('token')}`;
 
 const Inventory = () => {
@@ -33,10 +33,12 @@ const Inventory = () => {
   const fetchInventory = async () => {
     try {
       console.log('Fetching inventory...');
-      const response = await axios.get('/api/inventory');
+      const response = await axios.get('http://37.148.210.169:5001/api/inventory', {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+      });
       console.log('Inventory fetched:', response.data);
       setProducts(response.data);
-      setFilteredProducts(response.data); // Initialize filtered products
+      setFilteredProducts(response.data);
     } catch (error) {
       console.error('Error fetching inventory:', error);
     }
@@ -61,29 +63,34 @@ const Inventory = () => {
     try {
       if (selectedProduct) {
         // Update product
-        const response = await axios.put(`/api/inventory/${selectedProduct.id}`, formData);
+        const response = await axios.put(
+          `http://37.148.210.169:5001/api/inventory/${selectedProduct.id}`, 
+          formData,
+          {
+            headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+          }
+        );
         console.log('Product updated:', response.data);
-
-        setProducts((prev) =>
-          prev.map((product) =>
-            product.id === selectedProduct.id ? response.data : product
-          )
-        );
-        setFilteredProducts((prev) =>
-          prev.map((product) =>
-            product.id === selectedProduct.id ? response.data : product
-          )
-        );
+        setProducts(prev => prev.map(product => 
+          product.id === selectedProduct.id ? response.data : product
+        ));
+        setFilteredProducts(prev => prev.map(product => 
+          product.id === selectedProduct.id ? response.data : product
+        ));
       } else {
         // Add new product
-        const response = await axios.post('/api/inventory', formData);
+        const response = await axios.post(
+          'http://37.148.210.169:5001/api/inventory', 
+          formData,
+          {
+            headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+          }
+        );
         console.log('Product added:', response.data);
-
-        setProducts((prev) => [...prev, response.data]);
-        setFilteredProducts((prev) => [...prev, response.data]);
+        setProducts(prev => [...prev, response.data]);
+        setFilteredProducts(prev => [...prev, response.data]);
       }
 
-      // Clear form and selected product
       setFormData({ name: '', category: '', quantity: '', price: '' });
       setSelectedProduct(null);
     } catch (error) {
@@ -112,9 +119,11 @@ const Inventory = () => {
   const handleDelete = async (id) => {
     console.log('Deleting product with ID:', id);
     try {
-      await axios.delete(`/api/inventory/${id}`);
-      setProducts((prev) => prev.filter((product) => product.id !== id));
-      setFilteredProducts((prev) => prev.filter((product) => product.id !== id));
+      await axios.delete(`http://37.148.210.169:5001/api/inventory/${id}`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+      });
+      setProducts(prev => prev.filter(product => product.id !== id));
+      setFilteredProducts(prev => prev.filter(product => product.id !== id));
       console.log('Product deleted successfully');
     } catch (error) {
       console.error('Error deleting product:', error);
