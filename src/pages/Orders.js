@@ -96,8 +96,11 @@ const Orders = () => {
     setActionLoading(true);
 
     try {
-      // Log the data being sent
-      console.log('Sending order data:', newOrder);
+      // Check inventory availability first
+      const selectedProduct = inventory.find(item => item.name === newOrder.productName);
+      if (!selectedProduct || selectedProduct.quantity < parseInt(newOrder.quantity)) {
+        throw new Error('Insufficient inventory');
+      }
 
       const orderData = {
         clientEmail: newOrder.clientEmail,
@@ -107,7 +110,8 @@ const Orders = () => {
         status: 'Pending'
       };
 
-      const response = await axios.post(
+      // Create order
+      const orderResponse = await axios.post(
         'http://37.148.210.169:5001/api/orders',
         orderData,
         {
@@ -118,12 +122,28 @@ const Orders = () => {
         }
       );
 
-      console.log('Order creation response:', response.data);
+      // Update inventory
+      await axios.put(
+        `http://37.148.210.169:5001/api/inventory/${selectedProduct.id}`,
+        {
+          quantity: selectedProduct.quantity - parseInt(newOrder.quantity)
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` }
+        }
+      );
 
-      // Update local state with the new order
-      setOrders(prevOrders => [...prevOrders, response.data]);
-      setFilteredOrders(prevOrders => [...prevOrders, response.data]);
-      
+      // Update local states
+      setOrders(prevOrders => [...prevOrders, orderResponse.data]);
+      setFilteredOrders(prevOrders => [...prevOrders, orderResponse.data]);
+      setInventory(prevInventory => 
+        prevInventory.map(item => 
+          item.id === selectedProduct.id 
+            ? { ...item, quantity: item.quantity - parseInt(newOrder.quantity) }
+            : item
+        )
+      );
+
       // Reset form
       setNewOrder({
         clientEmail: '',
@@ -134,8 +154,10 @@ const Orders = () => {
 
       alert('Order created successfully!');
     } catch (error) {
-      console.error('Error creating order:', error.response?.data || error);
-      alert(`Failed to create order: ${error.response?.data?.error || 'Unknown error'}`);
+      console.error('Error creating order:', error);
+      alert(error.message === 'Insufficient inventory' 
+        ? 'Insufficient inventory available' 
+        : 'Failed to create order');
     } finally {
       setActionLoading(false);
     }
@@ -145,14 +167,35 @@ const Orders = () => {
   const handleDelete = async (orderId) => {
     if (window.confirm(t('confirmDelete'))) {
       try {
+        const orderToDelete = orders.find(order => order.id === orderId);
+        const product = inventory.find(item => item.name === orderToDelete.productName);
+
+        // Delete order
         await axios.delete(`http://37.148.210.169:5001/api/orders/${orderId}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         
-        // Update local state
-        const updatedOrders = orders.filter(order => order.id !== orderId);
-        setOrders(updatedOrders);
-        setFilteredOrders(updatedOrders);
+        // Return quantity to inventory
+        await axios.put(
+          `http://37.148.210.169:5001/api/inventory/${product.id}`,
+          {
+            quantity: product.quantity + orderToDelete.quantity
+          },
+          {
+            headers: { Authorization: `Bearer ${token}` }
+          }
+        );
+        
+        // Update local states
+        setOrders(prevOrders => prevOrders.filter(order => order.id !== orderId));
+        setFilteredOrders(prevOrders => prevOrders.filter(order => order.id !== orderId));
+        setInventory(prevInventory => 
+          prevInventory.map(item => 
+            item.id === product.id 
+              ? { ...item, quantity: item.quantity + orderToDelete.quantity }
+              : item
+          )
+        );
       } catch (error) {
         console.error('Error deleting order:', error);
         alert('Failed to delete order');
@@ -200,6 +243,18 @@ const Orders = () => {
     e.preventDefault();
     setActionLoading(true);
     try {
+      const originalOrder = orders.find(order => order.id === selectedOrder.id);
+      const product = inventory.find(item => item.name === selectedOrder.productName);
+      
+      // Calculate quantity difference
+      const quantityDifference = originalOrder.quantity - selectedOrder.quantity;
+      
+      // Check if enough inventory is available for increase
+      if (quantityDifference < 0 && Math.abs(quantityDifference) > product.quantity) {
+        throw new Error('Insufficient inventory');
+      }
+
+      // Update order
       const response = await axios.put(
         `http://37.148.210.169:5001/api/orders/edit/${selectedOrder.id}`,
         selectedOrder,
@@ -207,17 +262,42 @@ const Orders = () => {
           headers: { Authorization: `Bearer ${token}` }
         }
       );
-      
-      // Update local state
-      const updatedOrders = orders.map(order =>
-        order.id === selectedOrder.id ? { ...order, ...selectedOrder } : order
+
+      // Update inventory
+      await axios.put(
+        `http://37.148.210.169:5001/api/inventory/${product.id}`,
+        {
+          quantity: product.quantity + quantityDifference
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` }
+        }
       );
-      setOrders(updatedOrders);
-      setFilteredOrders(updatedOrders);
+      
+      // Update local states
+      setOrders(prevOrders =>
+        prevOrders.map(order =>
+          order.id === selectedOrder.id ? { ...order, ...selectedOrder } : order
+        )
+      );
+      setFilteredOrders(prevOrders =>
+        prevOrders.map(order =>
+          order.id === selectedOrder.id ? { ...order, ...selectedOrder } : order
+        )
+      );
+      setInventory(prevInventory =>
+        prevInventory.map(item =>
+          item.id === product.id
+            ? { ...item, quantity: item.quantity + quantityDifference }
+            : item
+        )
+      );
       setSelectedOrder(null);
     } catch (error) {
       console.error('Error saving order:', error);
-      alert('Failed to save order changes');
+      alert(error.message === 'Insufficient inventory' 
+        ? 'Insufficient inventory available' 
+        : 'Failed to save order changes');
     } finally {
       setActionLoading(false);
     }
