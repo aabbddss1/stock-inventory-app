@@ -36,21 +36,21 @@ const Orders = () => {
     const fetchData = async () => {
       try {
         // Fetch orders
-        const ordersResponse = await axios.get('/api/orders', {
+        const ordersResponse = await axios.get('http://37.148.210.169:5001/api/orders', {
           headers: { Authorization: `Bearer ${token}` },
         });
         setOrders(ordersResponse.data);
         setFilteredOrders(ordersResponse.data);
 
         // Fetch inventory
-        const inventoryResponse = await axios.get('/api/inventory', {
+        const inventoryResponse = await axios.get('http://37.148.210.169:5001/api/inventory', {
           headers: { Authorization: `Bearer ${token}` },
         });
         setInventory(inventoryResponse.data);
 
         // Fetch users for admin
         if (userRole === 'admin') {
-          const usersResponse = await axios.get('/api/customers', {
+          const usersResponse = await axios.get('http://37.148.210.169:5001/api/customers', {
             headers: { Authorization: `Bearer ${token}` },
           });
           setUsers(usersResponse.data);
