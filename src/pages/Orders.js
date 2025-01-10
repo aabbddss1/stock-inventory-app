@@ -92,45 +92,39 @@ const Orders = () => {
   // Handle creating a new order
   const handleCreateOrder = async (e) => {
     e.preventDefault();
-
-    const orderData = userRole === 'admin' ? newOrder : { ...newOrder, clientEmail: userData.email };
-
-    // Check if there's enough inventory
-    const selectedProduct = inventory.find(item => item.name === orderData.productName);
-    if (!selectedProduct) {
-      alert(t('productNotFound'));
-      return;
-    }
-
-    if (selectedProduct.quantity < orderData.quantity) {
-      alert(t('notEnoughInventory'));
-      return;
-    }
-
     setActionLoading(true);
-    try {
-      // Create the order
-      const orderResponse = await axios.post('/api/orders', orderData, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
 
-      // Update inventory quantity
-      const updatedQuantity = selectedProduct.quantity - orderData.quantity;
-      await axios.put(`/api/inventory/${selectedProduct.id}`, 
-        { ...selectedProduct, quantity: updatedQuantity },
-        { headers: { Authorization: `Bearer ${token}` }}
+    if (!newOrder.clientEmail || !newOrder.productName || !newOrder.quantity || !newOrder.price) {
+      alert('Please fill in all fields');
+      setActionLoading(false);
+      return;
+    }
+
+    try {
+      const response = await axios.post(
+        'http://37.148.210.169:5001/api/orders',
+        {
+          ...newOrder,
+          status: 'Pending' // Add default status
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` }
+        }
       );
 
-      // Update local states
-      setOrders([...orders, orderResponse.data]);
-      setFilteredOrders([...orders, orderResponse.data]);
-      setInventory(inventory.map(item => 
-        item.id === selectedProduct.id 
-          ? { ...item, quantity: updatedQuantity }
-          : item
-      ));
-      setNewOrder({ clientEmail: '', productName: '', quantity: '', price: '' });
+      // Update local state with the new order
+      const createdOrder = response.data;
+      setOrders(prevOrders => [...prevOrders, createdOrder]);
+      setFilteredOrders(prevOrders => [...prevOrders, createdOrder]);
       
+      // Reset form and close modal
+      setNewOrder({
+        clientEmail: '',
+        productName: '',
+        quantity: '',
+        price: '',
+      });
+      setIsQuickOrderModalOpen(false);
       alert('Order created successfully!');
     } catch (error) {
       console.error('Error creating order:', error);
@@ -162,11 +156,17 @@ const Orders = () => {
   // Handle changing the order status
   const handleStatusChange = async (orderId, newStatus) => {
     try {
-      const response = await axios.put(
+      await axios.put(
         `http://37.148.210.169:5001/api/orders/${orderId}`,
-        { status: newStatus },
+        { 
+          status: newStatus,
+          orderId: orderId // Add orderId to request body
+        },
         {
-          headers: { Authorization: `Bearer ${token}` }
+          headers: { 
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
         }
       );
       
@@ -176,9 +176,12 @@ const Orders = () => {
       );
       setOrders(updatedOrders);
       setFilteredOrders(updatedOrders);
+      
+      // Show success message
+      alert('Order status updated successfully');
     } catch (error) {
       console.error('Error updating order status:', error);
-      alert('Failed to update order status');
+      alert(`Failed to update order status: ${error.response?.data?.error || 'Unknown error'}`);
     }
   };
 
@@ -236,6 +239,9 @@ const Orders = () => {
     });
     setFilteredOrders(sorted);
   };
+
+  // Add status options constant
+  const statusOptions = ['Pending', 'Approved', 'On Process', 'Completed'];
 
   return (
     <div className="orders-page">
@@ -369,18 +375,15 @@ const Orders = () => {
                     <td>
                       {userRole === 'admin' ? (
                         <select
-                          onClick={(e) => e.stopPropagation()}
-                          onChange={(e) => {
-                            e.stopPropagation();
-                            handleStatusChange(order.id, e.target.value);
-                          }}
                           value={order.status}
-                          disabled={actionLoading}
+                          onChange={(e) => handleStatusChange(order.id, e.target.value)}
+                          className="status-select"
                         >
-                          <option value="Pending">{t('pending')}</option>
-                          <option value="Approved">{t('approved')}</option>
-                          <option value="On Process">{t('onProcess')}</option>
-                          <option value="Completed">{t('completed')}</option>
+                          {statusOptions.map((status) => (
+                            <option key={status} value={status}>
+                              {status}
+                            </option>
+                          ))}
                         </select>
                       ) : (
                         order.status

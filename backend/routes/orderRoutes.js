@@ -104,119 +104,46 @@ router.delete('/:id', authenticate, (req, res) => {
 });
 
 // Create a new order
-router.post('/', authenticate, (req, res) => {
+router.post('/', authenticate, async (req, res) => {
   const { clientEmail, productName, quantity, price } = req.body;
 
-  if (!clientEmail) {
-    return res.status(400).json({ error: 'Client email is required' });
-  }
-
-  db.query('SELECT name FROM customers WHERE email = ?', [clientEmail], (err, results) => {
-    if (err) {
-      console.error('Error fetching client name:', err);
-      return res.status(500).json({ error: 'Failed to fetch client name' });
+  try {
+    // Validate required fields
+    if (!clientEmail || !productName || !quantity || !price) {
+      return res.status(400).json({ error: 'All fields are required' });
     }
 
-    if (results.length === 0) {
+    // Get client name from customers table
+    const [clientResults] = await db.query(
+      'SELECT name FROM customers WHERE email = ?',
+      [clientEmail]
+    );
+
+    if (clientResults.length === 0) {
       return res.status(404).json({ error: 'Client not found' });
     }
 
-    const clientName = results[0].name;
-    const query = `INSERT INTO orders (clientName, productName, quantity, price, clientEmail, created_at) 
-                   VALUES (?, ?, ?, ?, ?, NOW())`;
+    const clientName = clientResults[0].name;
 
-    db.query(query, [clientName, productName, quantity, price, clientEmail], async (err, result) => {
-      if (err) {
-        console.error('Error creating order:', err);
-        return res.status(500).json({ error: 'Failed to create order' });
-      }
+    // Insert new order
+    const [result] = await db.query(
+      `INSERT INTO orders (clientName, clientEmail, productName, quantity, price, status, created_at) 
+       VALUES (?, ?, ?, ?, ?, 'Pending', NOW())`,
+      [clientName, clientEmail, productName, quantity, price]
+    );
 
-      // Fetch the created order to get the correct orderDate
-      db.query(
-        'SELECT *, DATE_FORMAT(created_at, "%Y-%m-%d %H:%i:%s") as orderDate FROM orders WHERE id = ?',
-        [result.insertId],
-        async (err, orderResults) => {
-          if (err) {
-            console.error('Error fetching created order:', err);
-            return res.status(500).json({ error: 'Order created but failed to fetch details' });
-          }
+    // Return the created order
+    const [newOrder] = await db.query(
+      'SELECT *, DATE_FORMAT(created_at, "%Y-%m-%d %H:%i:%s") as orderDate FROM orders WHERE id = ?',
+      [result.insertId]
+    );
 
-          const createdOrder = orderResults[0];
-          const orderId = result.insertId;
-          const adminEmail = process.env.EMAIL_USER;
+    res.status(201).json(newOrder[0]);
 
-          // Generate Invoice
-          const invoicePath = `invoices/invoice-${orderId}.pdf`;
-          const totalPrice = (quantity * parseFloat(price)).toFixed(2);
-          const doc = new PDFDocument();
-
-          doc.pipe(fs.createWriteStream(invoicePath));
-          doc.fontSize(20).text('Invoice', { align: 'center' });
-          doc.fontSize(14).text(`Order ID: ${orderId}`);
-          doc.text(`Date: ${new Date().toLocaleDateString()}`);
-          doc.text(`Client Name: ${clientName}`);
-          doc.text(`Client Email: ${clientEmail}`);
-          doc.text('---------------------------');
-          doc.text(`Product: ${productName}`);
-          doc.text(`Quantity: ${quantity}`);
-          doc.text(`Price per unit: $${parseFloat(price).toFixed(2)}`);
-          doc.text(`Total: $${totalPrice}`);
-          doc.text('---------------------------');
-          doc.text(`Thank you for choosing Qubite!`, { align: 'center' });
-          doc.end();
-
-          // Email Content
-          const clientEmailBody = `
-            <h1 style="font-family: Arial, sans-serif; color: #4CAF50;">Order Confirmation</h1>
-            <p style="font-family: Arial, sans-serif; color: #333;">Dear <strong>${clientName}</strong>,</p>
-            <p style="font-family: Arial, sans-serif; color: #555;">Thank you for your order! Attached is your invoice for the order:</p>
-            <ul style="font-family: Arial, sans-serif; color: #555;">
-              <li><strong>Order ID:</strong> ${orderId}</li>
-              <li><strong>Date:</strong> ${new Date().toLocaleDateString()}</li>
-              <li><strong>Product Name:</strong> ${productName}</li>
-              <li><strong>Quantity:</strong> ${quantity}</li>
-              <li><strong>Total Price:</strong> $${totalPrice}</li>
-            </ul>
-            <p style="font-family: Arial, sans-serif; color: #555;">If you have any questions, contact us at <a href="mailto:${adminEmail}" style="color: #4CAF50; text-decoration: none;">${adminEmail}</a>.</p>
-            <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
-            <p style="font-family: Arial, sans-serif; color: #333; text-align: center;"><strong>Thank you for choosing Qubite!</strong></p>
-          `;
-
-          try {
-            // Send emails with invoice attachment
-            await sendEmail({
-              to: clientEmail,
-              subject: `Order Confirmation - Order #${orderId}`,
-              html: clientEmailBody,
-              attachments: [
-                {
-                  filename: `invoice-${orderId}.pdf`,
-                  path: invoicePath,
-                },
-              ],
-            });
-
-            await sendEmail({
-              to: adminEmail,
-              subject: `New Order Created - Order #${orderId}`,
-              html: `<p>A new order has been placed by ${clientName}. Please check the system for more details.</p>`,
-              attachments: [
-                {
-                  filename: `invoice-${orderId}.pdf`,
-                  path: invoicePath,
-                },
-              ],
-            });
-
-            res.status(201).json(createdOrder); // Send back the complete order with correct date
-          } catch (emailError) {
-            console.error('Error sending emails:', emailError);
-            res.status(500).json({ error: 'Order created, but email notifications failed' });
-          }
-        }
-      );
-    });
-  });
+  } catch (error) {
+    console.error('Error creating order:', error);
+    res.status(500).json({ error: 'Failed to create order' });
+  }
 });
 
 // Update order details
@@ -250,27 +177,29 @@ router.put('/edit/:id', authenticate, (req, res) => {
 router.put('/:id', authenticate, async (req, res) => {
   const { id } = req.params;
   const { status } = req.body;
-  const { role } = req.user;
-
-  // Validate status
-  const validStatuses = ['Pending', 'Approved', 'On Process', 'Completed'];
-  if (!validStatuses.includes(status)) {
-    return res.status(400).json({ error: 'Invalid status' });
-  }
-
-  // Only admin can update any order, users can only update their own orders
-  const query = role === 'admin'
-    ? 'UPDATE orders SET status = ? WHERE id = ?'
-    : 'UPDATE orders SET status = ? WHERE id = ? AND clientEmail = ?';
-
-  const params = role === 'admin' ? [status, id] : [status, id, req.user.email];
 
   try {
-    const result = await db.query(query, params);
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ error: 'Order not found or unauthorized' });
+    // Validate status
+    const validStatuses = ['Pending', 'Approved', 'On Process', 'Completed'];
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({ error: 'Invalid status' });
     }
-    res.json({ message: 'Order status updated successfully', id, status });
+
+    // Update the order status
+    const query = 'UPDATE orders SET status = ? WHERE id = ?';
+    const [result] = await db.query(query, [status, id]);
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Order not found' });
+    }
+
+    // Send success response
+    res.json({ 
+      message: 'Order status updated successfully',
+      orderId: id,
+      status: status
+    });
+
   } catch (error) {
     console.error('Error updating order status:', error);
     res.status(500).json({ error: 'Failed to update order status' });
