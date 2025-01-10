@@ -3,10 +3,10 @@ import Sidebar from '../components/Sidebar';
 import TopNavbar from '../components/TopNavbar';
 import { utils as XLSXUtils, writeFile as XLSXWriteFile } from 'xlsx'; // For Excel export
 import axios from 'axios';
-import { api } from '../config/api';
 import '../styles/Orders.css';
 import { useTranslation } from 'react-i18next';
 import { ordersTranslation } from '../i18n/ordersTranslation';
+import { api } from '../config/api';
 
 const Orders = () => {
   const { t, i18n } = useTranslation();
@@ -18,7 +18,6 @@ const Orders = () => {
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false); // Action-specific loading state
   const [selectedOrder, setSelectedOrder] = useState(null); // For editing orders
-  const [isQuickOrderModalOpen, setIsQuickOrderModalOpen] = useState(false);
   const [newOrder, setNewOrder] = useState({
     clientEmail: '',
     productName: '',
@@ -36,24 +35,23 @@ const Orders = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        setLoading(true);
         // Fetch orders
         const ordersResponse = await axios.get('http://37.148.210.169:5001/api/orders', {
-          headers: { Authorization: `Bearer ${token}` }
+          headers: { Authorization: `Bearer ${token}` },
         });
         setOrders(ordersResponse.data);
         setFilteredOrders(ordersResponse.data);
 
         // Fetch inventory
-        const inventoryResponse = await axios.get('http://37.148.210.169:5001/api/inventory', {
-          headers: { Authorization: `Bearer ${token}` }
+        const inventoryResponse = await axios.get('http://37.148.210.169:5001/api/orders', {
+          headers: { Authorization: `Bearer ${token}` },
         });
         setInventory(inventoryResponse.data);
 
         // Fetch users for admin
         if (userRole === 'admin') {
-          const usersResponse = await axios.get('http://37.148.210.169:5001/api/customers', {
-            headers: { Authorization: `Bearer ${token}` }
+          const usersResponse = await axios.get('http://37.148.210.169:5001/api/orders', {
+            headers: { Authorization: `Bearer ${token}` },
           });
           setUsers(usersResponse.data);
         }
@@ -93,100 +91,121 @@ const Orders = () => {
   // Handle creating a new order
   const handleCreateOrder = async (e) => {
     e.preventDefault();
+
+    const orderData = userRole === 'admin' ? newOrder : { ...newOrder, clientEmail: userData.email };
+
+    // Check if there's enough inventory
+    const selectedProduct = inventory.find(item => item.name === orderData.productName);
+    if (!selectedProduct) {
+      alert(t('productNotFound'));
+      return;
+    }
+
+    if (selectedProduct.quantity < orderData.quantity) {
+      alert(t('notEnoughInventory'));
+      return;
+    }
+
     setActionLoading(true);
-
     try {
-      // Log the data being sent
-      console.log('Sending order data:', newOrder);
-
-      const orderData = {
-        clientEmail: newOrder.clientEmail,
-        productName: newOrder.productName,
-        quantity: parseInt(newOrder.quantity),
-        price: parseFloat(newOrder.price),
-        status: 'Pending'
-      };
-
-      const response = await axios.post(
-        'http://37.148.210.169:5001/api/orders',
-        orderData,
-        {
-          headers: { 
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        }
-      );
-
-      console.log('Order creation response:', response.data);
-
-      // Update local state with the new order
-      setOrders(prevOrders => [...prevOrders, response.data]);
-      setFilteredOrders(prevOrders => [...prevOrders, response.data]);
-      
-      // Reset form
-      setNewOrder({
-        clientEmail: '',
-        productName: '',
-        quantity: '',
-        price: '',
+      // Create the order
+      const orderResponse = await axios.post('http://37.148.210.169:5001/api/orders', orderData, {
+        headers: { Authorization: `Bearer ${token}` },
       });
 
+      // Update inventory quantity
+      const updatedQuantity = selectedProduct.quantity - orderData.quantity;
+      await axios.put(`http://37.148.210.169:5001/api/inventory/${selectedProduct.id}`, 
+        { ...selectedProduct, quantity: updatedQuantity },
+        { headers: { Authorization: `Bearer ${token}` }}
+      );
+
+      // Update local states
+      setOrders([...orders, orderResponse.data]);
+      setFilteredOrders([...orders, orderResponse.data]);
+      setInventory(inventory.map(item => 
+        item.id === selectedProduct.id 
+          ? { ...item, quantity: updatedQuantity }
+          : item
+      ));
+      setNewOrder({ clientEmail: '', productName: '', quantity: '', price: '' });
+      
       alert('Order created successfully!');
     } catch (error) {
-      console.error('Error creating order:', error.response?.data || error);
-      alert(`Failed to create order: ${error.response?.data?.error || 'Unknown error'}`);
+      console.error('Error creating order:', error);
+      alert('Failed to create order. Please try again.');
     } finally {
       setActionLoading(false);
     }
   };
 
   // Handle deleting an order
-  const handleDelete = async (orderId) => {
-    if (window.confirm(t('confirmDelete'))) {
+  const handleDelete = async (id) => {
+    if (window.confirm('Are you sure you want to delete this order?')) {
+      setActionLoading(true);
       try {
-        await axios.delete(`http://37.148.210.169:5001/api/orders/${orderId}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        // Get the order being deleted
+        const orderToDelete = orders.find(order => order.id === id);
         
-        // Update local state
-        const updatedOrders = orders.filter(order => order.id !== orderId);
-        setOrders(updatedOrders);
-        setFilteredOrders(updatedOrders);
+        // Find the corresponding inventory item
+        const inventoryItem = inventory.find(item => item.name === orderToDelete.productName);
+        
+        // Delete the order
+        await axios.delete(`http://37.148.210.169:5001/api/orders/${id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        // Return quantity to inventory
+        const updatedQuantity = inventoryItem.quantity + parseInt(orderToDelete.quantity);
+        await axios.put(`http://37.148.210.169:5001/api/inventory/${inventoryItem.id}`, 
+          { ...inventoryItem, quantity: updatedQuantity },
+          { headers: { Authorization: `Bearer ${token}` }}
+        );
+
+        // Update local states
+        setOrders((prevOrders) => prevOrders.filter((order) => order.id !== id));
+        setFilteredOrders((prevOrders) => prevOrders.filter((order) => order.id !== id));
+        setInventory(inventory.map(item => 
+          item.id === inventoryItem.id 
+            ? { ...item, quantity: updatedQuantity }
+            : item
+        ));
+
+        alert('Order deleted successfully!');
       } catch (error) {
         console.error('Error deleting order:', error);
-        alert('Failed to delete order');
+        alert('Failed to delete order. Please try again.');
+      } finally {
+        setActionLoading(false);
       }
     }
   };
 
   // Handle changing the order status
-  const handleStatusChange = async (orderId, newStatus) => {
+  const handleStatusChange = async (id, newStatus) => {
+    const updatedOrder = orders.find((order) => order.id === id);
+    updatedOrder.status = newStatus;
+
+    setActionLoading(true);
     try {
-      console.log('Updating status:', { orderId, newStatus });
-
-      const response = await axios.put(
-        `http://37.148.210.169:5001/api/orders/${orderId}`,
-        { status: newStatus },
-        {
-          headers: { 
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        }
+      await axios.put(`http://37.148.210.169:5001/api/orders/${id}`, updatedOrder, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setOrders((prevOrders) =>
+        prevOrders.map((order) =>
+          order.id === id ? { ...order, status: newStatus } : order
+        )
       );
-
-      console.log('Status update response:', response.data);
-      
-      // Update local state
-      const updatedOrders = orders.map(order =>
-        order.id === orderId ? { ...order, status: newStatus } : order
+      setFilteredOrders((prevOrders) =>
+        prevOrders.map((order) =>
+          order.id === id ? { ...order, status: newStatus } : order
+        )
       );
-      setOrders(updatedOrders);
-      setFilteredOrders(updatedOrders);
+      alert('Order status updated successfully!');
     } catch (error) {
-      console.error('Error updating status:', error.response?.data || error);
-      alert(`Failed to update status: ${error.response?.data?.error || 'Unknown error'}`);
+      console.error('Error updating order status:', error);
+    } finally {
+      setActionLoading(false);
     }
   };
 
@@ -198,26 +217,62 @@ const Orders = () => {
   // Handle saving changes to an order
   const handleSaveOrder = async (e) => {
     e.preventDefault();
+
+    // Validate selectedOrder data
+    if (!selectedOrder.productName || !selectedOrder.quantity || !selectedOrder.price) {
+      alert('All fields are required.');
+      return;
+    }
+
     setActionLoading(true);
     try {
-      const response = await axios.put(
-        `http://37.148.210.169:5001/api/orders/edit/${selectedOrder.id}`,
-        selectedOrder,
-        {
-          headers: { Authorization: `Bearer ${token}` }
-        }
+      // Find the original order to compare quantities
+      const originalOrder = orders.find(order => order.id === selectedOrder.id);
+      const quantityDifference = selectedOrder.quantity - originalOrder.quantity;
+
+      // Find the corresponding inventory item
+      const inventoryItem = inventory.find(item => item.name === selectedOrder.productName);
+
+      // Check if there's enough inventory for the quantity increase
+      if (quantityDifference > 0 && inventoryItem.quantity < quantityDifference) {
+        alert('Not enough inventory available for this quantity increase!');
+        return;
+      }
+
+      // Update the order
+      await axios.put(`http://37.148.210.169:5001/api/orders/edit/${selectedOrder.id}`, selectedOrder, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      // Update inventory quantity
+      const updatedQuantity = inventoryItem.quantity - quantityDifference;
+      await axios.put(`http://37.148.210.169:5001/api/inventory/${inventoryItem.id}`, 
+        { ...inventoryItem, quantity: updatedQuantity },
+        { headers: { Authorization: `Bearer ${token}` }}
       );
-      
-      // Update local state
-      const updatedOrders = orders.map(order =>
-        order.id === selectedOrder.id ? { ...order, ...selectedOrder } : order
+
+      // Update local states
+      setOrders((prevOrders) =>
+        prevOrders.map((order) =>
+          order.id === selectedOrder.id ? { ...order, ...selectedOrder } : order
+        )
       );
-      setOrders(updatedOrders);
-      setFilteredOrders(updatedOrders);
-      setSelectedOrder(null);
+      setFilteredOrders((prevOrders) =>
+        prevOrders.map((order) =>
+          order.id === selectedOrder.id ? { ...order, ...selectedOrder } : order
+        )
+      );
+      setInventory(inventory.map(item => 
+        item.id === inventoryItem.id 
+          ? { ...item, quantity: updatedQuantity }
+          : item
+      ));
+
+      setSelectedOrder(null); // Close edit form
+      alert('Order updated successfully!');
     } catch (error) {
-      console.error('Error saving order:', error);
-      alert('Failed to save order changes');
+      console.error('Error saving order changes:', error);
+      alert('Failed to save changes. Please try again.');
     } finally {
       setActionLoading(false);
     }
@@ -244,9 +299,6 @@ const Orders = () => {
     });
     setFilteredOrders(sorted);
   };
-
-  // Add status options constant
-  const statusOptions = ['Pending', 'Approved', 'On Process', 'Completed'];
 
   return (
     <div className="orders-page">
@@ -380,15 +432,18 @@ const Orders = () => {
                     <td>
                       {userRole === 'admin' ? (
                         <select
+                          onClick={(e) => e.stopPropagation()}
+                          onChange={(e) => {
+                            e.stopPropagation();
+                            handleStatusChange(order.id, e.target.value);
+                          }}
                           value={order.status}
-                          onChange={(e) => handleStatusChange(order.id, e.target.value)}
-                          className="status-select"
+                          disabled={actionLoading}
                         >
-                          {statusOptions.map((status) => (
-                            <option key={status} value={status}>
-                              {status}
-                            </option>
-                          ))}
+                          <option value="Pending">{t('pending')}</option>
+                          <option value="Approved">{t('approved')}</option>
+                          <option value="On Process">{t('onProcess')}</option>
+                          <option value="Completed">{t('completed')}</option>
                         </select>
                       ) : (
                         order.status
