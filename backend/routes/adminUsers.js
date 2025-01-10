@@ -5,6 +5,17 @@ const db = require('../db'); // Your database connection
 const authenticate = require('../middleware/authenticate'); // Your authentication middleware
 const router = express.Router();
 
+// Add CORS headers middleware if not already added in main app.js
+router.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', 'http://37.148.210.169:3000');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(200);
+  }
+  next();
+});
+
 // Fetch all users
 router.get('/', authenticate, (req, res) => {
   const query = 'SELECT id, username, email, role, status FROM users';

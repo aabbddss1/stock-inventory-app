@@ -13,12 +13,6 @@ function Customers() {
   const [editingCustomer, setEditingCustomer] = useState(null);
 
   const token = localStorage.getItem('token');
-  const axiosInstance = React.useMemo(() => {
-    return axios.create({
-      baseURL: 'http://localhost:5001/api',
-      headers: { Authorization: `Bearer ${token}` },
-    });
-  }, [token]);
 
   useEffect(() => {
     if (!token) {
@@ -27,8 +21,9 @@ function Customers() {
       return;
     }
 
-    axiosInstance
-      .get('/customers')
+    axios.get('http://37.148.210.169:5001/api/customers', {
+      headers: { Authorization: `Bearer ${token}` }
+    })
       .then((response) => {
         const userCustomers = response.data.filter(customer => 
           customer.role?.toLowerCase() === 'user' || !customer.role
@@ -55,20 +50,15 @@ function Customers() {
 
   // Handle saving a customer (add or edit)
   const handleSave = (customer) => {
-    const token = localStorage.getItem('token');
-  
-    // Add a new customer
-    axios
-      .post(
-        'http://localhost:5001/api/customers',
-        {
-          ...customer,
-          role: 'user', // Ensure new customers are created as users
-        },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      )
+    axios.post('http://37.148.210.169:5001/api/customers',
+      {
+        ...customer,
+        role: 'user',
+      },
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    )
       .then((response) => {
         setCustomers([...customers, response.data]);
         setShowModal(false);
@@ -89,8 +79,9 @@ function Customers() {
   const handleDelete = (id) => {
     const customerName = customers.find((customer) => customer.id === id)?.name;
     if (window.confirm(`${t('customers.confirmDelete')} ${customerName}?`)) {
-      axiosInstance
-        .delete(`/customers/${id}`)
+      axios.delete(`http://37.148.210.169:5001/api/customers/${id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
         .then(() => {
           setCustomers((prev) => prev.filter((customer) => customer.id !== id));
         })
