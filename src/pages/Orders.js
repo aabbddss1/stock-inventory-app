@@ -3,6 +3,7 @@ import Sidebar from '../components/Sidebar';
 import TopNavbar from '../components/TopNavbar';
 import { utils as XLSXUtils, writeFile as XLSXWriteFile } from 'xlsx'; // For Excel export
 import axios from 'axios';
+import { api } from '../config/api';
 import '../styles/Orders.css';
 import { useTranslation } from 'react-i18next';
 import { ordersTranslation } from '../i18n/ordersTranslation';
@@ -35,21 +36,21 @@ const Orders = () => {
     const fetchData = async () => {
       try {
         // Fetch orders
-        const ordersResponse = await axios.get('http://localhost:5001/api/orders', {
+        const ordersResponse = await axios.get('/api/orders', {
           headers: { Authorization: `Bearer ${token}` },
         });
         setOrders(ordersResponse.data);
         setFilteredOrders(ordersResponse.data);
 
         // Fetch inventory
-        const inventoryResponse = await axios.get('http://localhost:5001/api/inventory', {
+        const inventoryResponse = await axios.get('/api/inventory', {
           headers: { Authorization: `Bearer ${token}` },
         });
         setInventory(inventoryResponse.data);
 
         // Fetch users for admin
         if (userRole === 'admin') {
-          const usersResponse = await axios.get('http://localhost:5001/api/customers', {
+          const usersResponse = await axios.get('/api/customers', {
             headers: { Authorization: `Bearer ${token}` },
           });
           setUsers(usersResponse.data);
@@ -108,13 +109,13 @@ const Orders = () => {
     setActionLoading(true);
     try {
       // Create the order
-      const orderResponse = await axios.post('http://localhost:5001/api/orders', orderData, {
+      const orderResponse = await axios.post('/api/orders', orderData, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
       // Update inventory quantity
       const updatedQuantity = selectedProduct.quantity - orderData.quantity;
-      await axios.put(`http://localhost:5001/api/inventory/${selectedProduct.id}`, 
+      await axios.put(`/api/inventory/${selectedProduct.id}`, 
         { ...selectedProduct, quantity: updatedQuantity },
         { headers: { Authorization: `Bearer ${token}` }}
       );
@@ -150,13 +151,13 @@ const Orders = () => {
         const inventoryItem = inventory.find(item => item.name === orderToDelete.productName);
         
         // Delete the order
-        await axios.delete(`http://localhost:5001/api/orders/${id}`, {
+        await axios.delete(`/api/orders/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
         // Return quantity to inventory
         const updatedQuantity = inventoryItem.quantity + parseInt(orderToDelete.quantity);
-        await axios.put(`http://localhost:5001/api/inventory/${inventoryItem.id}`, 
+        await axios.put(`/api/inventory/${inventoryItem.id}`, 
           { ...inventoryItem, quantity: updatedQuantity },
           { headers: { Authorization: `Bearer ${token}` }}
         );
@@ -187,7 +188,7 @@ const Orders = () => {
 
     setActionLoading(true);
     try {
-      await axios.put(`http://localhost:5001/api/orders/${id}`, updatedOrder, {
+      await axios.put(`/api/orders/${id}`, updatedOrder, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setOrders((prevOrders) =>
@@ -239,13 +240,13 @@ const Orders = () => {
       }
 
       // Update the order
-      await axios.put(`http://localhost:5001/api/orders/edit/${selectedOrder.id}`, selectedOrder, {
+      await axios.put(`/api/orders/edit/${selectedOrder.id}`, selectedOrder, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
       // Update inventory quantity
       const updatedQuantity = inventoryItem.quantity - quantityDifference;
-      await axios.put(`http://localhost:5001/api/inventory/${inventoryItem.id}`, 
+      await axios.put(`/api/inventory/${inventoryItem.id}`, 
         { ...inventoryItem, quantity: updatedQuantity },
         { headers: { Authorization: `Bearer ${token}` }}
       );
