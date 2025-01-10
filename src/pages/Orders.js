@@ -95,41 +95,47 @@ const Orders = () => {
     e.preventDefault();
     setActionLoading(true);
 
-    if (!newOrder.clientEmail || !newOrder.productName || !newOrder.quantity || !newOrder.price) {
-      alert('Please fill in all fields');
-      setActionLoading(false);
-      return;
-    }
-
     try {
+      // Log the data being sent
+      console.log('Sending order data:', newOrder);
+
+      const orderData = {
+        clientEmail: newOrder.clientEmail,
+        productName: newOrder.productName,
+        quantity: parseInt(newOrder.quantity),
+        price: parseFloat(newOrder.price),
+        status: 'Pending'
+      };
+
       const response = await axios.post(
         'http://37.148.210.169:5001/api/orders',
+        orderData,
         {
-          ...newOrder,
-          status: 'Pending' // Add default status
-        },
-        {
-          headers: { Authorization: `Bearer ${token}` }
+          headers: { 
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
         }
       );
 
+      console.log('Order creation response:', response.data);
+
       // Update local state with the new order
-      const createdOrder = response.data;
-      setOrders(prevOrders => [...prevOrders, createdOrder]);
-      setFilteredOrders(prevOrders => [...prevOrders, createdOrder]);
+      setOrders(prevOrders => [...prevOrders, response.data]);
+      setFilteredOrders(prevOrders => [...prevOrders, response.data]);
       
-      // Reset form and close modal
+      // Reset form
       setNewOrder({
         clientEmail: '',
         productName: '',
         quantity: '',
         price: '',
       });
-      setIsQuickOrderModalOpen(false);
+
       alert('Order created successfully!');
     } catch (error) {
-      console.error('Error creating order:', error);
-      alert('Failed to create order. Please try again.');
+      console.error('Error creating order:', error.response?.data || error);
+      alert(`Failed to create order: ${error.response?.data?.error || 'Unknown error'}`);
     } finally {
       setActionLoading(false);
     }
@@ -157,12 +163,11 @@ const Orders = () => {
   // Handle changing the order status
   const handleStatusChange = async (orderId, newStatus) => {
     try {
-      await axios.put(
+      console.log('Updating status:', { orderId, newStatus });
+
+      const response = await axios.put(
         `http://37.148.210.169:5001/api/orders/${orderId}`,
-        { 
-          status: newStatus,
-          orderId: orderId // Add orderId to request body
-        },
+        { status: newStatus },
         {
           headers: { 
             'Authorization': `Bearer ${token}`,
@@ -170,6 +175,8 @@ const Orders = () => {
           }
         }
       );
+
+      console.log('Status update response:', response.data);
       
       // Update local state
       const updatedOrders = orders.map(order =>
@@ -177,12 +184,9 @@ const Orders = () => {
       );
       setOrders(updatedOrders);
       setFilteredOrders(updatedOrders);
-      
-      // Show success message
-      alert('Order status updated successfully');
     } catch (error) {
-      console.error('Error updating order status:', error);
-      alert(`Failed to update order status: ${error.response?.data?.error || 'Unknown error'}`);
+      console.error('Error updating status:', error.response?.data || error);
+      alert(`Failed to update status: ${error.response?.data?.error || 'Unknown error'}`);
     }
   };
 
