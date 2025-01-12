@@ -41,7 +41,7 @@ const UserDocuments = () => {
   const fetchUserDocuments = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${API_BASE_URL}/api/documents/user/${customerId}`);
+      const response = await axios.get(`/api/documents/user/${customerId}`);
       setDocuments(response.data.documents || []);
     } catch (error) {
       alert('Failed to fetch documents.');
@@ -52,7 +52,7 @@ const UserDocuments = () => {
 
   const handleDownload = async (id) => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/api/documents/download/${id}`);
+      const response = await axios.get(`/api/documents/download/${id}`);
       const signedUrl = response.data.signedUrl;
 
       const link = document.createElement('a');
