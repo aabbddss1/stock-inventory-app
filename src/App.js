@@ -44,45 +44,22 @@ function App() {
           <Route path="/" element={<LoginPage />} />
           <Route path="/dashboard" element={<UserPanel />} />
           
-          {/* Protected admin routes */}
-          <Route
-            path="/admin/*"
-            element={
-              <ProtectedRoute>
-                <AdminPanel />
-              </ProtectedRoute>
-            }
-          />
-          <Route path="/admin-users" element={<ProtectedRoute><AdminUsers /></ProtectedRoute>} />
-
-          {/* User Panel */}
-          <Route
-            path="/user"
-            element={
-              <ProtectedRoute>
-                <UserPanel />
-              </ProtectedRoute>
-            }
-          />
-
-          {/* Other Pages */}
-          <Route path="/customers" element={<ProtectedRoute><Customers /></ProtectedRoute>} />
-          <Route path="/suppliers" element={<ProtectedRoute><Suppliers /></ProtectedRoute>} />
-          <Route path="/dealerships" element={<ProtectedRoute><Dealerships /></ProtectedRoute>} />
-          <Route path="/sales" element={<ProtectedRoute><Sales /></ProtectedRoute>} />
+          {/* Admin-only routes */}
+          <Route path="/admin/*" element={<ProtectedRoute adminOnly><AdminPanel /></ProtectedRoute>} />
+          <Route path="/admin-users" element={<ProtectedRoute adminOnly><AdminUsers /></ProtectedRoute>} />
+          <Route path="/suppliers" element={<ProtectedRoute adminOnly><Suppliers /></ProtectedRoute>} />
+          <Route path="/dealerships" element={<ProtectedRoute adminOnly><Dealerships /></ProtectedRoute>} />
+          
+          {/* Shared routes (accessible by both admin and regular users) */}
           <Route path="/orders" element={<ProtectedRoute><Orders /></ProtectedRoute>} />
           <Route path="/quotations" element={<ProtectedRoute><Quotations /></ProtectedRoute>} />
           <Route path="/inventory" element={<ProtectedRoute><Inventory /></ProtectedRoute>} />
-          <Route path="/receivables" element={<ProtectedRoute><Receivables /></ProtectedRoute>} />
-          <Route path="/payables" element={<ProtectedRoute><Payables /></ProtectedRoute>} />
           <Route path="/documents" element={<ProtectedRoute><Documents /></ProtectedRoute>} />
           <Route path="/sales" element={<ProtectedRoute><SalesPage /></ProtectedRoute>} />
-          <Route path="/user/inventory" element={<UserInventory />} />
-          <Route path="/user/documents" element={<UserDocuments />} />
-
-
-          {/* Optional Routes for Add Customer and Add Supplier */}
-          <Route path="/add-customer" element={<ProtectedRoute><AddCustomer /></ProtectedRoute>} />
+          
+          {/* User-specific routes */}
+          <Route path="/user/inventory" element={<ProtectedRoute><UserInventory /></ProtectedRoute>} />
+          <Route path="/user/documents" element={<ProtectedRoute><UserDocuments /></ProtectedRoute>} />
         </Routes>
 
         {/* Add Customer Modal */}
