@@ -32,9 +32,6 @@ const UserPanel = () => {
             Authorization: `Bearer ${token}`
           }
         });
-        
-        // Store user role in localStorage for route protection
-        localStorage.setItem('userRole', response.data.role);
         setUser(response.data);
 
         // Fetch orders and notifications
@@ -89,7 +86,6 @@ const UserPanel = () => {
 
   const handleLogout = () => {
     localStorage.removeItem('token');
-    localStorage.removeItem('userRole'); // Also remove the role on logout
     navigate('/');
   };
 
