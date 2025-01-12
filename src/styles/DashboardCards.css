@@ -470,3 +470,15 @@
   outline: none;
   border-color: #0066cc;
 }
+
+.dashboard-title {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.dashboard-title h1 {
+  font-size: 1.5rem;
+  color: #666;
+  margin: 0;
+}
