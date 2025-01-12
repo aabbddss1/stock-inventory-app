@@ -9,7 +9,7 @@ const UserDocuments = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
 
-  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:5001';
+  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://37.148.210.169:5001/';
   
   const getCustomerId = () => {
     const token = localStorage.getItem('token');

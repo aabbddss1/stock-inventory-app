@@ -6,7 +6,7 @@ import { utils as XLSXUtils, writeFile as XLSXWriteFile } from 'xlsx'; // For Ex
 
 import '../styles/Inventory.css';
 
-axios.defaults.baseURL = 'http://localhost:5001'; // Replace with your backend URL
+axios.defaults.baseURL = 'http://37.148.210.169:5001/'; // Replace with your backend URL
 axios.defaults.headers.common['Authorization'] = `Bearer ${localStorage.getItem('token')}`;
 
 const UserInventory = () => {

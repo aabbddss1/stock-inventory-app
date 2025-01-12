@@ -23,7 +23,7 @@ const AdminUsers = () => {
 
   const fetchUsers = async () => {
     try {
-      const response = await axios.get('http://localhost:5001/api/customers', {
+      const response = await axios.get('http://37.148.210.169:5001/api/customers', {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
       });
       
@@ -54,7 +54,7 @@ const AdminUsers = () => {
 
     try {
       if (selectedUser) {
-        await axios.put(`http://localhost:5001/api/customers/${selectedUser.id}`, {
+        await axios.put(`http://37.148.210.169:5001/api/customers/${selectedUser.id}`, {
           name: formData.username,
           email: formData.email,
           password: formData.password,
@@ -73,7 +73,7 @@ const AdminUsers = () => {
           role: 'admin',
         };
         
-        await axios.post('http://localhost:5001/api/customers', userData, {
+        await axios.post('http://37.148.210.169:5001/api/customers', userData, {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
         });
         alert('User added successfully');
@@ -107,7 +107,7 @@ const AdminUsers = () => {
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this user?')) {
       try {
-        await axios.delete(`http://localhost:5001/api/customers/${id}`, {
+        await axios.delete(`http://37.148.210.169:5001/api/customers/${id}`, {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
         });
         alert('User deleted successfully');
