@@ -531,6 +531,7 @@ function DashboardCards() {
     <div className="dashboard-container">
       <div className="dashboard-header">
         <h2>{t('adminDashboard')}</h2>
+        <h1>Welcome, {user.name}!</h1>
         <div className="dashboard-controls">
           <span className="last-refresh">
             {t('lastUpdated')}: {lastRefresh.toLocaleTimeString()}
