@@ -28,6 +28,7 @@ const Orders = () => {
   const [sortOrder, setSortOrder] = useState('desc');
   const [quantitySortOrder, setQuantitySortOrder] = useState('desc');
   const [statusLoading, setStatusLoading] = useState(null); // Track which order is updating status
+  const userEmail = userData.email; // Get user email from token
 
   const token = localStorage.getItem('token');
   const userData = JSON.parse(atob(token.split('.')[1])); // Decode token to get user data
@@ -113,7 +114,7 @@ const Orders = () => {
 
       // Create order first
       const orderData = {
-        clientEmail: newOrder.clientEmail,
+        clientEmail: userRole === 'admin' ? newOrder.clientEmail : userEmail,
         productName: newOrder.productName,
         quantity: parseInt(newOrder.quantity),
         price: parseFloat(newOrder.price),
