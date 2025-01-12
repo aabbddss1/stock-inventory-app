@@ -89,6 +89,15 @@ function DashboardCards() {
     inventoryLevels: []
   });
 
+  // Add new state for user
+  const [user, setUser] = useState(null);
+
+  // Add this useEffect to get user data when component mounts
+  useEffect(() => {
+    const userData = JSON.parse(localStorage.getItem('user'));
+    setUser(userData);
+  }, []);
+
   const fetchData = useCallback(async () => {
     setIsLoading(true);
     setError(null);
@@ -530,8 +539,10 @@ function DashboardCards() {
   return (
     <div className="dashboard-container">
       <div className="dashboard-header">
-        <h2>{t('adminDashboard')}</h2>
-        <h1>Welcome, {user.name}!</h1>
+        <div className="dashboard-title">
+          <h2>{t('adminDashboard')}</h2>
+          {user && <h1>Welcome, {user.name}!</h1>}
+        </div>
         <div className="dashboard-controls">
           <span className="last-refresh">
             {t('lastUpdated')}: {lastRefresh.toLocaleTimeString()}
