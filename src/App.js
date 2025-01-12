@@ -40,15 +40,16 @@ function App() {
     <Router>
       <div className="app">
         <Routes>
-          {/* Main Login Page */}
+          {/* Public routes */}
           <Route path="/" element={<LoginPage />} />
-
-          {/* Admin Panel */}
+          <Route path="/dashboard" element={<UserPanel />} />
+          
+          {/* Protected admin routes */}
           <Route
-            path="/admin"
+            path="/admin/*"
             element={
               <ProtectedRoute>
-                <AdminPanel onOpenAddCustomer={handleOpenAddCustomerModal} />
+                <AdminPanel />
               </ProtectedRoute>
             }
           />
