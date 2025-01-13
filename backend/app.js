@@ -15,6 +15,9 @@ app.use('/api/customers', customerRoutes);
 // Add the admin routes
 app.use('/api/admin-users', adminUserRoutes);
 
+// Add this line to serve static files
+app.use('/uploads', express.static(process.env.STORAGE_PATH || '/var/www/xcloud-storage/uploads'));
+
 const PORT = process.env.PORT || 5001;
 
 app.listen(PORT, () => {

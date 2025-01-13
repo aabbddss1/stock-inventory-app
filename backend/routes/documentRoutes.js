@@ -1,20 +1,14 @@
 const express = require('express');
 const multer = require('multer');
-const AWS = require('aws-sdk');
 const { body, validationResult } = require('express-validator');
 const db = require('../db'); // Import your database connection
 require('dotenv').config(); // Load environment variables
 const router = express.Router();
+const path = require('path');
+const fs = require('fs').promises;
 
 // Constants
 const ALLOWED_CATEGORIES = ['Invoice', 'Contract', 'Report', 'Other'];
-
-// Configure AWS S3
-const s3 = new AWS.S3({
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-    region: process.env.AWS_REGION,
-});
 
 // Multer memory storage for file uploads
 const storage = multer.memoryStorage();
@@ -38,6 +32,10 @@ const handleError = (res, error, message = 'An error occurred', status = 500) =>
     console.error(message, error);
     res.status(status).json({ error: message, details: error.message });
 };
+
+// Remove AWS S3 configuration and replace with local storage config
+const UPLOAD_DIR = process.env.STORAGE_PATH || '/var/www/xcloud-storage/uploads';
+const BASE_URL = `http://${process.env.SERVER_IP}:5001/uploads`; // Adjust port if needed
 
 // Upload a document to S3 and save metadata
 router.post(
@@ -68,25 +66,21 @@ router.post(
             }
 
             // Clean and sanitize file name
-            const cleanFileName = req.file.originalname
-                .replace(/\s+/g, '-') // Replace spaces with dashes
-                .replace(/[()]/g, ''); // Remove parentheses
-            const fileKey = `${Date.now()}-${cleanFileName}`;
+            const cleanFileName = `${Date.now()}-${req.file.originalname
+                .replace(/\s+/g, '-')
+                .replace(/[()]/g, '')}`;
+            
+            // Ensure upload directory exists
+            await fs.mkdir(UPLOAD_DIR, { recursive: true });
+            
+            // Save file to local storage
+            const filePath = path.join(UPLOAD_DIR, cleanFileName);
+            await fs.writeFile(filePath, req.file.buffer);
 
-            // Upload file to S3
-            const uploadResult = await s3
-                .upload({
-                    Bucket: process.env.S3_BUCKET_NAME,
-                    Key: fileKey,
-                    Body: req.file.buffer,
-                    ContentType: req.file.mimetype,
-                })
-                .promise();
-
-            const fileUrl = uploadResult.Location; // S3 file URL
+            const fileUrl = `${BASE_URL}/${cleanFileName}`;
             const uploadDate = new Date();
 
-            // Save document metadata to the database
+            // Save document metadata to database
             const [result] = await db.promise().query(
                 'INSERT INTO documents (customer_id, name, category, file_path, upload_date) VALUES (?, ?, ?, ?, ?)',
                 [customerId, name, category, fileUrl, uploadDate]
@@ -173,18 +167,10 @@ router.get('/download/:id', async (req, res) => {
             return res.status(404).json({ error: 'Document not found' });
         }
 
-        const fileUrl = document[0].file_path;
-        const fileKey = decodeURIComponent(fileUrl.split('/').pop()); // Decode the key
-
-        const signedUrl = s3.getSignedUrl('getObject', {
-            Bucket: process.env.S3_BUCKET_NAME,
-            Key: fileKey,
-            Expires: 60 * 5, // URL expires in 5 minutes
-        });
-
-        res.status(200).json({ signedUrl });
+        // Simply return the direct URL since files are now served statically
+        res.status(200).json({ signedUrl: document[0].file_path });
     } catch (err) {
-        handleError(res, err, 'Failed to generate download URL');
+        handleError(res, err, 'Failed to get download URL');
     }
 });
 
@@ -193,24 +179,19 @@ router.delete('/:id', async (req, res) => {
     const { id } = req.params;
 
     try {
-        // Fetch document metadata
         const [document] = await db.promise().query('SELECT file_path FROM documents WHERE id = ?', [id]);
         if (!document.length) {
             return res.status(404).json({ error: 'Document not found' });
         }
 
         const fileUrl = document[0].file_path;
-        const fileKey = fileUrl.split('/').pop();
+        const fileName = fileUrl.split('/').pop();
+        const filePath = path.join(UPLOAD_DIR, fileName);
 
-        // Delete the file from S3
-        await s3
-            .deleteObject({
-                Bucket: process.env.S3_BUCKET_NAME,
-                Key: fileKey,
-            })
-            .promise();
+        // Delete file from local storage
+        await fs.unlink(filePath);
 
-        // Delete the document record from the database
+        // Delete database record
         await db.promise().query('DELETE FROM documents WHERE id = ?', [id]);
 
         res.status(200).json({ message: 'Document deleted successfully' });

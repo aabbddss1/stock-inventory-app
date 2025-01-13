@@ -99,16 +99,8 @@ const Documents = () => {
   const handleDownload = async (id) => {
     try {
       const response = await api.get(`/api/documents/download/${id}`);
-      const signedUrl = response.data.signedUrl;
-
-      // Trigger file download
-      const link = document.createElement('a');
-      link.href = signedUrl;
-      link.target = '_blank';
-      link.download = ''; // Optional: Set a custom filename here
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
+      const url = response.data.signedUrl;
+      window.open(url, '_blank');
     } catch (error) {
       console.error('Error downloading document:', error);
       alert('Failed to download document.');
