@@ -401,10 +401,183 @@ router.put('/edit/:id', authenticate, (req, res) => {
       return res.status(404).json({ error: 'Order not found' });
     }
 
-    res.json({ message: `Order with ID ${id} updated successfully` });
+    // Fetch updated order details
+    db.query('SELECT * FROM orders WHERE id = ?', [id], async (err, results) => {
+      if (err || results.length === 0) {
+        console.error('Error fetching updated order details:', err);
+        return res.status(500).json({ error: 'Order updated but failed to fetch details' });
+      }
+
+      const order = results[0];
+      const { clientEmail, clientName, status } = order;
+      const orderTotal = quantity * price;
+      const adminEmail = process.env.EMAIL_USER;
+
+      const clientEmailBody = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <style>
+            .container { max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif; }
+            .header { background: #4CAF50; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0; }
+            .content { padding: 20px; background: #fff; border: 1px solid #ddd; }
+            .footer { background: #f8f8f8; padding: 15px; text-align: center; border-radius: 0 0 5px 5px; }
+            .table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+            .table th, .table td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+            .table th { background: #f5f5f5; }
+            .highlight { color: #4CAF50; font-weight: bold; }
+            .info-box { background: #f9f9f9; padding: 15px; margin: 15px 0; border-left: 4px solid #4CAF50; }
+            .changes { background: #e8f5e9; padding: 15px; margin: 15px 0; border-radius: 4px; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <h1 style="margin: 0;">Order Updated</h1>
+              <p style="margin: 10px 0 0 0;">Order #${id}</p>
+            </div>
+            <div class="content">
+              <p>Dear <span class="highlight">${clientName}</span>,</p>
+              <p>Your order has been updated with the following changes:</p>
+
+              <div class="info-box">
+                <h3 style="margin-top: 0;">Order Information</h3>
+                <p><strong>Order ID:</strong> #${id}</p>
+                <p><strong>Update Date:</strong> ${new Date().toLocaleString()}</p>
+                <p><strong>Status:</strong> ${status}</p>
+              </div>
+
+              <div class="changes">
+                <h3 style="margin-top: 0;">Updated Order Details</h3>
+                <table class="table">
+                  <tr>
+                    <th>Product</th>
+                    <th>Quantity</th>
+                    <th>Price Per Unit</th>
+                    <th>Total</th>
+                  </tr>
+                  <tr>
+                    <td>${productName}</td>
+                    <td>${quantity}</td>
+                    <td>$${price.toFixed(2)}</td>
+                    <td>$${orderTotal.toFixed(2)}</td>
+                  </tr>
+                </table>
+              </div>
+
+              <p>If you have any questions about these changes, please don't hesitate to contact our support team at <a href="mailto:${adminEmail}" style="color: #4CAF50;">${adminEmail}</a></p>
+            </div>
+            <div class="footer">
+              <p>© ${new Date().getFullYear()} Qubite. All rights reserved.</p>
+            </div>
+          </div>
+        </body>
+        </html>`;
+
+      const adminEmailBody = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <style>
+            .container { max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif; }
+            .header { background: #2196F3; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0; }
+            .content { padding: 20px; background: #fff; border: 1px solid #ddd; }
+            .footer { background: #f8f8f8; padding: 15px; text-align: center; border-radius: 0 0 5px 5px; }
+            .table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+            .table th, .table td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+            .table th { background: #f5f5f5; }
+            .highlight { color: #2196F3; font-weight: bold; }
+            .info-box { background: #f9f9f9; padding: 15px; margin: 15px 0; border-left: 4px solid #2196F3; }
+            .changes { background: #e3f2fd; padding: 15px; margin: 15px 0; border-radius: 4px; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <h1 style="margin: 0;">Order Modified</h1>
+              <p style="margin: 10px 0 0 0;">Order #${id}</p>
+            </div>
+            <div class="content">
+              <div class="info-box">
+                <h3 style="margin-top: 0;">Order Information</h3>
+                <p><strong>Order ID:</strong> #${id}</p>
+                <p><strong>Update Date:</strong> ${new Date().toLocaleString()}</p>
+                <p><strong>Status:</strong> ${status}</p>
+              </div>
+
+              <div class="info-box">
+                <h3 style="margin-top: 0;">Customer Information</h3>
+                <p><strong>Name:</strong> ${clientName}</p>
+                <p><strong>Email:</strong> ${clientEmail}</p>
+              </div>
+
+              <div class="changes">
+                <h3 style="margin-top: 0;">Updated Order Details</h3>
+                <table class="table">
+                  <tr>
+                    <th>Product</th>
+                    <th>Quantity</th>
+                    <th>Price Per Unit</th>
+                    <th>Total</th>
+                  </tr>
+                  <tr>
+                    <td>${productName}</td>
+                    <td>${quantity}</td>
+                    <td>$${price.toFixed(2)}</td>
+                    <td>$${orderTotal.toFixed(2)}</td>
+                  </tr>
+                </table>
+              </div>
+
+              <div class="info-box">
+                <h3 style="margin-top: 0;">Required Actions</h3>
+                <ul style="margin: 0; padding-left: 20px;">
+                  <li>Review the updated order details</li>
+                  <li>Update any related shipping or inventory records</li>
+                  <li>Contact the customer if necessary</li>
+                </ul>
+              </div>
+            </div>
+            <div class="footer">
+              <p>© ${new Date().getFullYear()} Qubite Admin System</p>
+            </div>
+          </div>
+        </body>
+        </html>`;
+
+      try {
+        await sendEmail({
+          to: clientEmail,
+          subject: `Order Updated - Order #${id}`,
+          html: clientEmailBody
+        });
+
+        await sendEmail({
+          to: adminEmail,
+          subject: `Order Modified - Order #${id}`,
+          html: adminEmailBody
+        });
+
+        res.json({ 
+          message: `Order with ID ${id} updated successfully`,
+          orderDetails: {
+            id,
+            productName,
+            quantity,
+            price,
+            total: orderTotal
+          }
+        });
+      } catch (emailError) {
+        console.error('Error sending emails:', emailError);
+        res.json({ 
+          message: `Order with ID ${id} updated successfully`,
+          warning: 'Order updated but email notifications failed'
+        });
+      }
+    });
   });
 });
-
 
 // Update an order status
 router.put('/:id', authenticate, (req, res) => {
