@@ -98,13 +98,8 @@ const Documents = () => {
   // Download document
   const handleDownload = async (id) => {
     try {
-        // Create a temporary anchor element
-        const link = document.createElement('a');
-        link.href = `${api.defaults.baseURL}/api/documents/download/${id}`;
-        link.target = '_blank'; // Optional: opens in new tab
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+        // Direct file download
+        window.open(`${api.defaults.baseURL}/api/documents/download/${id}`, '_blank');
     } catch (error) {
         console.error('Error downloading document:', error);
         alert('Failed to download document.');

@@ -167,31 +167,33 @@ router.get('/download/:id', async (req, res) => {
             return res.status(404).json({ error: 'Document not found' });
         }
 
+        // Extract filename from the file_path
         const fileUrl = document[0].file_path;
         const fileName = fileUrl.split('/').pop();
         const filePath = path.join(UPLOAD_DIR, fileName);
 
-        // Verify file exists
-        try {
-            await fs.access(filePath);
-        } catch (error) {
-            console.error('File access error:', error);
+        console.log('Attempting to download file:', {
+            filePath,
+            fileName,
+            exists: require('fs').existsSync(filePath)
+        });
+
+        // Check if file exists
+        if (!require('fs').existsSync(filePath)) {
             return res.status(404).json({ error: 'File not found on server' });
         }
 
-        // Send file directly
-        res.download(filePath, fileName, (err) => {
-            if (err) {
-                console.error('Download error:', err);
-                // Only send error if headers haven't been sent yet
-                if (!res.headersSent) {
-                    res.status(500).json({ error: 'Error downloading file' });
-                }
-            }
-        });
+        // Set headers and send file
+        res.setHeader('Content-Type', 'application/octet-stream');
+        res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+        
+        // Stream the file to response
+        const fileStream = require('fs').createReadStream(filePath);
+        fileStream.pipe(res);
+
     } catch (err) {
-        console.error('Download route error:', err);
-        res.status(500).json({ error: 'Failed to process download request' });
+        console.error('Download error:', err);
+        res.status(500).json({ error: 'Failed to download file' });
     }
 });
 

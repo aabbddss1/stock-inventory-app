@@ -10,14 +10,21 @@ const app = express();
 app.use(bodyParser.json());
 app.use(cors());
 
+// Add CORS headers
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+    next();
+});
+
 // Add the customer routes
 app.use('/api/customers', customerRoutes);
 
 // Add the admin routes
 app.use('/api/admin-users', adminUserRoutes);
 
-// Add this line to serve static files
-app.use('/uploads', express.static(path.join(__dirname, '..', 'xcloud-storage', 'uploads')));
+// Serve static files
+app.use('/uploads', express.static('/var/www/xcloud-storage/uploads'));
 
 const PORT = process.env.PORT || 5001;
 
