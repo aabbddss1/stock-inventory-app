@@ -9,8 +9,29 @@ function ProtectedRoute({ children }) {
     return <Navigate to="/" />;
   }
 
-  // Check role for admin routes
-  if (window.location.pathname.startsWith('/admin') && role !== 'admin') {
+  // Define all admin-only routes
+  const adminRoutes = [
+    '/admin',
+    '/sales',
+    '/documents',
+    '/analytics',
+    '/settings',
+    '/customers',
+    '/suppliers',
+    '/dealerships',
+    '/inventory',
+    '/receivables',
+    '/payables',
+    '/admin-users'
+  ];
+
+  // Check if current path matches any admin route
+  const currentPath = window.location.pathname;
+  const isAdminRoute = adminRoutes.some(route => 
+    currentPath === route || currentPath.startsWith(`${route}/`)
+  );
+
+  if (isAdminRoute && role !== 'admin') {
     alert('Unauthorized access!');
     return <Navigate to="/user" />;
   }
