@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 const router = express.Router();
 const db = require('../db'); // Import the database connection
 const authenticate = require('../middleware/authenticate'); // Middleware for JWT authentication
+const sendEmail = require('../utils/emailUtils'); // Bu satırın eklendiğinden emin olun
 
 // Middleware for admin check
 const requireAdmin = (req, res, next) => {
@@ -119,18 +120,80 @@ router.post('/', authenticate, async (req, res) => {
     db.query(
       'INSERT INTO customers (name, email, phone, password, role) VALUES (?, ?, ?, ?, ?)',
       [name, email, phone, hashedPassword, role],
-      (err, result) => {
+      async (err, result) => {
         if (err) {
           console.error('Error adding customer:', err.message);
           return res.status(500).json({ error: 'Failed to add customer' });
         }
-        res.status(201).json({
-          id: result.insertId,
-          name,
-          email,
-          phone,
-          role,
-        });
+
+        // Prepare email content
+        const adminEmail = process.env.EMAIL_USER;
+        
+        const welcomeEmailBody = `
+          <h1 style="font-family: Arial, sans-serif; color: #4CAF50;">Welcome to Qubite Stock Management</h1>
+          <p style="font-family: Arial, sans-serif; color: #333;">Dear ${name},</p>
+          <p style="font-family: Arial, sans-serif; color: #555;">Welcome to Qubite Stock Management System! Your account has been created successfully.</p>
+          <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin: 20px 0;">
+            <p style="margin: 5px 0;"><strong>Your Login Details:</strong></p>
+            <p style="margin: 5px 0;">Email: ${email}</p>
+            <p style="margin: 5px 0;">Password: ${password}</p>
+          </div>
+          <p style="font-family: Arial, sans-serif; color: #555;">Please keep these credentials safe and change your password after your first login.</p>
+          <p style="font-family: Arial, sans-serif; color: #555;">If you have any questions, please contact us at ${adminEmail}</p>
+          <p style="font-family: Arial, sans-serif; color: #333; text-align: center;"><strong>Thank you for choosing Qubite!</strong></p>`;
+
+        const adminNotificationBody = `
+          <h1 style="font-family: Arial, sans-serif; color: #2196F3;">New Customer Account Created</h1>
+          <p style="font-family: Arial, sans-serif; color: #333;">A new customer account has been created:</p>
+          <table style="font-family: Arial, sans-serif; border-collapse: collapse; width: 100%; margin-top: 20px;">
+            <tr style="background-color: #f2f2f2;">
+              <th style="border: 1px solid #ddd; padding: 8px;">Name</th>
+              <th style="border: 1px solid #ddd; padding: 8px;">Email</th>
+              <th style="border: 1px solid #ddd; padding: 8px;">Phone</th>
+              <th style="border: 1px solid #ddd; padding: 8px;">Role</th>
+            </tr>
+            <tr>
+              <td style="border: 1px solid #ddd; padding: 8px;">${name}</td>
+              <td style="border: 1px solid #ddd; padding: 8px;">${email}</td>
+              <td style="border: 1px solid #ddd; padding: 8px;">${phone || 'N/A'}</td>
+              <td style="border: 1px solid #ddd; padding: 8px;">${role}</td>
+            </tr>
+          </table>`;
+
+        try {
+          // Send welcome email to customer
+          await sendEmail({
+            to: email,
+            subject: 'Welcome to Qubite Stock Management',
+            html: welcomeEmailBody
+          });
+
+          // Send notification to admin
+          await sendEmail({
+            to: adminEmail,
+            subject: 'New Customer Account Created',
+            html: adminNotificationBody
+          });
+
+          res.status(201).json({
+            id: result.insertId,
+            name,
+            email,
+            phone,
+            role,
+          });
+        } catch (emailError) {
+          console.error('Error sending emails:', emailError);
+          // Still return success but with a warning
+          res.status(201).json({
+            id: result.insertId,
+            name,
+            email,
+            phone,
+            role,
+            warning: 'Customer created but email notifications failed'
+          });
+        }
       }
     );
   } catch (err) {

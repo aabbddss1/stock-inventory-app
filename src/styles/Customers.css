@@ -138,33 +138,35 @@ margin-right: 0; /* Son butonun sağında boşluk olmaması için */
   font-size: 14px;
 }
 
-.modal-actions .save-btn {
+.modal-save-btn {
   background-color: #4caf50;
   cursor: pointer;
   color: white;
   border: none;
+  width: 100%;
+  margin-bottom: 10px;
 }
 
-.modal-actions .save-btn:hover {
+.modal-save-btn:hover {
   background-color: #0b8e0f;
 }
 
-.modal-actions .cancel-btn {
+.modal-save-btn:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.modal-cancel-btn {
   background-color: red;
   cursor: pointer;
   color: white;
   border: none;
-}
-
-.modal-actions .cancel-btn:hover {
-  background-color: #bc2116;
-}
-
-
-.modal-actions .save-btn,
-.modal-actions .cancel-btn {
   width: 100%;
   margin-bottom: 10px;
+}
+
+.modal-cancel-btn:hover {
+  background-color: #bc2116;
 }
 
 @media (max-width: 768px) {
@@ -203,8 +205,8 @@ margin-right: 0; /* Son butonun sağında boşluk olmaması için */
     padding: 15px;
   }
 
-  .modal-actions .save-btn,
-  .modal-actions .cancel-btn {
+  .modal-actions .modal-save-btn,
+  .modal-actions .modal-cancel-btn {
     width: 100%;
     margin-bottom: 10px;
   }

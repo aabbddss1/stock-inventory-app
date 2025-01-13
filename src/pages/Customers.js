@@ -49,8 +49,14 @@ function Customers() {
   };
 
   // Handle saving a customer (add or edit)
-  const handleSave = (customer) => {
-    axios.post('http://37.148.210.169:5001/api/customers',
+ // Handle saving a customer (add or edit)
+ const handleSave = async (customer) => {
+  const token = localStorage.getItem('token');
+
+
+  try {
+    const response = await axios.post(
+      'http://localhost:5001/api/customers',
       {
         ...customer,
         role: 'user',
@@ -58,20 +64,20 @@ function Customers() {
       {
         headers: { Authorization: `Bearer ${token}` },
       }
-    )
-      .then((response) => {
-        setCustomers([...customers, response.data]);
-        setShowModal(false);
-      })
-      .catch((error) => {
-        console.error('Error adding customer:', error);
-        if (error.response?.status === 401) {
-          alert('Session expired. Please log in again.');
-          localStorage.removeItem('token');
-          window.location.href = '/';
-        }
-      });
-  };
+    );
+    setCustomers([...customers, response.data]);
+    setShowModal(false);
+  } catch (error) {
+    console.error('Error adding customer:', error);
+    if (error.response?.status === 401) {
+      alert('Session expired. Please log in again.');
+      localStorage.removeItem('token');
+      window.location.href = '/';
+    }
+    throw error;
+  }
+};
+
   
   
 
@@ -210,12 +216,20 @@ function CustomerModal({ customer, onSave, onClose }) {
     setErrors({ ...errors, [name]: '' });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (validate()) {
-      onSave(formData);
+      setLoading(true);
+      try {
+        await onSave(formData);
+      } finally {
+        setLoading(false);
+      }
     }
   };
+
+
+
 
   return (
     <div className="modal-overlay">
