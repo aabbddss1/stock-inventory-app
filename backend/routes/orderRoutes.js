@@ -107,6 +107,7 @@ router.post('/', authenticate, (req, res) => {
     const clientName = results[0].name;
     const query = `
       INSERT INTO orders (
+        client_name,
         clientName,
         clientEmail,
         productName,
@@ -116,15 +117,15 @@ router.post('/', authenticate, (req, res) => {
         created_at,
         updated_at
       ) 
-      VALUES (?, ?, ?, ?, ?, 'Pending', NOW(), NOW())
+      VALUES (?, ?, ?, ?, ?, ?, 'Pending', NOW(), NOW())
     `;
 
     console.log('Executing query:', query);
-    console.log('Query parameters:', [clientName, clientEmail, productName, quantity, price]);
+    console.log('Query parameters:', [clientName, clientName, clientEmail, productName, quantity, price]);
 
     db.query(
       query,
-      [clientName, clientEmail, productName, quantity, price],
+      [clientName, clientName, clientEmail, productName, quantity, price],
       async (err, result) => {
         if (err) {
           console.error('Detailed MySQL error:', err);
@@ -134,7 +135,7 @@ router.post('/', authenticate, (req, res) => {
         const selectQuery = `
           SELECT 
             id,
-            clientName,
+            COALESCE(clientName, client_name) as clientName,
             productName,
             quantity,
             price,
