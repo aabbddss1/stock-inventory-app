@@ -7,6 +7,32 @@ import Calendar from '../components/Calendar';
 import Notifications from '../components/Notifications';
 import '../styles/UserPanel.css';
 import '../styles/UserEnhancements.css';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  ArcElement,
+  Title,
+  Tooltip,
+  Legend
+} from 'chart.js';
+import { Line, Bar, Doughnut } from 'react-chartjs-2';
+
+// Register ChartJS components
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  ArcElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 const UserPanel = () => {
   const [user, setUser] = useState(null);
@@ -15,6 +41,20 @@ const UserPanel = () => {
   const [orders, setOrders] = useState([]); // User-specific orders
   const [tasks, setTasks] = useState([]); // Task Manager
   const [newTask, setNewTask] = useState('');
+  const [analytics, setAnalytics] = useState({
+    orderHistory: {
+      labels: [],
+      data: []
+    },
+    statusDistribution: {
+      labels: [],
+      data: []
+    },
+    recentActivity: {
+      labels: [],
+      data: []
+    }
+  });
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -102,6 +142,44 @@ const UserPanel = () => {
     navigate('/');
   };
 
+  // Calculate analytics when orders change
+  useEffect(() => {
+    if (orders.length > 0) {
+      // Calculate order history (last 7 orders)
+      const recentOrders = [...orders]
+        .sort((a, b) => new Date(b.date) - new Date(a.date))
+        .slice(0, 7);
+
+      const orderHistory = {
+        labels: recentOrders.map(order => new Date(order.date).toLocaleDateString()),
+        data: recentOrders.map(order => order.quantity)
+      };
+
+      // Calculate status distribution
+      const statusCount = orders.reduce((acc, order) => {
+        acc[order.status] = (acc[order.status] || 0) + 1;
+        return acc;
+      }, {});
+
+      const statusDistribution = {
+        labels: Object.keys(statusCount),
+        data: Object.values(statusCount)
+      };
+
+      // Calculate recent activity (last 5 orders)
+      const recentActivity = {
+        labels: recentOrders.slice(0, 5).map(order => new Date(order.date).toLocaleDateString()),
+        data: recentOrders.slice(0, 5).map(order => order.quantity)
+      };
+
+      setAnalytics({
+        orderHistory,
+        statusDistribution,
+        recentActivity
+      });
+    }
+  }, [orders]);
+
   if (error) return <p>{error}</p>;
   if (!user) return <p>Loading user details...</p>;
 
@@ -137,35 +215,110 @@ const UserPanel = () => {
             <p><strong>Last Logged In:</strong> {user.lastLoggedIn}</p>
           </div>
 
+          {/* Analytics Graphs */}
+          <div className="analytics-section">
+            <div className="graph-container">
+              <h3>Order History</h3>
+              <Line
+                data={{
+                  labels: analytics.orderHistory.labels,
+                  datasets: [{
+                    label: 'Order Quantities',
+                    data: analytics.orderHistory.data,
+                    borderColor: 'rgb(75, 192, 192)',
+                    tension: 0.1,
+                    fill: false
+                  }]
+                }}
+                options={{
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  plugins: {
+                    legend: { position: 'bottom' }
+                  },
+                  scales: {
+                    y: { beginAtZero: true }
+                  }
+                }}
+              />
+            </div>
+
+            <div className="graph-container">
+              <h3>Order Status Distribution</h3>
+              <Doughnut
+                data={{
+                  labels: analytics.statusDistribution.labels,
+                  datasets: [{
+                    data: analytics.statusDistribution.data,
+                    backgroundColor: [
+                      '#FF6384',
+                      '#36A2EB',
+                      '#FFCE56',
+                      '#4BC0C0'
+                    ]
+                  }]
+                }}
+                options={{
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  plugins: {
+                    legend: { position: 'bottom' }
+                  }
+                }}
+              />
+            </div>
+
+            <div className="graph-container">
+              <h3>Recent Activity</h3>
+              <Bar
+                data={{
+                  labels: analytics.recentActivity.labels,
+                  datasets: [{
+                    label: 'Order Quantities',
+                    data: analytics.recentActivity.data,
+                    backgroundColor: 'rgb(54, 162, 235)'
+                  }]
+                }}
+                options={{
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  plugins: {
+                    legend: { position: 'bottom' }
+                  },
+                  scales: {
+                    y: { beginAtZero: true }
+                  }
+                }}
+              />
+            </div>
+          </div>
+
           {/* Recent Orders */}
           <div className="recent-orders-section">
-  <h2>Recent Orders</h2>
-  <ul>
-    {orders
-      .sort((a, b) => new Date(b.date) - new Date(a.date)) // Sort by date (latest first)
-      .slice(0, 10) // Get the first 10 orders
-      .map((order) => (
-        <li key={order.id} style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>
-          <div style={{ fontWeight: 'bold', marginBottom: '5px' }}>
-            Order #{order.id} - {order.status} 
+            <h2>Recent Orders</h2>
+            <ul>
+              {orders
+                .sort((a, b) => new Date(b.date) - new Date(a.date)) // Sort by date (latest first)
+                .slice(0, 10) // Get the first 10 orders
+                .map((order) => (
+                  <li key={order.id} style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>
+                    <div style={{ fontWeight: 'bold', marginBottom: '5px' }}>
+                      Order #{order.id} - {order.status} 
+                    </div>
+                    <div>
+                      <strong>Product:</strong> {order.productName}
+                    </div>
+                    <div>
+                      <strong>Quantity:</strong> {order.quantity}
+                    </div>
+                    <div>
+                      <strong>Date:</strong> {order.date}
+                    </div>
+                  </li>
+                ))}
+            </ul>
+            {orders.length === 0 && <p>No recent orders available.</p>}
           </div>
-          <div>
-            <strong>Product:</strong> {order.productName}
-          </div>
-          <div>
-            <strong>Quantity:</strong> {order.quantity}
-          </div>
-          <div>
-            <strong>Date:</strong> {order.date}
-          </div>
-        
-        </li>
-      ))}
-  </ul>
-  {orders.length === 0 && <p>No recent orders available.</p>}
-</div>
-
-
 
           <div className="user-panel-content">
             {/* Notifications */}
