@@ -152,12 +152,24 @@ router.post('/', authenticate, (req, res) => {
           });
         }
 
-        const orderId = result.insertId;
+        const formattedDate = new Date().toISOString().slice(0, 19).replace('T', ' ');
+
+        const orderData = {
+          id: result.insertId,
+          clientName,
+          productName,
+          quantity,
+          price,
+          clientEmail,
+          status: 'Pending',
+          orderDate: formattedDate
+        };
+
         const orderTotal = quantity * price;
 
         // Generate PDF invoice
         const doc = new PDFDocument();
-        const invoicePath = path.join(invoiceDir, `invoice-${orderId}.pdf`);
+        const invoicePath = path.join(invoiceDir, `invoice-${result.insertId}.pdf`);
         const writeStream = fs.createWriteStream(invoicePath);
         
         doc.pipe(writeStream);
@@ -165,7 +177,7 @@ router.post('/', authenticate, (req, res) => {
         // Add content to PDF
         doc.fontSize(20).text('Invoice', { align: 'center' });
         doc.moveDown();
-        doc.fontSize(12).text(`Order ID: ${orderId}`);
+        doc.fontSize(12).text(`Order ID: ${result.insertId}`);
         doc.text(`Date: ${new Date().toLocaleDateString()}`);
         doc.moveDown();
         doc.text(`Client: ${clientName}`);
@@ -237,7 +249,7 @@ router.post('/', authenticate, (req, res) => {
             subject: 'Order Confirmation - Qubite',
             html: clientEmailBody,
             attachments: [{
-              filename: `invoice-${orderId}.pdf`,
+              filename: `invoice-${result.insertId}.pdf`,
               path: invoicePath
             }]
           });
@@ -247,33 +259,17 @@ router.post('/', authenticate, (req, res) => {
             subject: 'New Order Received',
             html: adminEmailBody,
             attachments: [{
-              filename: `invoice-${orderId}.pdf`,
+              filename: `invoice-${result.insertId}.pdf`,
               path: invoicePath
             }]
           });
 
-          // Return success response
-          res.status(201).json({
-            id: orderId,
-            clientName,
-            productName,
-            quantity,
-            price,
-            clientEmail,
-            status: 'Pending',
-            created_at: new Date().toISOString()
-          });
+          // Return success response with formatted data
+          res.status(201).json(orderData);
         } catch (emailError) {
           console.error('Error sending emails:', emailError);
           res.status(201).json({
-            id: orderId,
-            clientName,
-            productName,
-            quantity,
-            price,
-            clientEmail,
-            status: 'Pending',
-            created_at: new Date().toISOString(),
+            ...orderData,
             warning: 'Order created but email notifications failed'
           });
         }
