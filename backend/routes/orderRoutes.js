@@ -213,43 +213,134 @@ router.post('/', authenticate, (req, res) => {
           const adminEmail = process.env.EMAIL_USER;
           
           const clientEmailBody = `
-            <h1 style="font-family: Arial, sans-serif; color: #4CAF50;">New Order Confirmation</h1>
-            <p style="font-family: Arial, sans-serif; color: #333;">Dear ${clientName},</p>
-            <p style="font-family: Arial, sans-serif; color: #555;">Thank you for your order. Below are your order details:</p>
-            <table style="font-family: Arial, sans-serif; border-collapse: collapse; width: 100%; margin-top: 20px;">
-              <tr style="background-color: #f2f2f2;">
-                <th style="border: 1px solid #ddd; padding: 8px;">Product</th>
-                <th style="border: 1px solid #ddd; padding: 8px;">Quantity</th>
-                <th style="border: 1px solid #ddd; padding: 8px;">Price Per Unit</th>
-                <th style="border: 1px solid #ddd; padding: 8px;">Total</th>
-              </tr>
-              <tr>
-                <td style="border: 1px solid #ddd; padding: 8px;">${productName}</td>
-                <td style="border: 1px solid #ddd; padding: 8px;">${quantity}</td>
-                <td style="border: 1px solid #ddd; padding: 8px;">$${price}</td>
-                <td style="border: 1px solid #ddd; padding: 8px;">$${orderTotal}</td>
-              </tr>
-            </table>
-            <p style="font-family: Arial, sans-serif; color: #555; margin-top: 20px;">If you have any questions, please contact us at ${adminEmail}</p>
-            <p style="font-family: Arial, sans-serif; color: #333; text-align: center;"><strong>Thank you for choosing Qubite!</strong></p>`;
+            <!DOCTYPE html>
+            <html>
+            <head>
+              <style>
+                .container { max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif; }
+                .header { background: #4CAF50; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0; }
+                .content { padding: 20px; background: #fff; border: 1px solid #ddd; }
+                .footer { background: #f8f8f8; padding: 15px; text-align: center; border-radius: 0 0 5px 5px; }
+                .table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+                .table th, .table td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+                .table th { background: #f5f5f5; }
+                .highlight { color: #4CAF50; font-weight: bold; }
+                .info-box { background: #f9f9f9; padding: 15px; margin: 15px 0; border-left: 4px solid #4CAF50; }
+              </style>
+            </head>
+            <body>
+              <div class="container">
+                <div class="header">
+                  <h1 style="margin: 0;">Order Confirmation</h1>
+                  <p style="margin: 10px 0 0 0;">Thank you for choosing Qubite!</p>
+                </div>
+                <div class="content">
+                  <p>Dear <span class="highlight">${clientName}</span>,</p>
+                  <p>We're excited to confirm that your order has been successfully placed. Here are your order details:</p>
+                  
+                  <div class="info-box">
+                    <p><strong>Order ID:</strong> #${result.insertId}</p>
+                    <p><strong>Order Date:</strong> ${new Date().toLocaleString()}</p>
+                    <p><strong>Status:</strong> <span class="highlight">Pending</span></p>
+                  </div>
+
+                  <table class="table">
+                    <tr>
+                      <th>Product</th>
+                      <th>Quantity</th>
+                      <th>Price Per Unit</th>
+                      <th>Total</th>
+                    </tr>
+                    <tr>
+                      <td>${productName}</td>
+                      <td>${quantity}</td>
+                      <td>$${price.toFixed(2)}</td>
+                      <td>$${orderTotal.toFixed(2)}</td>
+                    </tr>
+                  </table>
+
+                  <div class="info-box">
+                    <h3 style="margin-top: 0;">What's Next?</h3>
+                    <ul style="margin: 0; padding-left: 20px;">
+                      <li>You'll receive updates about your order status</li>
+                      <li>An invoice is attached to this email</li>
+                      <li>Our team will process your order shortly</li>
+                    </ul>
+                  </div>
+
+                  <p>If you have any questions about your order, please don't hesitate to contact our support team at <a href="mailto:${adminEmail}" style="color: #4CAF50;">${adminEmail}</a></p>
+                </div>
+                <div class="footer">
+                  <p>© ${new Date().getFullYear()} Qubite. All rights reserved.</p>
+                </div>
+              </div>
+            </body>
+            </html>`;
 
           const adminEmailBody = `
-            <h1 style="font-family: Arial, sans-serif; color: #2196F3;">New Order Received</h1>
-            <p style="font-family: Arial, sans-serif; color: #333;">A new order has been placed:</p>
-            <table style="font-family: Arial, sans-serif; border-collapse: collapse; width: 100%; margin-top: 20px;">
-              <tr style="background-color: #f2f2f2;">
-                <th style="border: 1px solid #ddd; padding: 8px;">Client</th>
-                <th style="border: 1px solid #ddd; padding: 8px;">Product</th>
-                <th style="border: 1px solid #ddd; padding: 8px;">Quantity</th>
-                <th style="border: 1px solid #ddd; padding: 8px;">Total</th>
-              </tr>
-              <tr>
-                <td style="border: 1px solid #ddd; padding: 8px;">${clientName} (${clientEmail})</td>
-                <td style="border: 1px solid #ddd; padding: 8px;">${productName}</td>
-                <td style="border: 1px solid #ddd; padding: 8px;">${quantity}</td>
-                <td style="border: 1px solid #ddd; padding: 8px;">$${orderTotal}</td>
-              </tr>
-            </table>`;
+            <!DOCTYPE html>
+            <html>
+            <head>
+              <style>
+                .container { max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif; }
+                .header { background: #2196F3; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0; }
+                .content { padding: 20px; background: #fff; border: 1px solid #ddd; }
+                .footer { background: #f8f8f8; padding: 15px; text-align: center; border-radius: 0 0 5px 5px; }
+                .table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+                .table th, .table td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+                .table th { background: #f5f5f5; }
+                .highlight { color: #2196F3; font-weight: bold; }
+                .info-box { background: #f9f9f9; padding: 15px; margin: 15px 0; border-left: 4px solid #2196F3; }
+                .alert { background: #e3f2fd; padding: 10px; margin: 10px 0; border-radius: 4px; }
+              </style>
+            </head>
+            <body>
+              <div class="container">
+                <div class="header">
+                  <h1 style="margin: 0;">New Order Received</h1>
+                  <p style="margin: 10px 0 0 0;">Order #${result.insertId}</p>
+                </div>
+                <div class="content">
+                  <div class="alert">
+                    <p><strong>Action Required:</strong> Please review and process this new order.</p>
+                  </div>
+
+                  <div class="info-box">
+                    <h3 style="margin-top: 0;">Order Details</h3>
+                    <p><strong>Order ID:</strong> #${result.insertId}</p>
+                    <p><strong>Order Date:</strong> ${new Date().toLocaleString()}</p>
+                    <p><strong>Status:</strong> Pending</p>
+                  </div>
+
+                  <div class="info-box">
+                    <h3 style="margin-top: 0;">Customer Information</h3>
+                    <p><strong>Name:</strong> ${clientName}</p>
+                    <p><strong>Email:</strong> ${clientEmail}</p>
+                  </div>
+
+                  <table class="table">
+                    <tr>
+                      <th>Product</th>
+                      <th>Quantity</th>
+                      <th>Price Per Unit</th>
+                      <th>Total</th>
+                    </tr>
+                    <tr>
+                      <td>${productName}</td>
+                      <td>${quantity}</td>
+                      <td>$${price.toFixed(2)}</td>
+                      <td>$${orderTotal.toFixed(2)}</td>
+                    </tr>
+                  </table>
+
+                  <p>Please process this order according to our standard procedures. The invoice has been automatically generated and is attached to this email.</p>
+                </div>
+                <div class="footer">
+                  <p>© ${new Date().getFullYear()} Qubite Admin System</p>
+                </div>
+              </div>
+            </body>
+            </html>`;
 
           try {
             // Send emails with invoice attachment
@@ -344,55 +435,169 @@ router.put('/:id', authenticate, (req, res) => {
 
       const adminEmail = process.env.EMAIL_USER;
       const clientEmailBody = `
-        <h1 style="font-family: Arial, sans-serif; color: #4CAF50;">Order Status Update</h1>
-        <p style="font-family: Arial, sans-serif; color: #333;">Dear ${clientName},</p>
-        <p style="font-family: Arial, sans-serif; color: #555;">The status of your order has been updated. Below are the details:</p>
-        <table style="font-family: Arial, sans-serif; border-collapse: collapse; width: 100%; margin-top: 20px;">
-          <thead>
-            <tr style="background-color: #f2f2f2;">
-              <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Order ID</th>
-              <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Product Name</th>
-              <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">New Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td style="border: 1px solid #ddd; padding: 8px;">${id}</td>
-              <td style="border: 1px solid #ddd; padding: 8px;">${productName}</td>
-              <td style="border: 1px solid #ddd; padding: 8px;">${status}</td>
-            </tr>
-          </tbody>
-        </table>
-        <p style="font-family: Arial, sans-serif; color: #555; margin-top: 20px;">If you have questions, contact us at <a href="mailto:${adminEmail}" style="color: #4CAF50; text-decoration: none;">${adminEmail}</a>.</p>
-        <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
-        <p style="font-family: Arial, sans-serif; color: #333; text-align: center;"><strong>Thank you for choosing Qubite!</strong></p>`;
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <style>
+            .container { max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif; }
+            .header { background: #4CAF50; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0; }
+            .content { padding: 20px; background: #fff; border: 1px solid #ddd; }
+            .footer { background: #f8f8f8; padding: 15px; text-align: center; border-radius: 0 0 5px 5px; }
+            .table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+            .table th, .table td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+            .table th { background: #f5f5f5; }
+            .highlight { color: #4CAF50; font-weight: bold; }
+            .info-box { background: #f9f9f9; padding: 15px; margin: 15px 0; border-left: 4px solid #4CAF50; }
+            .status-badge { display: inline-block; padding: 6px 12px; border-radius: 4px; font-weight: bold; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <h1 style="margin: 0;">Order Status Update</h1>
+              <p style="margin: 10px 0 0 0;">Order #${id}</p>
+            </div>
+            <div class="content">
+              <p>Dear <span class="highlight">${clientName}</span>,</p>
+              <p>We're writing to inform you that there has been an update to your order.</p>
+              
+              <div class="info-box">
+                <h3 style="margin-top: 0;">Status Update Details</h3>
+                <p><strong>Order ID:</strong> #${id}</p>
+                <p><strong>Update Date:</strong> ${new Date().toLocaleString()}</p>
+                <p><strong>New Status:</strong> 
+                  <span class="status-badge" style="background: ${
+                    status === 'Completed' ? '#4CAF50' : 
+                    status === 'Processing' ? '#2196F3' : 
+                    status === 'Cancelled' ? '#f44336' : 
+                    status === 'On Hold' ? '#ff9800' : 
+                    '#9e9e9e'
+                  }; color: white;">
+                    ${status}
+                  </span>
+                </p>
+              </div>
+
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Product Name</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>${productName}</td>
+                    <td>${status}</td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <div class="info-box">
+                <h3 style="margin-top: 0;">What This Means</h3>
+                <p>${
+                  status === 'Completed' ? 'Your order has been successfully completed and delivered.' :
+                  status === 'Processing' ? 'Your order is currently being processed and prepared for delivery.' :
+                  status === 'Cancelled' ? 'Your order has been cancelled. If you did not request this cancellation, please contact us immediately.' :
+                  status === 'On Hold' ? 'Your order has been placed on hold. We will contact you if we need any additional information.' :
+                  'Your order status has been updated.'
+                }</p>
+              </div>
+
+              <p>If you have any questions about this update, please don't hesitate to contact us at <a href="mailto:${adminEmail}" style="color: #4CAF50;">${adminEmail}</a></p>
+            </div>
+            <div class="footer">
+              <p>© ${new Date().getFullYear()} Qubite. All rights reserved.</p>
+            </div>
+          </div>
+        </body>
+        </html>`;
 
       const adminEmailBody = `
-        <h1 style="font-family: Arial, sans-serif; color: #2196F3;">Order Status Updated</h1>
-        <p style="font-family: Arial, sans-serif; color: #333;">Hello Admin,</p>
-        <p style="font-family: Arial, sans-serif; color: #555;">The status of Order #${id} has been updated. Below are the details:</p>
-        <table style="font-family: Arial, sans-serif; border-collapse: collapse; width: 100%; margin-top: 20px;">
-          <thead>
-            <tr style="background-color: #f2f2f2;">
-              <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Order ID</th>
-              <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Product Name</th>
-              <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">New Status</th>
-              <th style="border: 1px solid #ddd; padding: 8px;">Client Name</th>
-              <th style="border: 1px solid #ddd; padding: 8px;">Client Email</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td style="border: 1px solid #ddd; padding: 8px;">${id}</td>
-              <td style="border: 1px solid #ddd; padding: 8px;">${productName}</td>
-              <td style="border: 1px solid #ddd; padding: 8px;">${status}</td>
-              <td style="border: 1px solid #ddd; padding: 8px;">${clientName}</td>
-              <td style="border: 1px solid #ddd; padding: 8px;">${clientEmail}</td>
-            </tr>
-          </tbody>
-        </table>
-        <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
-        <p style="font-family: Arial, sans-serif; color: #333; text-align: center;"><strong>Qubite Admin Team</strong></p>`;
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <style>
+            .container { max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif; }
+            .header { background: #2196F3; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0; }
+            .content { padding: 20px; background: #fff; border: 1px solid #ddd; }
+            .footer { background: #f8f8f8; padding: 15px; text-align: center; border-radius: 0 0 5px 5px; }
+            .table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+            .table th, .table td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+            .table th { background: #f5f5f5; }
+            .highlight { color: #2196F3; font-weight: bold; }
+            .info-box { background: #f9f9f9; padding: 15px; margin: 15px 0; border-left: 4px solid #2196F3; }
+            .status-badge { display: inline-block; padding: 6px 12px; border-radius: 4px; font-weight: bold; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <h1 style="margin: 0;">Order Status Changed</h1>
+              <p style="margin: 10px 0 0 0;">Order #${id}</p>
+            </div>
+            <div class="content">
+              <div class="info-box">
+                <h3 style="margin-top: 0;">Status Update Information</h3>
+                <p><strong>Order ID:</strong> #${id}</p>
+                <p><strong>Update Date:</strong> ${new Date().toLocaleString()}</p>
+                <p><strong>New Status:</strong> 
+                  <span class="status-badge" style="background: ${
+                    status === 'Completed' ? '#4CAF50' : 
+                    status === 'Processing' ? '#2196F3' : 
+                    status === 'Cancelled' ? '#f44336' : 
+                    status === 'On Hold' ? '#ff9800' : 
+                    '#9e9e9e'
+                  }; color: white;">
+                    ${status}
+                  </span>
+                </p>
+              </div>
+
+              <div class="info-box">
+                <h3 style="margin-top: 0;">Customer Information</h3>
+                <p><strong>Name:</strong> ${clientName}</p>
+                <p><strong>Email:</strong> ${clientEmail}</p>
+              </div>
+
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Order ID</th>
+                    <th>Product Name</th>
+                    <th>Previous Status</th>
+                    <th>New Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>#${id}</td>
+                    <td>${productName}</td>
+                    <td>${order.status}</td>
+                    <td>${status}</td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <div class="info-box">
+                <h3 style="margin-top: 0;">Required Actions</h3>
+                <ul style="margin: 0; padding-left: 20px;">
+                  ${
+                    status === 'Completed' ? '<li>Verify all delivery confirmations are received</li><li>Update inventory records</li>' :
+                    status === 'Processing' ? '<li>Begin order fulfillment process</li><li>Check inventory availability</li>' :
+                    status === 'Cancelled' ? '<li>Process any necessary refunds</li><li>Update inventory if necessary</li>' :
+                    status === 'On Hold' ? '<li>Review reason for hold</li><li>Contact customer if necessary</li>' :
+                    '<li>Review order details</li>'
+                  }
+                </ul>
+              </div>
+            </div>
+            <div class="footer">
+              <p>© ${new Date().getFullYear()} Qubite Admin System</p>
+            </div>
+          </div>
+        </body>
+        </html>`;
 
       try {
         await sendEmail({ to: clientEmail, subject: `Order Status Updated - Order #${id}`, html: clientEmailBody });
