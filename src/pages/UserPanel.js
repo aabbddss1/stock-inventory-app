@@ -147,17 +147,24 @@ const UserPanel = () => {
     if (orders.length > 0) {
       // Calculate order history (last 7 orders)
       const recentOrders = [...orders]
-        .sort((a, b) => new Date(b.date) - new Date(a.date))
+        .sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate))
         .slice(0, 7);
 
       const orderHistory = {
-        labels: recentOrders.map(order => new Date(order.date).toLocaleDateString()),
+        labels: recentOrders.map(order => {
+          const date = new Date(order.orderDate);
+          return date.toLocaleDateString('en-US', { 
+            month: 'short', 
+            day: 'numeric' 
+          });
+        }),
         data: recentOrders.map(order => order.quantity)
       };
 
       // Calculate status distribution
       const statusCount = orders.reduce((acc, order) => {
-        acc[order.status] = (acc[order.status] || 0) + 1;
+        const status = order.status || 'Pending';
+        acc[status] = (acc[status] || 0) + 1;
         return acc;
       }, {});
 
@@ -166,16 +173,10 @@ const UserPanel = () => {
         data: Object.values(statusCount)
       };
 
-      // Calculate recent activity (last 5 orders)
-      const recentActivity = {
-        labels: recentOrders.slice(0, 5).map(order => new Date(order.date).toLocaleDateString()),
-        data: recentOrders.slice(0, 5).map(order => order.quantity)
-      };
-
       setAnalytics({
         orderHistory,
         statusDistribution,
-        recentActivity
+        recentActivity: { labels: [], data: [] } // Keep this to maintain state structure
       });
     }
   }, [orders]);
@@ -216,7 +217,7 @@ const UserPanel = () => {
           </div>
 
           {/* Analytics Graphs */}
-          <div className="analytics-section">
+          <div className="analytics-section two-columns">
             <div className="graph-container">
               <h3>Order History</h3>
               <Line
@@ -234,10 +235,21 @@ const UserPanel = () => {
                   responsive: true,
                   maintainAspectRatio: false,
                   plugins: {
-                    legend: { position: 'bottom' }
+                    legend: { position: 'bottom' },
+                    tooltip: {
+                      callbacks: {
+                        title: (context) => `Date: ${context[0].label}`
+                      }
+                    }
                   },
                   scales: {
-                    y: { beginAtZero: true }
+                    y: { 
+                      beginAtZero: true,
+                      title: {
+                        display: true,
+                        text: 'Quantity'
+                      }
+                    }
                   }
                 }}
               />
@@ -262,31 +274,12 @@ const UserPanel = () => {
                   responsive: true,
                   maintainAspectRatio: false,
                   plugins: {
-                    legend: { position: 'bottom' }
-                  }
-                }}
-              />
-            </div>
-
-            <div className="graph-container">
-              <h3>Recent Activity</h3>
-              <Bar
-                data={{
-                  labels: analytics.recentActivity.labels,
-                  datasets: [{
-                    label: 'Order Quantities',
-                    data: analytics.recentActivity.data,
-                    backgroundColor: 'rgb(54, 162, 235)'
-                  }]
-                }}
-                options={{
-                  responsive: true,
-                  maintainAspectRatio: false,
-                  plugins: {
-                    legend: { position: 'bottom' }
-                  },
-                  scales: {
-                    y: { beginAtZero: true }
+                    legend: { 
+                      position: 'bottom',
+                      labels: {
+                        padding: 20
+                      }
+                    }
                   }
                 }}
               />

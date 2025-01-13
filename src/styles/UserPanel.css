@@ -53,3 +53,42 @@
     }
 
   }
+  
+  .analytics-section.two-columns {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    margin: 20px 0;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .graph-container {
+    background: #fff;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    min-height: 350px;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .graph-container h3 {
+    margin-bottom: 15px;
+    color: #333;
+    font-size: 1.2rem;
+    font-weight: 600;
+    text-align: center;
+  }
+  
+  @media (max-width: 1024px) {
+    .analytics-section.two-columns {
+      grid-template-columns: 1fr;
+    }
+    
+    .graph-container {
+      min-height: 300px;
+    }
+  }
