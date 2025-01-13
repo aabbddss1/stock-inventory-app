@@ -291,14 +291,17 @@ function CustomerModal({ customer, onSave, onClose }) {
           {errors.password && <p className="error-text">{errors.password}</p>}
 
           <div className="modal-actions">
-            <button type="submit" className="save-btn">
-              <i className="fa fa-save"></i>
+            <button type="submit" className="modal-save-btn" disabled={loading}>
+              <i className={`fa ${loading ? 'fa-spinner fa-spin' : 'fa-save'}`}></i>
               {t('customers.modal.save')}
             </button>
-            <button type="button" className="cancel-btn" onClick={onClose}>
+            <button type="button" className="modal-cancel-btn" onClick={onClose}>
               <i className="fa fa-x"></i>
               {t('customers.modal.cancel')}
             </button>
+
+
+
           </div>
         </form>
       </div>
