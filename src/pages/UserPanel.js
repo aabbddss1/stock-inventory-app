@@ -32,6 +32,13 @@ const UserPanel = () => {
             Authorization: `Bearer ${token}`
           }
         });
+
+        // Check if user is not an admin, redirect from admin routes
+        if (!response.data.isAdmin && window.location.pathname.includes('/admin')) {
+          navigate('/user-panel');
+          return;
+        }
+
         setUser(response.data);
 
         // Fetch orders and notifications
