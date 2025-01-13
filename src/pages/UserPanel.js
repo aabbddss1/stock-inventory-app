@@ -33,8 +33,10 @@ const UserPanel = () => {
           }
         });
 
-        // Check if user is not an admin, redirect from admin routes
-        if (!response.data.isAdmin && window.location.pathname.includes('/admin')) {
+        // Enhanced admin route protection
+        const adminRoutes = ['/admin', '/sales', '/documents', '/analytics', '/settings'];
+        if (!response.data.isAdmin && 
+            adminRoutes.some(route => window.location.pathname.includes(route))) {
           navigate('/user-panel');
           return;
         }
