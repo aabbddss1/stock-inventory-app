@@ -88,6 +88,8 @@ router.delete('/:id', authenticate, (req, res) => {
 router.post('/', authenticate, (req, res) => {
   const { clientEmail, productName, quantity, price } = req.body;
 
+  console.log('Received order data:', { clientEmail, productName, quantity, price });
+
   if (!clientEmail) {
     return res.status(400).json({ error: 'Client email is required' });
   }
@@ -105,9 +107,9 @@ router.post('/', authenticate, (req, res) => {
     const clientName = results[0].name;
     const query = `
       INSERT INTO orders (
-        clientName,
-        clientEmail,
-        productName,
+        client_name,
+        client_email,
+        product_name,
         quantity,
         price,
         status,
@@ -117,32 +119,44 @@ router.post('/', authenticate, (req, res) => {
       VALUES (?, ?, ?, ?, ?, 'Pending', NOW(), NOW())
     `;
 
+    console.log('Executing query:', query);
+    console.log('Query parameters:', [clientName, clientEmail, productName, quantity, price]);
+
     db.query(
       query,
       [clientName, clientEmail, productName, quantity, price],
       async (err, result) => {
         if (err) {
-          console.error('Error creating order:', err);
-          return res.status(500).json({ error: 'Failed to create order' });
+          console.error('Detailed MySQL error:', err);
+          return res.status(500).json({ error: 'Failed to create order', details: err.message });
         }
 
-        db.query(
-          `SELECT 
+        const selectQuery = `
+          SELECT 
             id,
-            clientName,
-            productName,
+            client_name as clientName,
+            product_name as productName,
             quantity,
             price,
-            clientEmail,
+            client_email as clientEmail,
             status,
             DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') as orderDate 
           FROM orders 
-          WHERE id = ?`,
+          WHERE id = ?
+        `;
+
+        console.log('Executing select query:', selectQuery);
+        
+        db.query(
+          selectQuery,
           [result.insertId],
           async (err, orderResults) => {
             if (err) {
               console.error('Error fetching created order:', err);
-              return res.status(500).json({ error: 'Order created but failed to fetch details' });
+              return res.status(500).json({ 
+                error: 'Order created but failed to fetch details',
+                details: err.message 
+              });
             }
 
             const createdOrder = orderResults[0];
