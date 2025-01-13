@@ -380,7 +380,7 @@ router.post('/', authenticate, (req, res) => {
 });
 
 // Update order details
-router.put('/edit/:id', authenticate, (req, res) => {
+router.put('/edit/:id', authenticate, async (req, res) => {
   const { id } = req.params;
   const { productName, quantity, price, productId } = req.body;
 
@@ -389,65 +389,84 @@ router.put('/edit/:id', authenticate, (req, res) => {
     return res.status(400).json({ error: 'Product name, quantity, and price are required' });
   }
 
-  // First, get the current order details to compare changes
-  db.query('SELECT * FROM orders WHERE id = ?', [id], async (err, currentOrderResults) => {
-    if (err || currentOrderResults.length === 0) {
-      console.error('Error fetching current order details:', err);
-      return res.status(500).json({ error: 'Failed to fetch current order details' });
+  try {
+    // Start transaction
+    await new Promise((resolve, reject) => {
+      db.beginTransaction(err => {
+        if (err) reject(err);
+        else resolve();
+      });
+    });
+
+    // 1. Get current order details
+    const [currentOrder] = await new Promise((resolve, reject) => {
+      db.query('SELECT * FROM orders WHERE id = ?', [id], (err, results) => {
+        if (err) reject(err);
+        else resolve(results);
+      });
+    });
+
+    if (!currentOrder) {
+      await new Promise((resolve) => db.rollback(resolve));
+      return res.status(404).json({ error: 'Order not found' });
     }
 
-    const currentOrder = currentOrderResults[0];
     const quantityDifference = quantity - currentOrder.quantity;
 
-    // Start a transaction to ensure data consistency
-    db.beginTransaction(async (err) => {
-      if (err) {
-        console.error('Error starting transaction:', err);
-        return res.status(500).json({ error: 'Failed to start transaction' });
+    // 2. Update inventory first if needed
+    if (productId && quantityDifference !== 0) {
+      await new Promise((resolve, reject) => {
+        const inventoryQuery = `UPDATE products SET quantity = quantity - ? WHERE id = ?`;
+        db.query(inventoryQuery, [quantityDifference, productId], (err, result) => {
+          if (err) reject(err);
+          else resolve(result);
+        });
+      });
+    }
+
+    // 3. Update order
+    await new Promise((resolve, reject) => {
+      const orderQuery = `UPDATE orders SET productName = ?, quantity = ?, price = ? WHERE id = ?`;
+      db.query(orderQuery, [productName, quantity, price, id], (err, result) => {
+        if (err) reject(err);
+        else resolve(result);
+      });
+    });
+
+    // 4. Commit transaction
+    await new Promise((resolve, reject) => {
+      db.commit(err => {
+        if (err) reject(err);
+        else resolve();
+      });
+    });
+
+    // 5. Send response immediately after successful update
+    res.json({
+      message: `Order with ID ${id} updated successfully`,
+      orderDetails: {
+        id,
+        productName,
+        quantity,
+        price,
+        total: quantity * price,
+        quantityDifference
       }
+    });
 
+    // 6. Send emails asynchronously (don't wait for them)
+    const sendEmailsAsync = async () => {
       try {
-        // 1. Update the order
-        await new Promise((resolve, reject) => {
-          const orderQuery = `UPDATE orders SET productName = ?, quantity = ?, price = ? WHERE id = ?`;
-          db.query(orderQuery, [productName, quantity, price, id], (err, result) => {
-            if (err) reject(err);
-            else resolve(result);
-          });
-        });
-
-        // 2. Update inventory if productId is provided and quantity has changed
-        if (productId && quantityDifference !== 0) {
-          await new Promise((resolve, reject) => {
-            const inventoryQuery = `UPDATE products SET quantity = quantity - ? WHERE id = ?`;
-            db.query(inventoryQuery, [quantityDifference, productId], (err, result) => {
-              if (err) reject(err);
-              else resolve(result);
-            });
-          });
-        }
-
-        // 3. Get updated order details
-        const updatedOrder = await new Promise((resolve, reject) => {
-          db.query('SELECT * FROM orders WHERE id = ?', [id], (err, results) => {
-            if (err || results.length === 0) reject(err || new Error('Order not found'));
-            else resolve(results[0]);
-          });
-        });
-
-        const { clientEmail, clientName, status } = updatedOrder;
-        const orderTotal = quantity * price;
+        const { clientEmail, clientName, status } = currentOrder;
         const adminEmail = process.env.EMAIL_USER;
+        const orderTotal = quantity * price;
 
-        // 4. Generate and send emails
-        const invoicePath = path.join(invoiceDir, `invoice-${id}-updated.pdf`);
-        
         // Generate PDF
         const doc = new PDFDocument();
+        const invoicePath = path.join(invoiceDir, `invoice-${id}-updated.pdf`);
         const writeStream = fs.createWriteStream(invoicePath);
+        
         doc.pipe(writeStream);
-
-        // Add PDF content
         doc.fontSize(20).text('Updated Order Invoice', { align: 'center' });
         doc.moveDown();
         doc.fontSize(12).text(`Order ID: ${id}`);
@@ -466,7 +485,6 @@ router.put('/edit/:id', authenticate, (req, res) => {
         doc.text('Thank you for your business!', { align: 'center' });
         doc.end();
 
-        // Wait for PDF to finish writing
         await new Promise((resolve) => writeStream.on('finish', resolve));
 
         // Send emails
@@ -474,55 +492,40 @@ router.put('/edit/:id', authenticate, (req, res) => {
           sendEmail({
             to: clientEmail,
             subject: `Order Updated - Order #${id}`,
-            html: clientEmailBody, // Keep existing email template
+            html: clientEmailBody,
             attachments: [{ filename: `invoice-${id}-updated.pdf`, path: invoicePath }]
           }),
           sendEmail({
             to: adminEmail,
             subject: `Order Modified - Order #${id}`,
-            html: adminEmailBody, // Keep existing email template
+            html: adminEmailBody,
             attachments: [{ filename: `invoice-${id}-updated.pdf`, path: invoicePath }]
           })
         ]);
 
-        // Clean up the generated PDF
+        // Clean up PDF
         fs.unlink(invoicePath, (err) => {
           if (err) console.error('Error deleting temporary invoice:', err);
         });
-
-        // Commit the transaction
-        db.commit((err) => {
-          if (err) {
-            console.error('Error committing transaction:', err);
-            return db.rollback(() => {
-              res.status(500).json({ error: 'Failed to commit transaction' });
-            });
-          }
-
-          res.json({
-            message: `Order with ID ${id} updated successfully`,
-            orderDetails: {
-              id,
-              productName,
-              quantity,
-              price,
-              total: orderTotal,
-              quantityDifference
-            }
-          });
-        });
-
       } catch (error) {
-        console.error('Error in transaction:', error);
-        return db.rollback(() => {
-          res.status(500).json({
-            error: 'Failed to update order and inventory',
-            details: error.message
-          });
-        });
+        console.error('Error sending emails:', error);
       }
+    };
+
+    // Start email process without waiting for it
+    sendEmailsAsync();
+
+  } catch (error) {
+    console.error('Error in edit order process:', error);
+    
+    // Rollback transaction if there was an error
+    await new Promise((resolve) => db.rollback(resolve));
+    
+    return res.status(500).json({
+      error: 'Failed to update order and inventory',
+      details: error.message
     });
-  });
+  }
 });
 
 // Update an order status
