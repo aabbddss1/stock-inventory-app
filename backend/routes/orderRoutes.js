@@ -152,127 +152,137 @@ router.post('/', authenticate, (req, res) => {
           });
         }
 
-        const formattedDate = new Date().toISOString().slice(0, 19).replace('T', ' ');
+        // Fetch the newly created order with properly formatted date
+        const selectQuery = `
+          SELECT 
+            id,
+            clientName,
+            productName,
+            quantity,
+            price,
+            clientEmail,
+            status,
+            DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') as orderDate 
+          FROM orders 
+          WHERE id = ?`;
 
-        const orderData = {
-          id: result.insertId,
-          clientName,
-          productName,
-          quantity,
-          price,
-          clientEmail,
-          status: 'Pending',
-          orderDate: formattedDate
-        };
+        db.query(selectQuery, [result.insertId], async (err, results) => {
+          if (err) {
+            console.error('Error fetching new order:', err);
+            return res.status(500).json({ error: 'Order created but failed to fetch details' });
+          }
 
-        const orderTotal = quantity * price;
+          const orderData = results[0];
 
-        // Generate PDF invoice
-        const doc = new PDFDocument();
-        const invoicePath = path.join(invoiceDir, `invoice-${result.insertId}.pdf`);
-        const writeStream = fs.createWriteStream(invoicePath);
-        
-        doc.pipe(writeStream);
+          const orderTotal = quantity * price;
 
-        // Add content to PDF
-        doc.fontSize(20).text('Invoice', { align: 'center' });
-        doc.moveDown();
-        doc.fontSize(12).text(`Order ID: ${result.insertId}`);
-        doc.text(`Date: ${new Date().toLocaleDateString()}`);
-        doc.moveDown();
-        doc.text(`Client: ${clientName}`);
-        doc.text(`Email: ${clientEmail}`);
-        doc.moveDown();
-        doc.text('Order Details:');
-        doc.moveDown();
-        
-        // Add table-like structure
-        doc.text(`Product: ${productName}`);
-        doc.text(`Quantity: ${quantity}`);
-        doc.text(`Price per unit: $${price}`);
-        doc.text(`Total: $${orderTotal}`);
-        
-        doc.moveDown();
-        doc.text('Thank you for your business!', { align: 'center' });
-        
-        doc.end();
+          // Generate PDF invoice
+          const doc = new PDFDocument();
+          const invoicePath = path.join(invoiceDir, `invoice-${result.insertId}.pdf`);
+          const writeStream = fs.createWriteStream(invoicePath);
+          
+          doc.pipe(writeStream);
 
-        // Wait for PDF to finish writing
-        await new Promise((resolve) => writeStream.on('finish', resolve));
+          // Add content to PDF
+          doc.fontSize(20).text('Invoice', { align: 'center' });
+          doc.moveDown();
+          doc.fontSize(12).text(`Order ID: ${result.insertId}`);
+          doc.text(`Date: ${new Date().toLocaleDateString()}`);
+          doc.moveDown();
+          doc.text(`Client: ${clientName}`);
+          doc.text(`Email: ${clientEmail}`);
+          doc.moveDown();
+          doc.text('Order Details:');
+          doc.moveDown();
+          
+          // Add table-like structure
+          doc.text(`Product: ${productName}`);
+          doc.text(`Quantity: ${quantity}`);
+          doc.text(`Price per unit: $${price}`);
+          doc.text(`Total: $${orderTotal}`);
+          
+          doc.moveDown();
+          doc.text('Thank you for your business!', { align: 'center' });
+          
+          doc.end();
 
-        // Prepare email content
-        const adminEmail = process.env.EMAIL_USER;
-        
-        const clientEmailBody = `
-          <h1 style="font-family: Arial, sans-serif; color: #4CAF50;">New Order Confirmation</h1>
-          <p style="font-family: Arial, sans-serif; color: #333;">Dear ${clientName},</p>
-          <p style="font-family: Arial, sans-serif; color: #555;">Thank you for your order. Below are your order details:</p>
-          <table style="font-family: Arial, sans-serif; border-collapse: collapse; width: 100%; margin-top: 20px;">
-            <tr style="background-color: #f2f2f2;">
-              <th style="border: 1px solid #ddd; padding: 8px;">Product</th>
-              <th style="border: 1px solid #ddd; padding: 8px;">Quantity</th>
-              <th style="border: 1px solid #ddd; padding: 8px;">Price Per Unit</th>
-              <th style="border: 1px solid #ddd; padding: 8px;">Total</th>
-            </tr>
-            <tr>
-              <td style="border: 1px solid #ddd; padding: 8px;">${productName}</td>
-              <td style="border: 1px solid #ddd; padding: 8px;">${quantity}</td>
-              <td style="border: 1px solid #ddd; padding: 8px;">$${price}</td>
-              <td style="border: 1px solid #ddd; padding: 8px;">$${orderTotal}</td>
-            </tr>
-          </table>
-          <p style="font-family: Arial, sans-serif; color: #555; margin-top: 20px;">If you have any questions, please contact us at ${adminEmail}</p>
-          <p style="font-family: Arial, sans-serif; color: #333; text-align: center;"><strong>Thank you for choosing Qubite!</strong></p>`;
+          // Wait for PDF to finish writing
+          await new Promise((resolve) => writeStream.on('finish', resolve));
 
-        const adminEmailBody = `
-          <h1 style="font-family: Arial, sans-serif; color: #2196F3;">New Order Received</h1>
-          <p style="font-family: Arial, sans-serif; color: #333;">A new order has been placed:</p>
-          <table style="font-family: Arial, sans-serif; border-collapse: collapse; width: 100%; margin-top: 20px;">
-            <tr style="background-color: #f2f2f2;">
-              <th style="border: 1px solid #ddd; padding: 8px;">Client</th>
-              <th style="border: 1px solid #ddd; padding: 8px;">Product</th>
-              <th style="border: 1px solid #ddd; padding: 8px;">Quantity</th>
-              <th style="border: 1px solid #ddd; padding: 8px;">Total</th>
-            </tr>
-            <tr>
-              <td style="border: 1px solid #ddd; padding: 8px;">${clientName} (${clientEmail})</td>
-              <td style="border: 1px solid #ddd; padding: 8px;">${productName}</td>
-              <td style="border: 1px solid #ddd; padding: 8px;">${quantity}</td>
-              <td style="border: 1px solid #ddd; padding: 8px;">$${orderTotal}</td>
-            </tr>
-          </table>`;
+          // Prepare email content
+          const adminEmail = process.env.EMAIL_USER;
+          
+          const clientEmailBody = `
+            <h1 style="font-family: Arial, sans-serif; color: #4CAF50;">New Order Confirmation</h1>
+            <p style="font-family: Arial, sans-serif; color: #333;">Dear ${clientName},</p>
+            <p style="font-family: Arial, sans-serif; color: #555;">Thank you for your order. Below are your order details:</p>
+            <table style="font-family: Arial, sans-serif; border-collapse: collapse; width: 100%; margin-top: 20px;">
+              <tr style="background-color: #f2f2f2;">
+                <th style="border: 1px solid #ddd; padding: 8px;">Product</th>
+                <th style="border: 1px solid #ddd; padding: 8px;">Quantity</th>
+                <th style="border: 1px solid #ddd; padding: 8px;">Price Per Unit</th>
+                <th style="border: 1px solid #ddd; padding: 8px;">Total</th>
+              </tr>
+              <tr>
+                <td style="border: 1px solid #ddd; padding: 8px;">${productName}</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">${quantity}</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">$${price}</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">$${orderTotal}</td>
+              </tr>
+            </table>
+            <p style="font-family: Arial, sans-serif; color: #555; margin-top: 20px;">If you have any questions, please contact us at ${adminEmail}</p>
+            <p style="font-family: Arial, sans-serif; color: #333; text-align: center;"><strong>Thank you for choosing Qubite!</strong></p>`;
 
-        try {
-          // Send emails with invoice attachment
-          await sendEmail({
-            to: clientEmail,
-            subject: 'Order Confirmation - Qubite',
-            html: clientEmailBody,
-            attachments: [{
-              filename: `invoice-${result.insertId}.pdf`,
-              path: invoicePath
-            }]
-          });
+          const adminEmailBody = `
+            <h1 style="font-family: Arial, sans-serif; color: #2196F3;">New Order Received</h1>
+            <p style="font-family: Arial, sans-serif; color: #333;">A new order has been placed:</p>
+            <table style="font-family: Arial, sans-serif; border-collapse: collapse; width: 100%; margin-top: 20px;">
+              <tr style="background-color: #f2f2f2;">
+                <th style="border: 1px solid #ddd; padding: 8px;">Client</th>
+                <th style="border: 1px solid #ddd; padding: 8px;">Product</th>
+                <th style="border: 1px solid #ddd; padding: 8px;">Quantity</th>
+                <th style="border: 1px solid #ddd; padding: 8px;">Total</th>
+              </tr>
+              <tr>
+                <td style="border: 1px solid #ddd; padding: 8px;">${clientName} (${clientEmail})</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">${productName}</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">${quantity}</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">$${orderTotal}</td>
+              </tr>
+            </table>`;
 
-          await sendEmail({
-            to: adminEmail,
-            subject: 'New Order Received',
-            html: adminEmailBody,
-            attachments: [{
-              filename: `invoice-${result.insertId}.pdf`,
-              path: invoicePath
-            }]
-          });
+          try {
+            // Send emails with invoice attachment
+            await sendEmail({
+              to: clientEmail,
+              subject: 'Order Confirmation - Qubite',
+              html: clientEmailBody,
+              attachments: [{
+                filename: `invoice-${result.insertId}.pdf`,
+                path: invoicePath
+              }]
+            });
 
-          // Return success response with formatted data
-          res.status(201).json(orderData);
-        } catch (emailError) {
-          console.error('Error sending emails:', emailError);
-          res.status(201).json({
-            ...orderData,
-            warning: 'Order created but email notifications failed'
-          });
-        }
+            await sendEmail({
+              to: adminEmail,
+              subject: 'New Order Received',
+              html: adminEmailBody,
+              attachments: [{
+                filename: `invoice-${result.insertId}.pdf`,
+                path: invoicePath
+              }]
+            });
+
+            // Return success response with formatted data from database
+            res.status(201).json(orderData);
+          } catch (emailError) {
+            console.error('Error sending emails:', emailError);
+            res.status(201).json({
+              ...orderData,
+              warning: 'Order created but email notifications failed'
+            });
+          }
+        });
       }
     );
   });
