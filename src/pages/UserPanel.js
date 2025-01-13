@@ -33,14 +33,6 @@ const UserPanel = () => {
           }
         });
 
-        // Enhanced admin route protection
-        const adminRoutes = ['/admin', '/sales', '/documents', '/analytics', '/settings'];
-        if (!response.data.isAdmin && 
-            adminRoutes.some(route => window.location.pathname.includes(route))) {
-          navigate('/user-panel');
-          return;
-        }
-
         setUser(response.data);
 
         // Fetch orders and notifications
@@ -54,6 +46,18 @@ const UserPanel = () => {
 
     fetchUser();
   }, [navigate]);
+
+  // New useEffect for admin route protection
+  useEffect(() => {
+    if (user) {
+      const adminRoutes = ['/admin', '/sales', '/documents', '/analytics', '/settings'];
+      const currentPath = window.location.pathname;
+      
+      if (!user.isAdmin && adminRoutes.some(route => currentPath.includes(route))) {
+        navigate('/user-panel');
+      }
+    }
+  }, [user, navigate]);
 
   const fetchNotifications = async () => {
     try {
