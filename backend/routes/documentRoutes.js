@@ -167,27 +167,31 @@ router.get('/download/:id', async (req, res) => {
             return res.status(404).json({ error: 'Document not found' });
         }
 
-        // Get the actual file path
         const fileUrl = document[0].file_path;
         const fileName = fileUrl.split('/').pop();
         const filePath = path.join(UPLOAD_DIR, fileName);
 
-        // Check if file exists
+        // Verify file exists
         try {
             await fs.access(filePath);
         } catch (error) {
+            console.error('File access error:', error);
             return res.status(404).json({ error: 'File not found on server' });
         }
 
-        // Set headers for download
-        res.setHeader('Content-Type', document[0].mimetype || 'application/octet-stream');
-        res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
-
-        // Stream the file
-        const fileStream = require('fs').createReadStream(filePath);
-        fileStream.pipe(res);
+        // Send file directly
+        res.download(filePath, fileName, (err) => {
+            if (err) {
+                console.error('Download error:', err);
+                // Only send error if headers haven't been sent yet
+                if (!res.headersSent) {
+                    res.status(500).json({ error: 'Error downloading file' });
+                }
+            }
+        });
     } catch (err) {
-        handleError(res, err, 'Failed to download file');
+        console.error('Download route error:', err);
+        res.status(500).json({ error: 'Failed to process download request' });
     }
 });
 
