@@ -85,7 +85,11 @@
   /* Users Table */
   .admin-users-table {
     width: 100%;
-    border-collapse: collapse;
+  border-collapse: collapse;
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: white;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   }
   
   .admin-users-table th,
@@ -108,18 +112,131 @@
     background-color: #f1f1f1;
   }
   
-  /* Action Buttons in Table */
-  .admin-users-table button {
-    padding: 5px 10px;
-    background-color: #3498db;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 12px;
-  }
   
-  .admin-users-table button:hover {
+
+  .admin-users-edit-btn {
+    background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 6px 10px;
+  cursor: pointer;
+  }
+
+  .admin-users-edit-btn:hover {
     background-color: #2980b9;
   }
+
+  .admin-users-delete-btn {
+    background-color: red;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 6px 10px;
+    cursor: pointer;
+  } 
+
+  .admin-users-delete-btn:hover {
+    background-color: #bc2116;
+  }
+
+  .admin-users-edit-btn,
+.admin-users-delete-btn {
+margin-right: 5px; /* İki buton arasına boşluk eklemek için */
+}
+
+.admin-users-edit-btn:last-child {
+margin-right: 0; /* Son butonun sağında boşluk olmaması için */
+}
   
+@media screen and (max-width: 768px) {
+  .main-content {
+      margin-left: 0;
+      width: 100%;
+      padding-top: 60px;
+  }
+
+  .admin-users-container {
+      padding: 15px;
+  }
+
+  .admin-users-actions {
+      flex-direction: column;
+      gap: 15px;
+  }
+
+  .admin-users-actions input {
+      width: 100%;
+  }
+
+  .admin-users-actions button {
+      width: 100%;
+      padding: 8px 16px;
+  }
+
+  .admin-users-table {
+      font-size: 14px;
+  }
+
+  .admin-users-table th,
+  .admin-users-table td {
+      padding: 8px;
+  }
+
+  .admin-users-form button {
+      padding: 8px 16px;
+  }
+
+  .admin-users-edit-btn,
+  .admin-users-delete-btn {
+      padding: 5px 8px;
+      font-size: 13px;
+  }
+}
+
+/* Mobile Responsive Design (max-width: 480px) */
+@media screen and (max-width: 480px) {
+  .admin-users-container h1 {
+      font-size: 24px;
+      margin-bottom: 15px;
+  }
+
+  .admin-users-form {
+      gap: 8px;
+  }
+
+  .admin-users-form input,
+  .admin-users-form select {
+      padding: 8px;
+      font-size: 13px;
+  }
+
+  .admin-users-table {
+      display: block;
+      overflow-x: auto;
+  }
+
+  .admin-users-table th,
+  .admin-users-table td {
+      padding: 6px;
+      font-size: 13px;
+      white-space: nowrap;
+  }
+
+  .admin-users-edit-btn,
+  .admin-users-delete-btn {
+      padding: 4px 6px;
+      font-size: 12px;
+      margin-right: 3px;
+  }
+
+  .admin-users-actions button {
+      padding: 6px 12px;
+      font-size: 13px;
+  }
+
+  .admin-users-form button {
+      padding: 6px 12px;
+      font-size: 13px;
+  }
+}

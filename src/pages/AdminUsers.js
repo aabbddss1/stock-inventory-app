@@ -196,8 +196,14 @@ const AdminUsers = () => {
                       <td>{user.role}</td>
                       <td>{user.status}</td>
                       <td>
-                        <button onClick={() => handleEdit(user)}>Edit</button>
-                        <button onClick={() => handleDelete(user.id)}>Delete</button>
+                      <div class="button-container">
+  <button class="admin-users-edit-btn">
+    <i class="fa fa-edit"></i> Edit
+  </button>
+  <button class="admin-users-delete-btn">
+    <i class="fa fa-trash"></i> Delete
+  </button>
+</div>
                       </td>
                     </tr>
                   ))}

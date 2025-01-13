@@ -73,7 +73,11 @@
   /* Documents Table */
   .documents-table {
     width: 100%;
-    border-collapse: collapse;
+  border-collapse: collapse;
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: white;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   }
   
   .documents-table th,
@@ -158,4 +162,89 @@
   background-color: #0b8e0f;
 }
 
+@media screen and (max-width: 768px) {
+  .main-content {
+      margin-left: 0;
+      width: 100%;
+      padding-top: 60px;
+  }
+
+  .documents-container {
+      padding: 15px;
+  }
+
+  .documents-actions {
+      flex-direction: column;
+      gap: 15px;
+  }
+
+  .documents-actions input {
+      width: 100%;
+  }
+
+  .documents-table {
+      font-size: 14px;
+  }
+
+  .documents-table th,
+  .documents-table td {
+      padding: 8px;
+  }
+
+  .pagination {
+      margin-top: 15px;
+  }
+
+  .pagination button {
+      padding: 4px 6px;
+      font-size: 14px;
+  }
+}
+
+/* Mobile Responsive Design (max-width: 480px) */
+@media screen and (max-width: 480px) {
+  .documents-container h1 {
+      font-size: 24px;
+      margin-bottom: 15px;
+  }
+
+  .documents-form {
+      gap: 8px;
+  }
+
+  .documents-form input,
+  .documents-form select {
+      padding: 8px;
+      font-size: 13px;
+  }
+
+  .documents-table {
+      display: block;
+      overflow-x: auto;
+  }
+
+  .documents-table th,
+  .documents-table td {
+      padding: 6px;
+      font-size: 13px;
+      white-space: nowrap;
+  }
+
+  .download-btn,
+  .delete-btn {
+      padding: 4px 8px;
+      font-size: 12px;
+  }
+
+  button i {
+      margin-right: 3px;
+      font-size: 12px;
+  }
+
+  .pagination button {
+      padding: 3px 5px;
+      font-size: 12px;
+      margin: 0 3px;
+  }
+}
 
