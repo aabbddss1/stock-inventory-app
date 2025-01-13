@@ -39,18 +39,15 @@ const UserPanel = () => {
   const [error, setError] = useState('');
   const [notifications, setNotifications] = useState([]);
   const [orders, setOrders] = useState([]); // User-specific orders
+  const [inventory, setInventory] = useState([]); // Add inventory state
   const [tasks, setTasks] = useState([]); // Task Manager
   const [newTask, setNewTask] = useState('');
   const [analytics, setAnalytics] = useState({
-    orderHistory: {
+    inventoryLevels: {
       labels: [],
       data: []
     },
     statusDistribution: {
-      labels: [],
-      data: []
-    },
-    recentActivity: {
       labels: [],
       data: []
     }
@@ -75,8 +72,9 @@ const UserPanel = () => {
 
         setUser(response.data);
 
-        // Fetch orders and notifications
+        // Fetch orders, inventory, and notifications
         fetchUserOrders(response.data.id);
+        fetchInventory();
         fetchNotifications();
       } catch (error) {
         console.error('Error fetching user:', error);
@@ -142,26 +140,22 @@ const UserPanel = () => {
     navigate('/');
   };
 
-  // Calculate analytics when orders change
+  // Add fetchInventory function
+  const fetchInventory = async () => {
+    try {
+      const response = await api.get('/api/inventory', {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+      });
+      setInventory(response.data);
+    } catch (error) {
+      console.error('Error fetching inventory:', error);
+    }
+  };
+
+  // Update analytics calculation
   useEffect(() => {
+    // Calculate status distribution from orders
     if (orders.length > 0) {
-      // Calculate order history (last 7 orders)
-      const recentOrders = [...orders]
-        .sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate))
-        .slice(0, 7);
-
-      const orderHistory = {
-        labels: recentOrders.map(order => {
-          const date = new Date(order.orderDate);
-          return date.toLocaleDateString('en-US', { 
-            month: 'short', 
-            day: 'numeric' 
-          });
-        }),
-        data: recentOrders.map(order => order.quantity)
-      };
-
-      // Calculate status distribution
       const statusCount = orders.reduce((acc, order) => {
         const status = order.status || 'Pending';
         acc[status] = (acc[status] || 0) + 1;
@@ -173,13 +167,32 @@ const UserPanel = () => {
         data: Object.values(statusCount)
       };
 
-      setAnalytics({
-        orderHistory,
-        statusDistribution,
-        recentActivity: { labels: [], data: [] } // Keep this to maintain state structure
-      });
+      setAnalytics(prev => ({
+        ...prev,
+        statusDistribution
+      }));
     }
   }, [orders]);
+
+  // Add inventory analytics calculation
+  useEffect(() => {
+    if (inventory.length > 0) {
+      // Sort inventory by quantity and get top 5 items
+      const topInventory = [...inventory]
+        .sort((a, b) => b.quantity - a.quantity)
+        .slice(0, 5);
+
+      const inventoryLevels = {
+        labels: topInventory.map(item => item.name),
+        data: topInventory.map(item => item.quantity)
+      };
+
+      setAnalytics(prev => ({
+        ...prev,
+        inventoryLevels
+      }));
+    }
+  }, [inventory]);
 
   if (error) return <p>{error}</p>;
   if (!user) return <p>Loading user details...</p>;
@@ -219,16 +232,20 @@ const UserPanel = () => {
           {/* Analytics Graphs */}
           <div className="analytics-section two-columns">
             <div className="graph-container">
-              <h3>Order History</h3>
-              <Line
+              <h3>Inventory Levels</h3>
+              <Bar
                 data={{
-                  labels: analytics.orderHistory.labels,
+                  labels: analytics.inventoryLevels.labels,
                   datasets: [{
-                    label: 'Order Quantities',
-                    data: analytics.orderHistory.data,
-                    borderColor: 'rgb(75, 192, 192)',
-                    tension: 0.1,
-                    fill: false
+                    label: 'Stock Quantity',
+                    data: analytics.inventoryLevels.data,
+                    backgroundColor: [
+                      '#36A2EB',
+                      '#4BC0C0',
+                      '#FF6384',
+                      '#FFCE56',
+                      '#9966FF'
+                    ]
                   }]
                 }}
                 options={{
@@ -238,7 +255,7 @@ const UserPanel = () => {
                     legend: { position: 'bottom' },
                     tooltip: {
                       callbacks: {
-                        title: (context) => `Date: ${context[0].label}`
+                        label: (context) => `Stock: ${context.raw} units`
                       }
                     }
                   },
@@ -247,7 +264,7 @@ const UserPanel = () => {
                       beginAtZero: true,
                       title: {
                         display: true,
-                        text: 'Quantity'
+                        text: 'Quantity in Stock'
                       }
                     }
                   }
