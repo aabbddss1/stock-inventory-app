@@ -13,6 +13,12 @@ function Customers() {
   const [editingCustomer, setEditingCustomer] = useState(null);
 
   const token = localStorage.getItem('token');
+  const axiosInstance = React.useMemo(() => {
+    return axios.create({
+      baseURL: 'http://37.148.210.169:5001/api',
+      headers: { Authorization: `Bearer ${token}` },
+    });
+  }, [token]);
 
   useEffect(() => {
     if (!token) {
@@ -21,9 +27,8 @@ function Customers() {
       return;
     }
 
-    axios.get('http://37.148.210.169:5001/api/customers', {
-      headers: { Authorization: `Bearer ${token}` }
-    })
+    axiosInstance
+      .get('/customers')
       .then((response) => {
         const userCustomers = response.data.filter(customer => 
           customer.role?.toLowerCase() === 'user' || !customer.role
@@ -49,35 +54,32 @@ function Customers() {
   };
 
   // Handle saving a customer (add or edit)
- // Handle saving a customer (add or edit)
- const handleSave = async (customer) => {
-  const token = localStorage.getItem('token');
+  const handleSave = async (customer) => {
+    const token = localStorage.getItem('token');
 
-
-  try {
-    const response = await axios.post(
-      'http://localhost:5001/api/customers',
-      {
-        ...customer,
-        role: 'user',
-      },
-      {
-        headers: { Authorization: `Bearer ${token}` },
+    try {
+      const response = await axios.post(
+        'http://37.148.210.169:5001/api/customers',
+        {
+          ...customer,
+          role: 'user',
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      setCustomers([...customers, response.data]);
+      setShowModal(false);
+    } catch (error) {
+      console.error('Error adding customer:', error);
+      if (error.response?.status === 401) {
+        alert('Session expired. Please log in again.');
+        localStorage.removeItem('token');
+        window.location.href = '/';
       }
-    );
-    setCustomers([...customers, response.data]);
-    setShowModal(false);
-  } catch (error) {
-    console.error('Error adding customer:', error);
-    if (error.response?.status === 401) {
-      alert('Session expired. Please log in again.');
-      localStorage.removeItem('token');
-      window.location.href = '/';
+      throw error;
     }
-    throw error;
-  }
-};
-
+  };
   
   
 
@@ -85,9 +87,8 @@ function Customers() {
   const handleDelete = (id) => {
     const customerName = customers.find((customer) => customer.id === id)?.name;
     if (window.confirm(`${t('customers.confirmDelete')} ${customerName}?`)) {
-      axios.delete(`http://37.148.210.169:5001/api/customers/${id}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      })
+      axiosInstance
+        .delete(`/customers/${id}`)
         .then(() => {
           setCustomers((prev) => prev.filter((customer) => customer.id !== id));
         })
@@ -176,6 +177,7 @@ function Customers() {
 // Modal component for adding/editing customer details
 function CustomerModal({ customer, onSave, onClose }) {
   const { t } = useTranslation();
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState(
     customer || { name: '', email: '', phone: '', password: '' }
   );
@@ -227,9 +229,6 @@ function CustomerModal({ customer, onSave, onClose }) {
       }
     }
   };
-
-
-
 
   return (
     <div className="modal-overlay">
@@ -299,9 +298,6 @@ function CustomerModal({ customer, onSave, onClose }) {
               <i className="fa fa-x"></i>
               {t('customers.modal.cancel')}
             </button>
-
-
-
           </div>
         </form>
       </div>
