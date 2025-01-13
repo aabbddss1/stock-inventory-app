@@ -3,6 +3,7 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const customerRoutes = require('./routes/customerRoutes');
 const adminUserRoutes = require('./routes/adminUserRoutes');
+const path = require('path');
 
 const app = express();
 
@@ -16,7 +17,7 @@ app.use('/api/customers', customerRoutes);
 app.use('/api/admin-users', adminUserRoutes);
 
 // Add this line to serve static files
-app.use('/uploads', express.static(process.env.STORAGE_PATH || '/var/www/xcloud-storage/uploads'));
+app.use('/uploads', express.static(path.join(__dirname, '..', 'xcloud-storage', 'uploads')));
 
 const PORT = process.env.PORT || 5001;
 

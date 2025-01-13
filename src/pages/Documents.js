@@ -98,9 +98,8 @@ const Documents = () => {
   // Download document
   const handleDownload = async (id) => {
     try {
-      const response = await api.get(`/api/documents/download/${id}`);
-      const url = response.data.signedUrl;
-      window.open(url, '_blank');
+      // Direct download approach
+      window.location.href = `${api.defaults.baseURL}/api/documents/download/${id}`;
     } catch (error) {
       console.error('Error downloading document:', error);
       alert('Failed to download document.');

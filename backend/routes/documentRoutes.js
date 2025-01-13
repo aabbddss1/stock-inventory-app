@@ -162,15 +162,32 @@ router.get('/download/:id', async (req, res) => {
     const { id } = req.params;
 
     try {
-        const [document] = await db.promise().query('SELECT file_path FROM documents WHERE id = ?', [id]);
+        const [document] = await db.promise().query('SELECT * FROM documents WHERE id = ?', [id]);
         if (!document.length) {
             return res.status(404).json({ error: 'Document not found' });
         }
 
-        // Simply return the direct URL since files are now served statically
-        res.status(200).json({ signedUrl: document[0].file_path });
+        // Get the actual file path
+        const fileUrl = document[0].file_path;
+        const fileName = fileUrl.split('/').pop();
+        const filePath = path.join(UPLOAD_DIR, fileName);
+
+        // Check if file exists
+        try {
+            await fs.access(filePath);
+        } catch (error) {
+            return res.status(404).json({ error: 'File not found on server' });
+        }
+
+        // Set headers for download
+        res.setHeader('Content-Type', document[0].mimetype || 'application/octet-stream');
+        res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+
+        // Stream the file
+        const fileStream = require('fs').createReadStream(filePath);
+        fileStream.pipe(res);
     } catch (err) {
-        handleError(res, err, 'Failed to get download URL');
+        handleError(res, err, 'Failed to download file');
     }
 });
 
