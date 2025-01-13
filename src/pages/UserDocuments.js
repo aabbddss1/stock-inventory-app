@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Sidebar from '../components/Sidebar';
 import TopNavbar from '../components/TopNavbar';
-import axios from 'axios';
+import { api } from '../config/api';
 import '../styles/Documents.css';
 
 const UserDocuments = () => {
@@ -9,8 +9,6 @@ const UserDocuments = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
 
-  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://37.148.210.169:5001/';
-  
   const getCustomerId = () => {
     const token = localStorage.getItem('token');
     if (!token) return null;
@@ -41,9 +39,10 @@ const UserDocuments = () => {
   const fetchUserDocuments = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`/api/documents/user/${customerId}`);
+      const response = await api.get(`/api/documents/user/${customerId}`);
       setDocuments(response.data.documents || []);
     } catch (error) {
+      console.error('Error fetching documents:', error);
       alert('Failed to fetch documents.');
     } finally {
       setLoading(false);
@@ -52,17 +51,9 @@ const UserDocuments = () => {
 
   const handleDownload = async (id) => {
     try {
-      const response = await axios.get(`/api/documents/download/${id}`);
-      const signedUrl = response.data.signedUrl;
-
-      const link = document.createElement('a');
-      link.href = signedUrl;
-      link.target = '_blank';
-      link.download = '';
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
+      window.open(`${api.defaults.baseURL}/api/documents/download/${id}`, '_blank');
     } catch (error) {
+      console.error('Error downloading document:', error);
       alert('Failed to download document.');
     }
   };
