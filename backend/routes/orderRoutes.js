@@ -107,9 +107,9 @@ router.post('/', authenticate, (req, res) => {
     const clientName = results[0].name;
     const query = `
       INSERT INTO orders (
-        client_name,
-        client_email,
-        product_name,
+        clientName,
+        clientEmail,
+        productName,
         quantity,
         price,
         status,
@@ -134,11 +134,11 @@ router.post('/', authenticate, (req, res) => {
         const selectQuery = `
           SELECT 
             id,
-            client_name as clientName,
-            product_name as productName,
+            clientName,
+            productName,
             quantity,
             price,
-            client_email as clientEmail,
+            clientEmail,
             status,
             DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') as orderDate 
           FROM orders 
