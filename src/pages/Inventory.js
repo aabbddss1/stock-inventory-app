@@ -24,6 +24,8 @@ const Inventory = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const [selectedProductDetails, setSelectedProductDetails] = useState(null);
 
   // Fetch products from backend
   useEffect(() => {
@@ -151,6 +153,18 @@ const Inventory = () => {
     console.log('Inventory exported as Excel');
   };
 
+  // Handle product row click
+  const handleProductClick = (product) => {
+    setSelectedProductDetails(product);
+    setShowModal(true);
+  };
+
+  // Close modal
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setSelectedProductDetails(null);
+  };
+
   return (
     <div className="inventory-page">
       <Sidebar />
@@ -233,7 +247,11 @@ const Inventory = () => {
             </thead>
             <tbody>
               {filteredProducts.map((product) => (
-                <tr key={product.id}>
+                <tr 
+                  key={product.id} 
+                  onClick={() => handleProductClick(product)}
+                  style={{ cursor: 'pointer' }}
+                >
                   <td>{product.name}</td>
                   <td>{product.category}</td>
                   <td>{product.quantity}</td>
@@ -241,7 +259,7 @@ const Inventory = () => {
                   <td className={`status-cell ${product.status.toLowerCase().replace(/ /g, '-')}`}>
                     {product.status}
                   </td>
-                  <td>
+                  <td onClick={(e) => e.stopPropagation()}>
                     <div>
                       <button className="inventory-edit-btn" onClick={() => handleEdit(product)}>
                         <i className="fas fa-edit" style={{ marginRight: '5px' }}></i>
@@ -257,6 +275,37 @@ const Inventory = () => {
               ))}
             </tbody>
           </table>
+
+          {/* Product Details Modal */}
+          {showModal && selectedProductDetails && (
+            <div className="modal-overlay" onClick={handleCloseModal}>
+              <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                <div className="modal-header">
+                  <h2>{selectedProductDetails.name}</h2>
+                  <button className="modal-close" onClick={handleCloseModal}>×</button>
+                </div>
+                <div className="modal-body">
+                  <div className="product-detail">
+                    <label>{t('inventoryTranslation.table.category')}:</label>
+                    <span>{selectedProductDetails.category}</span>
+                  </div>
+                  <div className="product-detail">
+                    <label>{t('inventoryTranslation.table.quantity')}:</label>
+                    <span>{selectedProductDetails.quantity}</span>
+                  </div>
+                  <div className="product-detail">
+                    <label>{t('inventoryTranslation.table.price')}:</label>
+                    <span>${selectedProductDetails.price}</span>
+                  </div>
+                  <div className="product-detail">
+                    <label>{t('inventoryTranslation.table.status')}:</label>
+                    <span>{selectedProductDetails.status}</span>
+                  </div>
+                  {/* Add any additional product details you want to display */}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
