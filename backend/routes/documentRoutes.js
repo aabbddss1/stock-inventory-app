@@ -350,6 +350,164 @@ router.delete('/:id', async (req, res) => {
     }
 });
 
+// Resend document email to user
+router.post('/resend-email/:id', async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        // Get document and customer information
+        const [document] = await db.promise().query(
+            'SELECT d.*, c.email FROM documents d JOIN customers c ON d.customer_id = c.id WHERE d.id = ?',
+            [id]
+        );
+
+        if (!document.length) {
+            return res.status(404).json({ error: 'Document not found' });
+        }
+
+        const doc = document[0];
+        const uploadDate = new Date(doc.upload_date);
+        const filePath = path.join(UPLOAD_DIR, doc.file_path.split('/').pop());
+
+        // Check if file exists
+        if (!require('fs').existsSync(filePath)) {
+            return res.status(404).json({ error: 'Document file not found on server' });
+        }
+
+        // Reuse the same email template
+        const emailHtml = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <style>
+                    body {
+                        font-family: Arial, sans-serif;
+                        line-height: 1.6;
+                        color: #333333;
+                        margin: 0;
+                        padding: 0;
+                    }
+                    .container {
+                        max-width: 600px;
+                        margin: 0 auto;
+                        padding: 20px;
+                        background-color: #ffffff;
+                    }
+                    .header {
+                        background-color: #2c3e50;
+                        color: #ffffff;
+                        padding: 20px;
+                        text-align: center;
+                        border-radius: 5px 5px 0 0;
+                    }
+                    .content {
+                        padding: 20px;
+                        background-color: #f8f9fa;
+                        border: 1px solid #e9ecef;
+                        border-radius: 0 0 5px 5px;
+                    }
+                    .document-details {
+                        background-color: #ffffff;
+                        padding: 15px;
+                        border-radius: 5px;
+                        margin: 15px 0;
+                        border: 1px solid #dee2e6;
+                    }
+                    .detail-item {
+                        margin: 10px 0;
+                        padding: 8px;
+                        border-bottom: 1px solid #eee;
+                    }
+                    .detail-label {
+                        font-weight: bold;
+                        color: #2c3e50;
+                        margin-right: 10px;
+                    }
+                    .footer {
+                        text-align: center;
+                        margin-top: 20px;
+                        padding-top: 20px;
+                        border-top: 1px solid #dee2e6;
+                        color: #6c757d;
+                        font-size: 0.9em;
+                    }
+                    .button {
+                        display: inline-block;
+                        padding: 10px 20px;
+                        background-color: #3498db;
+                        color: #ffffff;
+                        text-decoration: none;
+                        border-radius: 5px;
+                        margin-top: 15px;
+                    }
+                    .note {
+                        font-size: 0.9em;
+                        color: #666;
+                        margin-top: 15px;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <div class="header">
+                        <h1>Document Notification</h1>
+                    </div>
+                    <div class="content">
+                        <p>Hello,</p>
+                        <p>Here is your requested document from the Stock Inventory Management System.</p>
+                        
+                        <div class="document-details">
+                            <div class="detail-item">
+                                <span class="detail-label">Document Name:</span>
+                                <span>${doc.name}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Category:</span>
+                                <span>${doc.category}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Upload Date:</span>
+                                <span>${uploadDate.toLocaleString()}</span>
+                            </div>
+                        </div>
+
+                        <p>The document has been attached to this email for your convenience.</p>
+                        <p>You can also access this document and manage all your documents through your customer portal:</p>
+                        
+                        <div style="text-align: center;">
+                            <a href="${process.env.FRONTEND_URL}/documents" class="button">View in Portal</a>
+                        </div>
+
+                        <p class="note">Note: If you did not request this document or notice any suspicious activity, please contact our support team immediately.</p>
+                    </div>
+                    
+                    <div class="footer">
+                        <p>This is an automated message from the Stock Inventory Management System</p>
+                        <p>© ${new Date().getFullYear()} All rights reserved</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+        `;
+
+        await sendEmail({
+            to: doc.email,
+            subject: `Requested Document: ${doc.name}`,
+            html: emailHtml,
+            attachments: [{
+                filename: doc.file_path.split('/').pop().replace(/^\d+-/, ''),
+                path: filePath
+            }]
+        });
+
+        res.status(200).json({
+            message: 'Document email sent successfully'
+        });
+    } catch (err) {
+        handleError(res, err, 'Failed to send document email');
+    }
+});
+
 module.exports = router;
 
 

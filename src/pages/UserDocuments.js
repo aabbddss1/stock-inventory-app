@@ -68,6 +68,17 @@ const UserDocuments = () => {
       doc.category.toLowerCase().includes(searchTerm)
   );
 
+  // Send document via email
+  const handleSendEmail = async (id) => {
+    try {
+      await api.post(`/api/documents/resend-email/${id}`);
+      alert('Email sent successfully!');
+    } catch (error) {
+      console.error('Error sending document email:', error);
+      alert('Failed to send email.');
+    }
+  };
+
   return (
     <div className="documents-page">
       <Sidebar />
@@ -109,6 +120,12 @@ const UserDocuments = () => {
                         onClick={() => handleDownload(doc.id)}
                       >
                         <i className="fas fa-download"></i> Download
+                      </button>
+                      <button
+                        className="email-btn"
+                        onClick={() => handleSendEmail(doc.id)}
+                      >
+                        <i className="fas fa-envelope"></i> Send Email
                       </button>
                     </td>
                   </tr>

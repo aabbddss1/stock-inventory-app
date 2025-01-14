@@ -125,6 +125,17 @@ const Documents = () => {
     }
   };
 
+  // Send document via email
+  const handleSendEmail = async (id) => {
+    try {
+      await api.post(`/api/documents/resend-email/${id}`);
+      alert(t('emailSent'));
+    } catch (error) {
+      console.error('Error sending document email:', error);
+      alert(t('emailError'));
+    }
+  };
+
   return (
     <div className="documents-page">
       <Sidebar />
@@ -213,6 +224,12 @@ const Documents = () => {
                           onClick={() => handleDownload(doc.id)}
                         >
                           <i className="fas fa-download"></i> {t('download')}
+                        </button>
+                        <button
+                          className="email-btn"
+                          onClick={() => handleSendEmail(doc.id)}
+                        >
+                          <i className="fas fa-envelope"></i> {t('sendEmail')}
                         </button>
                         <button
                           className="delete-btn"
