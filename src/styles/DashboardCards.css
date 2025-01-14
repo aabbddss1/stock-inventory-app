@@ -471,64 +471,14 @@
   border-color: #0066cc;
 }
 
-@media (max-width: 768px) {
-  .dashboard-pending-orders {
-    padding: 10px;
-  }
-
-  .dashboard-pending-orders h2 {
-    font-size: 20px;
-    margin-bottom: 15px;
-    padding-bottom: 10px;
-  }
-
-  .dashboard-pending-list {
-    padding: 10px;
-    max-height: calc(80vh - 100px);
-  }
-
-  .dashboard-pending-table {
-    font-size: 13px;
-  }
-
-  .dashboard-pending-table th,
-  .dashboard-pending-table td {
-    padding: 10px 5px;
-  }
-
-  .dashboard-status-badge {
-    padding: 4px 8px;
-    font-size: 0.75em;
-  }
-
-  .dashboard-no-pending {
-    padding: 30px 20px;
-    font-size: 14px;
-  }
+.dashboard-title {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
-@media (max-width: 480px) {
-  .dashboard-pending-orders h2 {
-    font-size: 18px;
-  }
-
-  .dashboard-pending-table {
-    font-size: 12px;
-  }
-
-  .dashboard-pending-table th,
-  .dashboard-pending-table td {
-    padding: 8px 4px;
-  }
-
-  /* Hide less important columns on very small screens */
-  .dashboard-pending-table th:nth-child(2),
-  .dashboard-pending-table td:nth-child(2) {
-    display: none;
-  }
-
-  .dashboard-status-badge {
-    padding: 3px 6px;
-    font-size: 0.7em;
-  }
+.dashboard-title h1 {
+  font-size: 1.5rem;
+  color: #666;
+  margin: 0;
 }
