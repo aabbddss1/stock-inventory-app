@@ -68,6 +68,11 @@ function LoginPage() {
   return (
     <div className="login-container">
       <div className="login-left">
+      <div className="qubite-icon">
+  <a href="https://qubitestock.online">
+    <img src="/qubite.png" alt="Logo" className="qubite-icon" />
+  </a>
+</div>
         <h1>
           {t('welcome')}{' '}
           <span className="break-word">
@@ -84,6 +89,9 @@ function LoginPage() {
             <button onClick={toggleLanguage} className="lang-button">
               {i18n.language === 'en' ? 'TR' : 'EN'}
             </button>
+          </div>
+          <div className="golfplast-icon">
+            <img src="/golfplast_logo.png" alt="Golfplast Logo" className="golfplast-icon-image" />
           </div>
           <h2>{t('userLogin')}</h2>
           {errorMessage && <p className="error-message">{errorMessage}</p>}
