@@ -33,7 +33,7 @@ function LoginPage() {
     setErrorMessage('');
 
     try {
-      const response = await axios.post('http://www.qubitestock.online:5001/api/customers/login', {
+      const response = await axios.post('http://37.148.210.169:5001/api/customers/login', {
         email,
         password,
       });
