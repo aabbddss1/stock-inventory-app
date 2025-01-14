@@ -35,7 +35,6 @@ import {
 } from 'chart.js';
 import { useTranslation } from 'react-i18next';
 import { dashboardTranslations } from '../i18n/dashboardTranslations';
-import { DragDropContext, Draggable } from 'react-beautiful-dnd';
 
 // Register ChartJS components
 ChartJS.register(
@@ -92,53 +91,6 @@ function DashboardCards() {
 
   // Add new state for user
   const [user, setUser] = useState(null);
-
-  // Add a customizable dashboard layout
-  const [dashboardLayout, setDashboardLayout] = useState({
-    cards: cardsData,
-    layout: localStorage.getItem('dashboardLayout') || 'grid'
-  });
-
-  // Implement data pagination
-  const [pagination, setPagination] = useState({
-    page: 1,
-    limit: 10,
-    total: 0
-  });
-
-  // Add virtual scrolling for large lists
-  const VirtualizedList = ({ items, rowHeight, windowHeight }) => {
-    const [scrollTop, setScrollTop] = useState(0);
-    const startIndex = Math.floor(scrollTop / rowHeight);
-    const endIndex = startIndex + Math.ceil(windowHeight / rowHeight);
-
-    return (
-      <div
-        style={{ height: items.length * rowHeight }}
-        onScroll={(e) => setScrollTop(e.target.scrollTop)}
-      >
-        {items.slice(startIndex, endIndex).map((item) => (
-          <div key={item.id} style={{ height: rowHeight }}>
-            {/* Item content */}
-          </div>
-        ))}
-      </div>
-    );
-  };
-
-  // Add drag-and-drop functionality for cards
-  const handleDragEnd = (result) => {
-    if (!result.destination) return;
-
-    const items = Array.from(dashboardLayout.cards);
-    const [reorderedItem] = items.splice(result.source.index, 1);
-    items.splice(result.destination.index, 0, reorderedItem);
-
-    setDashboardLayout({
-      ...dashboardLayout,
-      cards: items
-    });
-  };
 
   // Add this useEffect to get user data when component mounts
   useEffect(() => {
@@ -584,66 +536,6 @@ function DashboardCards() {
     }
   }, [analytics]);
 
-  // Add global search functionality
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filterOptions, setFilterOptions] = useState({
-    date: 'all',
-    status: 'all',
-    category: 'all'
-  });
-
-  // Enhance notifications with real-time updates
-  const [notificationSettings, setNotificationSettings] = useState({
-    email: true,
-    push: true,
-    desktop: true
-  });
-
-  // Add notification preferences
-  const NotificationPreferences = () => (
-    <div className="notification-preferences">
-      <h3>Notification Settings</h3>
-      <div className="notification-options">
-        {Object.entries(notificationSettings).map(([key, value]) => (
-          <label key={key}>
-            <input
-              type="checkbox"
-              checked={value}
-              onChange={() => toggleNotification(key)}
-            />
-            {key.charAt(0).toUpperCase() + key.slice(1)} Notifications
-          </label>
-        ))}
-      </div>
-    </div>
-  );
-
-  // Add responsive breakpoints
-  const useResponsive = () => {
-    const [windowSize, setWindowSize] = useState({
-      width: window.innerWidth,
-      height: window.innerHeight
-    });
-
-    useEffect(() => {
-      const handleResize = () => {
-        setWindowSize({
-          width: window.innerWidth,
-          height: window.innerHeight
-        });
-      };
-
-      window.addEventListener('resize', handleResize);
-      return () => window.removeEventListener('resize', handleResize);
-    }, []);
-
-    return {
-      isMobile: windowSize.width < 768,
-      isTablet: windowSize.width >= 768 && windowSize.width < 1024,
-      isDesktop: windowSize.width >= 1024
-    };
-  };
-
   return (
     <div className="dashboard-container">
       <div className="dashboard-header">
@@ -666,18 +558,6 @@ function DashboardCards() {
             />
           </button>
         </div>
-        <div className="search-bar">
-          <input
-            type="text"
-            placeholder="Search across all data..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-          <FilterDropdown
-            options={filterOptions}
-            onChange={setFilterOptions}
-          />
-        </div>
       </div>
       {error && (
         <div className="error-message">
@@ -686,61 +566,53 @@ function DashboardCards() {
         </div>
       )}
       <div className="dashboard-cards">
-        <DragDropContext onDragEnd={handleDragEnd}>
-          <div className={`dashboard-cards ${dashboardLayout.layout}`}>
-            {dashboardLayout.cards.map((card, index) => (
-              <Draggable key={index} draggableId={`card-${index}`} index={index}>
-                {(provided) => (
-                  <div
-                    ref={provided.innerRef}
-                    {...provided.draggableProps}
-                    {...provided.dragHandleProps}
-                    className="dashboard-card"
-                  >
-                    {isLoading ? (
-                      <div className="loading-overlay">
-                        <div className="loading-spinner" />
+        {cardsData.map((card, index) => (
+          <div 
+            key={index} 
+                        className="dashboard-card" 
+            onClick={card.onClick}
+            title={card.description}
+          >
+            {isLoading ? (
+              <div className="loading-overlay">
+                <div className="loading-spinner" />
+              </div>
+            ) : (
+              <>
+                {card.badge && <span className="card-badge">{card.badge}</span>}
+                <FontAwesomeIcon icon={card.icon} className="card-main-icon" />
+                <h4>{card.title}</h4>
+                <p>{card.description}</p>
+                {card.quickStats && (
+                  <div className="quick-stats">
+                    {card.quickStats.map((stat, i) => (
+                      <div key={i} className="stat-item">
+                        <small>{stat.label}</small>
+                        <span>{stat.value}</span>
                       </div>
-                    ) : (
-                      <>
-                        {card.badge && <span className="card-badge">{card.badge}</span>}
-                        <FontAwesomeIcon icon={card.icon} className="card-main-icon" />
-                        <h4>{card.title}</h4>
-                        <p>{card.description}</p>
-                        {card.quickStats && (
-                          <div className="quick-stats">
-                            {card.quickStats.map((stat, i) => (
-                              <div key={i} className="stat-item">
-                                <small>{stat.label}</small>
-                                <span>{stat.value}</span>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                        {card.quickActions && (
-                          <div className="card-quick-actions">
-                            {card.quickActions.map((action, i) => (
-                              <button
-                                key={i}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  action.onClick();
-                                }}
-                                className="quick-action-btn"
-                              >
-                                <FontAwesomeIcon icon={action.icon} />
-                              </button>
-                            ))}
-                          </div>
-                        )}
-                      </>
-                    )}
+                    ))}
                   </div>
                 )}
-              </Draggable>
-            ))}
+                {card.quickActions && (
+                  <div className="card-quick-actions">
+                    {card.quickActions.map((action, i) => (
+                      <button
+                        key={i}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          action.onClick();
+                        }}
+                        className="quick-action-btn"
+                      >
+                        <FontAwesomeIcon icon={action.icon} />
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </>
+            )}
           </div>
-        </DragDropContext>
+        ))}
 
         {/* Quick Order Modal */}
         <Modal isOpen={isQuickOrderModalOpen} onClose={() => setIsQuickOrderModalOpen(false)}>
