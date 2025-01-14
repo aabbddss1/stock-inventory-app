@@ -125,7 +125,7 @@ const UserDocuments = () => {
                         className="email-btn"
                         onClick={() => handleSendEmail(doc.id)}
                       >
-                        <i className="fas fa-envelope"></i> Send Email
+                        <i className="fas fa-envelope"></i> Send
                       </button>
                     </td>
                   </tr>

@@ -229,7 +229,7 @@ const Documents = () => {
                           className="email-btn"
                           onClick={() => handleSendEmail(doc.id)}
                         >
-                          <i className="fas fa-envelope"></i> {t('sendEmail')}
+                          <i className="fas fa-envelope"></i> {t('Send')}
                         </button>
                         <button
                           className="delete-btn"
