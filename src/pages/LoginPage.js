@@ -48,48 +48,33 @@ function LoginPage() {
 
   return (
     <div className="login-page">
-      <div className="login-container">
-        <div className="brand-section">
-          <h1>Qubite</h1>
-          <p className="brand-tagline">Stock Management System</p>
-        </div>
-        <div className="login-card">
-          <h2>Welcome Back</h2>
-          <p className="login-subtitle">Please sign in to your account</p>
-          {errorMessage && <p className="error-message">{errorMessage}</p>}
-          <form onSubmit={(e) => e.preventDefault()}>
-            <div className="input-group">
-              <label htmlFor="email">Email</label>
-              <input
-                id="email"
-                type="email"
-                placeholder="Enter your email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="login-input"
-              />
-            </div>
-            <div className="input-group">
-              <label htmlFor="password">Password</label>
-              <input
-                id="password"
-                type="password"
-                placeholder="Enter your password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="login-input"
-              />
-            </div>
-            <button
-              onClick={handleLogin}
-              className="login-button"
-              disabled={isLoading}
-            >
-              {isLoading ? 'Logging in...' : 'Sign In'}
-            </button>
-          </form>
-          <p className="system-version">v1.0.0</p>
-        </div>
+      <div className="login-card">
+        <h2>Welcome Back</h2>
+        <p>Please sign in to your account</p>
+        {errorMessage && <p className="error-message">{errorMessage}</p>} {/* Display error */}
+        <form onSubmit={(e) => e.preventDefault()}>
+          <input
+            type="text"
+            placeholder="Email" // Placeholder updated
+            value={email} // Bind email state
+            onChange={(e) => setEmail(e.target.value)} // Update email state on change
+            className="login-input"
+          />
+          <input
+            type="password"
+            placeholder="Password" // Placeholder for password
+            value={password} // Bind password state
+            onChange={(e) => setPassword(e.target.value)} // Update password state on change
+            className="login-input"
+          />
+          <button
+            onClick={handleLogin}
+            className="login-button"
+            disabled={isLoading} // Disable button when loading
+          >
+            {isLoading ? 'Logging in...' : 'Login'}
+          </button>
+        </form>
       </div>
     </div>
   );
