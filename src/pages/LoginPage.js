@@ -91,7 +91,7 @@ function LoginPage() {
             </button>
           </div>
           <div className="golfplast-icon">
-            <img src="public/GolfPlast_logo copy.png" alt="Golfplast Logo" className="golfplast-icon-image" />
+            <img src="/GolfPlast_logo.png" alt="Golfplast Logo" className="golfplast-icon-image" />
           </div>
           <h2>{t('userLogin')}</h2>
           {errorMessage && <p className="error-message">{errorMessage}</p>}
