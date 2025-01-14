@@ -1,6 +1,7 @@
 import React from 'react';
 import Sidebar from '../components/Sidebar';
 import TopNavbar from '../components/TopNavbar';
+import { api } from '../config/api';
 import { useTranslation } from 'react-i18next';
 import '../styles/HelpCenter.css';
 

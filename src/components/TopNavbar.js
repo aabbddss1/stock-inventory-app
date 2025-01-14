@@ -70,7 +70,7 @@ function TopNavbar() {
       </div>
 
       <div className={`nav-links ${menuOpen ? 'open' : ''}`}>
-        <Link to="/help-center">{t('helpCenter')}</Link>
+        <Link to="api/help-center">{t('helpCenter')}</Link>
 
         {userRole === 'admin' ? (
           <Link to="/admin-users">{t('adminUsers')} ▼</Link>
