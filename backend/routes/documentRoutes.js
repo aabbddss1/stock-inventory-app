@@ -6,6 +6,7 @@ require('dotenv').config(); // Load environment variables
 const router = express.Router();
 const path = require('path');
 const fs = require('fs').promises;
+const sendEmail = require('../utils/emailUtils');
 
 // Constants
 const ALLOWED_CATEGORIES = ['Invoice', 'Contract', 'Report', 'Other'];
@@ -59,8 +60,8 @@ router.post(
         }
 
         try {
-            // Validate customer exists
-            const [customer] = await db.promise().query('SELECT id FROM customers WHERE id = ?', [customerId]);
+            // Validate customer exists and get their email
+            const [customer] = await db.promise().query('SELECT id, email FROM customers WHERE id = ?', [customerId]);
             if (!customer.length) {
                 return res.status(404).json({ error: 'Customer ID not found.' });
             }
@@ -86,8 +87,30 @@ router.post(
                 [customerId, name, category, fileUrl, uploadDate]
             );
 
+            // Send email notification to the customer
+            const emailHtml = `
+                <h2>New Document Uploaded</h2>
+                <p>A new document has been uploaded to your account:</p>
+                <ul>
+                    <li><strong>Document Name:</strong> ${name}</li>
+                    <li><strong>Category:</strong> ${category}</li>
+                    <li><strong>Upload Date:</strong> ${uploadDate.toLocaleString()}</li>
+                </ul>
+                <p>You can view this document in your customer portal.</p>
+            `;
+
+            await sendEmail({
+                to: customer[0].email,
+                subject: 'New Document Upload Notification',
+                html: emailHtml,
+                attachments: [{
+                    filename: req.file.originalname,
+                    path: filePath
+                }]
+            });
+
             res.status(201).json({
-                message: 'File uploaded successfully',
+                message: 'File uploaded successfully and notification email sent',
                 document: {
                     id: result.insertId,
                     customerId,
@@ -98,7 +121,7 @@ router.post(
                 },
             });
         } catch (err) {
-            handleError(res, err, 'Failed to upload document');
+            handleError(res, err, 'Failed to upload document or send notification');
         }
     }
 );
