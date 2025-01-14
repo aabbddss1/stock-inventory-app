@@ -3,7 +3,7 @@
 /* Page Layout */
 .help-center-page {
     display: flex;
-    height: 100vh;
+    min-height: 100vh;
   }
   
   .main-content {
@@ -16,38 +16,90 @@
   
   .help-center-container {
     padding: 20px;
+    width: 100%;
   }
   
   /* Page Title */
   .help-center-container h1 {
-    margin-bottom: 20px;
-    color: #2c3e50;
+    color: #333;
+    margin-bottom: 30px;
+    font-size: 2em;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 10px;
   }
   
   /* Section Styling */
+  .help-sections {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    padding: 20px 0;
+  }
+  
   .help-section {
-    margin-bottom: 30px;
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease-in-out;
+  }
+  
+  .help-section:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
   }
   
   .help-section h2 {
-    margin-bottom: 10px;
-    color: #3aafa9;
+    color: #2c3e50;
+    margin-bottom: 15px;
+    font-size: 1.5em;
   }
   
-  .help-section p {
-    font-size: 14px;
+  .section-description {
+    color: #666;
+    margin-bottom: 20px;
     line-height: 1.6;
-    color: #4a4a4a;
   }
   
-  .help-section ul {
-    padding-left: 20px;
+  .feature-list {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 6px;
   }
   
-  .help-section ul li {
+  .feature-list h3 {
+    color: #2c3e50;
     margin-bottom: 10px;
-    font-size: 14px;
-    color: #4a4a4a;
+    font-size: 1.1em;
+  }
+  
+  .feature-list ul {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .feature-list li {
+    color: #555;
+    padding: 8px 0;
+    padding-left: 20px;
+    position: relative;
+  }
+  
+  .feature-list li:before {
+    content: "•";
+    color: #3498db;
+    position: absolute;
+    left: 0;
+  }
+  
+  @media (max-width: 768px) {
+    .help-sections {
+      grid-template-columns: 1fr;
+    }
+    
+    .help-section {
+      margin-bottom: 20px;
+    }
   }
   
   /* FAQ Styling */
