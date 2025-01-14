@@ -19,6 +19,7 @@ const Documents = () => {
   const [isUploading, setIsUploading] = useState(false); // Uploading state
   const [page, setPage] = useState(1); // Current page
   const [totalPages, setTotalPages] = useState(1); // Total pages for pagination
+  const [sendingEmails, setSendingEmails] = useState({}); // Track email sending state for each document
 
   useEffect(() => {
     fetchDocuments();
@@ -128,11 +129,14 @@ const Documents = () => {
   // Send document via email
   const handleSendEmail = async (id) => {
     try {
+      setSendingEmails(prev => ({ ...prev, [id]: true }));
       await api.post(`/api/documents/resend-email/${id}`);
       alert(t('emailSent'));
     } catch (error) {
       console.error('Error sending document email:', error);
       alert(t('emailError'));
+    } finally {
+      setSendingEmails(prev => ({ ...prev, [id]: false }));
     }
   };
 
@@ -228,8 +232,17 @@ const Documents = () => {
                         <button
                           className="email-btn"
                           onClick={() => handleSendEmail(doc.id)}
+                          disabled={sendingEmails[doc.id]}
                         >
-                          <i className="fas fa-envelope"></i> {t('Send')}
+                          {sendingEmails[doc.id] ? (
+                            <>
+                              <i className="fa fa-spinner fa-spin"></i> {t('sending')}
+                            </>
+                          ) : (
+                            <>
+                              <i className="fas fa-envelope"></i> {t('sendEmail')}
+                            </>
+                          )}
                         </button>
                         <button
                           className="delete-btn"

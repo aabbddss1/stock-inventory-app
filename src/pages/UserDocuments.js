@@ -8,6 +8,7 @@ const UserDocuments = () => {
   const [documents, setDocuments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [sendingEmails, setSendingEmails] = useState({});
 
   const getCustomerId = () => {
     const token = localStorage.getItem('token');
@@ -71,11 +72,14 @@ const UserDocuments = () => {
   // Send document via email
   const handleSendEmail = async (id) => {
     try {
+      setSendingEmails(prev => ({ ...prev, [id]: true }));
       await api.post(`/api/documents/resend-email/${id}`);
       alert('Email sent successfully!');
     } catch (error) {
       console.error('Error sending document email:', error);
       alert('Failed to send email.');
+    } finally {
+      setSendingEmails(prev => ({ ...prev, [id]: false }));
     }
   };
 
@@ -124,8 +128,17 @@ const UserDocuments = () => {
                       <button
                         className="email-btn"
                         onClick={() => handleSendEmail(doc.id)}
+                        disabled={sendingEmails[doc.id]}
                       >
-                        <i className="fas fa-envelope"></i> Send
+                        {sendingEmails[doc.id] ? (
+                          <>
+                            <i className="fa fa-spinner fa-spin"></i> Sending...
+                          </>
+                        ) : (
+                          <>
+                            <i className="fas fa-envelope"></i> Send
+                          </>
+                        )}
                       </button>
                     </td>
                   </tr>
