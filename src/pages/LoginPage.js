@@ -102,7 +102,7 @@ function LoginPage() {
             </span>
             <input
               type="text"
-              placeholder={t('username')}
+              placeholder={t('e-mail')}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
