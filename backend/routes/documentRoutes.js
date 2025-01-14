@@ -89,19 +89,123 @@ router.post(
 
             // Send email notification to the customer
             const emailHtml = `
-                <h2>New Document Uploaded</h2>
-                <p>A new document has been uploaded to your account:</p>
-                <ul>
-                    <li><strong>Document Name:</strong> ${name}</li>
-                    <li><strong>Category:</strong> ${category}</li>
-                    <li><strong>Upload Date:</strong> ${uploadDate.toLocaleString()}</li>
-                </ul>
-                <p>You can view this document in your customer portal.</p>
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <style>
+                        body {
+                            font-family: Arial, sans-serif;
+                            line-height: 1.6;
+                            color: #333333;
+                            margin: 0;
+                            padding: 0;
+                        }
+                        .container {
+                            max-width: 600px;
+                            margin: 0 auto;
+                            padding: 20px;
+                            background-color: #ffffff;
+                        }
+                        .header {
+                            background-color: #2c3e50;
+                            color: #ffffff;
+                            padding: 20px;
+                            text-align: center;
+                            border-radius: 5px 5px 0 0;
+                        }
+                        .content {
+                            padding: 20px;
+                            background-color: #f8f9fa;
+                            border: 1px solid #e9ecef;
+                            border-radius: 0 0 5px 5px;
+                        }
+                        .document-details {
+                            background-color: #ffffff;
+                            padding: 15px;
+                            border-radius: 5px;
+                            margin: 15px 0;
+                            border: 1px solid #dee2e6;
+                        }
+                        .detail-item {
+                            margin: 10px 0;
+                            padding: 8px;
+                            border-bottom: 1px solid #eee;
+                        }
+                        .detail-label {
+                            font-weight: bold;
+                            color: #2c3e50;
+                            margin-right: 10px;
+                        }
+                        .footer {
+                            text-align: center;
+                            margin-top: 20px;
+                            padding-top: 20px;
+                            border-top: 1px solid #dee2e6;
+                            color: #6c757d;
+                            font-size: 0.9em;
+                        }
+                        .button {
+                            display: inline-block;
+                            padding: 10px 20px;
+                            background-color: #3498db;
+                            color: #ffffff;
+                            text-decoration: none;
+                            border-radius: 5px;
+                            margin-top: 15px;
+                        }
+                        .note {
+                            font-size: 0.9em;
+                            color: #666;
+                            margin-top: 15px;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="container">
+                        <div class="header">
+                            <h1>New Document Notification</h1>
+                        </div>
+                        <div class="content">
+                            <p>Hello,</p>
+                            <p>A new document has been uploaded to your account in the Stock Inventory Management System.</p>
+                            
+                            <div class="document-details">
+                                <div class="detail-item">
+                                    <span class="detail-label">Document Name:</span>
+                                    <span>${name}</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Category:</span>
+                                    <span>${category}</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Upload Date:</span>
+                                    <span>${uploadDate.toLocaleString()}</span>
+                                </div>
+                            </div>
+
+                            <p>The document has been attached to this email for your convenience.</p>
+                            <p>You can also access this document and manage all your documents through your customer portal:</p>
+                            
+                            <div style="text-align: center;">
+                                <a href="${process.env.FRONTEND_URL}/documents" class="button">View in Portal</a>
+                            </div>
+
+                            <p class="note">Note: If you did not expect this document or notice any suspicious activity, please contact our support team immediately.</p>
+                        </div>
+                        
+                        <div class="footer">
+                            <p>This is an automated message from the Stock Inventory Management System</p>
+                            <p>© ${new Date().getFullYear()} All rights reserved</p>
+                        </div>
+                    </div>
+                </body>
+                </html>
             `;
 
             await sendEmail({
                 to: customer[0].email,
-                subject: 'New Document Upload Notification',
+                subject: `New Document Upload: ${name}`,
                 html: emailHtml,
                 attachments: [{
                     filename: req.file.originalname,
