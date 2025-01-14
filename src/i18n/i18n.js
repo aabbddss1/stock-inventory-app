@@ -8,6 +8,7 @@ import { customersTranslation } from './customersTranslation';
 import { documentsTranslations } from './documentsTranslations';
 import { salesTranslations } from './salesTranslations';
 import { sidebarTranslations } from './sidebarTranslations';
+import { loginPageTranslations } from './loginPageTranslations';
 
 const mergedResources = {
   en: {
@@ -19,6 +20,7 @@ const mergedResources = {
       ...customersTranslation.en,
       ...documentsTranslations.en,
       ...salesTranslations.en,
+      ...loginPageTranslations.en,
     },
     sidebar: sidebarTranslations.en.sidebar
   },
@@ -31,6 +33,7 @@ const mergedResources = {
       ...customersTranslation.tr,
       ...documentsTranslations.tr,
       ...salesTranslations.tr,
+      ...loginPageTranslations.tr,
     },
     sidebar: sidebarTranslations.tr.sidebar
   }
