@@ -22,7 +22,8 @@ function ProtectedRoute({ children }) {
     '/inventory',
     '/receivables',
     '/payables',
-    '/admin-users'
+    '/admin-users',
+    '/help-center'
   ];
 
   // Check if current path matches any admin route

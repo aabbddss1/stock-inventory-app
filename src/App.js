@@ -20,6 +20,7 @@ import './styles/App.css';
 import SalesPage from './pages/SalesPage'; // Import the new Sales page
 import UserInventory from './pages/UserInventory'; // User portal
 import UserDocuments from './pages/UserDocuments';
+import HelpCenter from './pages/HelpCenter';
 
 
 
@@ -78,6 +79,7 @@ function App() {
           <Route path="/sales" element={<ProtectedRoute><SalesPage /></ProtectedRoute>} />
           <Route path="/user/inventory" element={<UserInventory />} />
           <Route path="/user/documents" element={<UserDocuments />} />
+          <Route path="/help-center" element={<ProtectedRoute><HelpCenter /></ProtectedRoute>} />
 
 
           {/* Optional Routes for Add Customer and Add Supplier */}
