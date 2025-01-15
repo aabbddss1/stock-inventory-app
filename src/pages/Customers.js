@@ -58,24 +58,43 @@ function Customers() {
     const token = localStorage.getItem('token');
 
     try {
-      const response = await axios.post(
-        'http://37.148.210.169:5001/api/customers',
-        {
-          ...customer,
-          role: 'user',
-        },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      setCustomers([...customers, response.data]);
+      let response;
+      if (editingCustomer) {
+        // Edit existing customer
+        response = await axios.put(
+          `http://37.148.210.169:5001/api/customers/${editingCustomer.id}`,
+          {
+            ...customer,
+            role: 'user',
+          },
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        setCustomers(prev => prev.map(c => c.id === editingCustomer.id ? response.data : c));
+      } else {
+        // Add new customer
+        response = await axios.post(
+          'http://37.148.210.169:5001/api/customers',
+          {
+            ...customer,
+            role: 'user',
+          },
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        setCustomers([...customers, response.data]);
+      }
       setShowModal(false);
     } catch (error) {
-      console.error('Error adding customer:', error);
+      console.error('Error saving customer:', error);
       if (error.response?.status === 401) {
         alert('Session expired. Please log in again.');
         localStorage.removeItem('token');
         window.location.href = '/';
+      } else {
+        alert(error.response?.data?.error || 'Failed to save customer');
       }
       throw error;
     }
