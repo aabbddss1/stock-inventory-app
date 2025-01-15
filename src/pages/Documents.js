@@ -195,7 +195,7 @@ const Documents = () => {
               onChange={handleChange}
               required
             >
-              <option value="">{t('selectCustomer')}</option>
+              <option value="">{t('Select Customer')}</option>
               {customers.map((customer) => (
                 <option key={customer.id} value={customer.id}>
                   {customer.name} ({customer.email})
