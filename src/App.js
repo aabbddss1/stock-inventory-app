@@ -20,7 +20,6 @@ import './styles/App.css';
 import SalesPage from './pages/SalesPage'; // Import the new Sales page
 import UserInventory from './pages/UserInventory'; // User portal
 import UserDocuments from './pages/UserDocuments';
-import HelpCenter from './pages/HelpCenter';
 
 
 
