@@ -61,7 +61,7 @@ function DashboardCards() {
     clientEmail: '',
     productName: '',
     quantity: '',
-    price: '',
+    price: ''
   });
 
   const [users, setUsers] = useState([]); // List of users
@@ -197,41 +197,32 @@ function DashboardCards() {
   // Handle creating a new quick order
   const handleCreateOrder = async (e) => {
     e.preventDefault();
-
-    if (!newOrder.clientEmail) {
-      alert('Please select a user.');
+    
+    // Add validation
+    if (!newOrder.clientEmail || !newOrder.productName || !newOrder.quantity || !newOrder.price) {
+      alert('Please fill in all fields');
       return;
     }
 
     setActionLoading(true);
     try {
-      // Check inventory availability first
-      const selectedProduct = inventory.find(item => item.name === newOrder.productName);
-      if (!selectedProduct || selectedProduct.quantity < parseInt(newOrder.quantity)) {
-        throw new Error('Insufficient inventory');
-      }
-
-      const newQuantity = selectedProduct.quantity - parseInt(newOrder.quantity);
-      console.log('Updating inventory with:', {
-        productId: selectedProduct.id,
-        currentQuantity: selectedProduct.quantity,
-        orderQuantity: parseInt(newOrder.quantity),
-        newQuantity: newQuantity
-      });
-
-      // Create order first
-      const orderData = {
-        clientEmail: userRole === 'admin' ? newOrder.clientEmail : userEmail,
+      // Log the data being sent
+      console.log('Sending order data:', {
+        clientEmail: newOrder.clientEmail,
         productName: newOrder.productName,
         quantity: parseInt(newOrder.quantity),
-        price: parseFloat(newOrder.price),
-        status: 'Pending'
-      };
+        price: parseFloat(newOrder.price)
+      });
 
-      // Create order
+      // Create order with properly formatted data
       const orderResponse = await axios.post(
         'http://37.148.210.169:5001/api/orders',
-        orderData,
+        {
+          clientEmail: newOrder.clientEmail,
+          productName: newOrder.productName,
+          quantity: parseInt(newOrder.quantity),
+          price: parseFloat(newOrder.price)
+        },
         {
           headers: { 
             'Authorization': `Bearer ${token}`,
@@ -240,49 +231,51 @@ function DashboardCards() {
         }
       );
 
-      // Update inventory with complete payload
-      const inventoryUpdateData = {
-        name: selectedProduct.name,
-        quantity: newQuantity,
-        price: selectedProduct.price,
-        description: selectedProduct.description || '',
-        category: selectedProduct.category || '',
-        supplier: selectedProduct.supplier || ''
-      };
+      console.log('Order response:', orderResponse.data);
 
-      // Update inventory
-      await axios.put(
-        `http://37.148.210.169:5001/api/inventory/${selectedProduct.id}`,
-        inventoryUpdateData,
-        {
-          headers: { 
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
+      // If order is successful, update inventory
+      const selectedProduct = inventory.find(item => item.name === newOrder.productName);
+      if (selectedProduct) {
+        const newQuantity = selectedProduct.quantity - parseInt(newOrder.quantity);
+        
+        // Update inventory
+        await axios.put(
+          `http://37.148.210.169:5001/api/inventory/${selectedProduct.id}`,
+          {
+            name: selectedProduct.name,
+            quantity: newQuantity,
+            price: selectedProduct.price,
+            description: selectedProduct.description || '',
+            category: selectedProduct.category || '',
+            supplier: selectedProduct.supplier || ''
+          },
+          {
+            headers: { 
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
           }
-        }
-      );
+        );
 
-      // Update local states
-      setInventory(prevInventory => 
-        prevInventory.map(item => 
-          item.id === selectedProduct.id 
-            ? { ...item, quantity: newQuantity }
-            : item
-        )
-      );
+        // Update local inventory state
+        setInventory(prevInventory => 
+          prevInventory.map(item => 
+            item.id === selectedProduct.id 
+              ? { ...item, quantity: newQuantity }
+              : item
+          )
+        );
+      }
 
-      alert('Quick order created successfully!');
+      alert('Order created successfully!');
       setNewOrder({ clientEmail: '', productName: '', quantity: '', price: '' });
       setIsQuickOrderModalOpen(false);
-      
-      // Refresh dashboard data
-      fetchData();
-      
+      fetchData(); // Refresh dashboard data
+
     } catch (error) {
       console.error('Error creating order:', error);
-      alert(error.message === 'Insufficient inventory' 
-        ? 'Insufficient inventory available' 
-        : 'Failed to create quick order.');
+      console.log('Error response:', error.response?.data); // Log the error response
+      alert(error.response?.data?.error || 'Failed to create order');
     } finally {
       setActionLoading(false);
     }
