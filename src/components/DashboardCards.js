@@ -92,6 +92,9 @@ function DashboardCards() {
   // Add new state for user
   const [user, setUser] = useState(null);
 
+  // Add this to your state declarations at the top of the component
+  const [dailyOrderCount, setDailyOrderCount] = useState(0);
+
   // Add this useEffect to get user data when component mounts
   useEffect(() => {
     const userData = JSON.parse(localStorage.getItem('user'));
@@ -133,7 +136,16 @@ function DashboardCards() {
         }));
 
       setNotifications(latestOrders);
-      const dailyOrderCount = calculateDailyOrderCount(ordersResponse.data);
+      
+      // Calculate and set daily order count
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const todayOrders = ordersResponse.data.filter(order => {
+        const orderDate = new Date(order.orderDate);
+        orderDate.setHours(0, 0, 0, 0);
+        return orderDate.getTime() === today.getTime();
+      }).length;
+      setDailyOrderCount(todayOrders);
 
       // Calculate analytics with new metrics
       try {
@@ -155,7 +167,7 @@ function DashboardCards() {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [t]);
 
   const handleRefresh = useCallback(async () => {
     setIsLoading(true);
