@@ -61,7 +61,7 @@ function DashboardCards() {
     clientEmail: '',
     productName: '',
     quantity: '',
-    price: ''
+    price: '',
   });
 
   const [users, setUsers] = useState([]); // List of users
@@ -95,11 +95,6 @@ function DashboardCards() {
   // Add this to your state declarations at the top of the component
   const [dailyOrderCount, setDailyOrderCount] = useState(0);
 
-  // Add these lines to get user data and token
-  const token = localStorage.getItem('token');
-  const userRole = user?.role;
-  const userEmail = user?.email;
-
   // Add this useEffect to get user data when component mounts
   useEffect(() => {
     const userData = JSON.parse(localStorage.getItem('user'));
@@ -110,35 +105,40 @@ function DashboardCards() {
     setIsLoading(true);
     setError(null);
     try {
-      // Get token from localStorage
-      const token = localStorage.getItem('token');
-      
-      // Make all API calls in parallel
-      const [ordersResponse, usersResponse, inventoryResponse] = await Promise.all([
-        axios.get('http://37.148.210.169:5001/api/orders', {
-          headers: { Authorization: `Bearer ${token}` }
-        }),
-        axios.get('http://37.148.210.169:5001/api/customers', {
-          headers: { Authorization: `Bearer ${token}` }
-        }),
-        axios.get('http://37.148.210.169:5001/api/inventory', {
-          headers: { Authorization: `Bearer ${token}` }
-        })
-      ]);
+      const [ordersResponse, notificationsResponse, usersResponse, inventoryResponse] = 
+        await Promise.all([
+          axios.get('http://37.148.210.169:5001/api/orders', {
+            headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+          }),
+          axios.get('http://37.148.210.169:5001/api/notifications', {
+            headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+          }),
+          axios.get('http://37.148.210.169:5001/api/customers', {
+            headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+          }),
+          axios.get('http://37.148.210.169:5001/api/inventory', {
+            headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+          })
+        ]);
 
-      // Log responses to debug
-      console.log('Orders Response:', ordersResponse.data);
-      console.log('Users Response:', usersResponse.data);
-      console.log('Inventory Response:', inventoryResponse.data);
-
-      // Set states
+      // Store the raw data
       setOrders(ordersResponse.data);
-      setUsers(usersResponse.data);
-      setInventory(inventoryResponse.data);
       setTotalOrders(ordersResponse.data.length);
       setPendingOrders(ordersResponse.data.filter(order => order.status === 'Pending').length);
 
-      // Calculate daily orders
+      // Get latest 5 orders for display in modal
+      const latestOrders = ordersResponse.data
+        .sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate))
+        .slice(0, 5)
+        .map(order => ({
+          message: `${t('New Order')}: ${order.productName} - ${order.clientName}`,
+          date: order.orderDate,
+          status: order.status
+        }));
+
+      setNotifications(latestOrders);
+      
+      // Calculate and set daily order count
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       const todayOrders = ordersResponse.data.filter(order => {
@@ -148,39 +148,30 @@ function DashboardCards() {
       }).length;
       setDailyOrderCount(todayOrders);
 
-      // Get latest orders for notifications
-      const latestOrders = ordersResponse.data
-        .sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate))
-        .slice(0, 5)
-        .map(order => ({
-          message: `${t('newOrder')}: ${order.productName} - ${order.clientName}`,
-          date: order.orderDate,
-          status: order.status
-        }));
+      // Calculate analytics with new metrics
+      try {
+        const analyticsData = {
+          dailySales: calculateDailySales(ordersResponse.data || []),
+          weeklySales: calculateWeeklySales(ordersResponse.data || []),
+          salesByStatus: calculateSalesByStatus(ordersResponse.data || []),
+          inventoryLevels: calculateInventoryLevels(inventoryResponse.data || [])
+        };
+        setAnalytics(analyticsData);
+      } catch (analyticsError) {
+        console.error('Error calculating analytics:', analyticsError);
+        setError('Error calculating analytics data');
+      }
 
-      setNotifications(latestOrders);
-      setLastRefresh(new Date());
-      setIsLoading(false);
+      // Make sure to set the users state
+      setUsers(usersResponse.data);
+
     } catch (error) {
-      console.error('Error fetching data:', error);
       setError('Failed to load dashboard data');
+      console.error('Error fetching dashboard data:', error);
+    } finally {
       setIsLoading(false);
     }
   }, [t]);
-
-  // Add this useEffect to call fetchData when component mounts
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
-
-  // Add this useEffect to debug data
-  useEffect(() => {
-    if (!isLoading) {
-      console.log('Current Inventory State:', inventory);
-      console.log('Current Orders State:', orders);
-      console.log('Current Users State:', users);
-    }
-  }, [inventory, orders, users, isLoading]);
 
   const handleRefresh = useCallback(async () => {
     setIsLoading(true);
@@ -194,88 +185,31 @@ function DashboardCards() {
     return () => clearInterval(refreshInterval);
   }, []);
 
+  // Initial data fetch
+  useEffect(() => {
+    fetchData();
+  }, []);
+
   // Handle creating a new quick order
   const handleCreateOrder = async (e) => {
     e.preventDefault();
-    
-    // Add validation
-    if (!newOrder.clientEmail || !newOrder.productName || !newOrder.quantity || !newOrder.price) {
-      alert('Please fill in all fields');
+
+    if (!newOrder.clientEmail) {
+      alert('Please select a user.');
       return;
     }
 
     setActionLoading(true);
     try {
-      // Log the data being sent
-      console.log('Sending order data:', {
-        clientEmail: newOrder.clientEmail,
-        productName: newOrder.productName,
-        quantity: parseInt(newOrder.quantity),
-        price: parseFloat(newOrder.price)
+      await axios.post('http://37.148.210.169:5001/api/orders', newOrder, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
-
-      // Create order with properly formatted data
-      const orderResponse = await axios.post(
-        'http://37.148.210.169:5001/api/orders',
-        {
-          clientEmail: newOrder.clientEmail,
-          productName: newOrder.productName,
-          quantity: parseInt(newOrder.quantity),
-          price: parseFloat(newOrder.price)
-        },
-        {
-          headers: { 
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        }
-      );
-
-      console.log('Order response:', orderResponse.data);
-
-      // If order is successful, update inventory
-      const selectedProduct = inventory.find(item => item.name === newOrder.productName);
-      if (selectedProduct) {
-        const newQuantity = selectedProduct.quantity - parseInt(newOrder.quantity);
-        
-        // Update inventory
-        await axios.put(
-          `http://37.148.210.169:5001/api/inventory/${selectedProduct.id}`,
-          {
-            name: selectedProduct.name,
-            quantity: newQuantity,
-            price: selectedProduct.price,
-            description: selectedProduct.description || '',
-            category: selectedProduct.category || '',
-            supplier: selectedProduct.supplier || ''
-          },
-          {
-            headers: { 
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json'
-            }
-          }
-        );
-
-        // Update local inventory state
-        setInventory(prevInventory => 
-          prevInventory.map(item => 
-            item.id === selectedProduct.id 
-              ? { ...item, quantity: newQuantity }
-              : item
-          )
-        );
-      }
-
-      alert('Order created successfully!');
+      alert('Quick order created successfully!');
       setNewOrder({ clientEmail: '', productName: '', quantity: '', price: '' });
       setIsQuickOrderModalOpen(false);
-      fetchData(); // Refresh dashboard data
-
     } catch (error) {
       console.error('Error creating order:', error);
-      console.log('Error response:', error.response?.data); // Log the error response
-      alert(error.response?.data?.error || 'Failed to create order');
+      alert('Failed to create quick order.');
     } finally {
       setActionLoading(false);
     }
@@ -776,18 +710,20 @@ function DashboardCards() {
               />
             </div>
             <button
-              type="submit"
-              className={`order-button ${actionLoading ? 'loading' : ''}`}
-              disabled={actionLoading}
-            >
-              {actionLoading ? (
-                <i className="fa fa-spinner fa-spin"></i>
-              ) : (
-                <>
-                  <i className="fa fa-plus"></i> {t('createOrder')}
-                </>
-              )}
-            </button>
+  type="submit"
+  className={`order-button ${actionLoading ? 'loading' : ''}`}
+  disabled={actionLoading}
+>
+  {actionLoading ? (
+    <i className="fa fa-spinner fa-spin"></i> // Dönen yuvarlak
+  ) : (
+    <>
+      <i className="fa fa-plus"></i> {t('createOrder')}
+    </>
+  )}
+</button>
+
+
           </form>
         </Modal>
 
