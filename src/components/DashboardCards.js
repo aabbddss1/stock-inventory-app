@@ -366,7 +366,7 @@ function DashboardCards() {
       title: t('notifications'),
       icon: faBell,
       description: `${dailyOrderCount} ${t('Orders Today')}`,
-      badge: totalOrders > 0 ? totalOrders : null,
+      badge: dailyOrderCount > 0 ? dailyOrderCount : null,
       onClick: () => setIsNotificationsModalOpen(true),
     },
     {
