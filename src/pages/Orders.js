@@ -134,6 +134,17 @@ const Orders = () => {
         }
       );
 
+      // Create notification for the new order
+      const notificationData = {
+        message: `New order created for ${orderData.productName} (Quantity: ${orderData.quantity})`,
+        type: 'order',
+        date: new Date().toISOString()
+      };
+
+      await axios.post('http://37.148.210.169:5001/api/notifications', notificationData, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
       // Update inventory with complete payload
       const inventoryUpdateData = {
         name: selectedProduct.name,

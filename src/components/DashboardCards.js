@@ -176,9 +176,28 @@ function DashboardCards() {
 
     setActionLoading(true);
     try {
-      await axios.post('http://37.148.210.169:5001/api/orders', newOrder, {
+      // Create the order
+      const orderResponse = await axios.post('http://37.148.210.169:5001/api/orders', newOrder, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
+
+      // Create notification for the new order
+      const notificationData = {
+        message: `New order created for ${newOrder.productName} (Quantity: ${newOrder.quantity})`,
+        type: 'order',
+        date: new Date().toISOString()
+      };
+
+      await axios.post('http://37.148.210.169:5001/api/notifications', notificationData, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+      });
+
+      // Refresh notifications
+      const notificationsResponse = await axios.get('http://37.148.210.169:5001/api/notifications', {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+      });
+      setNotifications(notificationsResponse.data);
+
       alert('Quick order created successfully!');
       setNewOrder({ clientEmail: '', productName: '', quantity: '', price: '' });
       setIsQuickOrderModalOpen(false);
