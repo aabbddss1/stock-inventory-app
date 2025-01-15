@@ -163,32 +163,44 @@
 
 .notification-item {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   padding: 12px;
   border-bottom: 1px solid #eee;
   position: relative;
 }
 
-.notification-dot {
+.notification-status {
   width: 8px;
   height: 8px;
-  background-color: #3aafa9;
   border-radius: 50%;
   margin-right: 12px;
-  margin-top: 6px;
-  flex-shrink: 0;
 }
 
-.notification-item p {
+.notification-status.pending { background-color: #ffd700; }
+.notification-status.approved { background-color: #4CAF50; }
+.notification-status.completed { background-color: #2196F3; }
+.notification-status.onprocess { background-color: #FF9800; }
+
+.notification-content {
+  flex: 1;
+}
+
+.notification-content p {
   margin: 0;
-  flex-grow: 1;
-  color: #333;
+  font-size: 14px;
 }
 
-.notification-item small {
+.notification-content small {
   color: #666;
-  font-size: 0.8em;
-  margin-left: 8px;
+  font-size: 12px;
+}
+
+.notification-badge {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  background-color: #f0f0f0;
+  color: #666;
 }
 
 .no-notifications {
