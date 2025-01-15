@@ -92,6 +92,9 @@ function DashboardCards() {
   // Add new state for user
   const [user, setUser] = useState(null);
 
+  // Add new state for daily orders
+  const [dailyOrderCount, setDailyOrderCount] = useState(0);
+
   // Add this useEffect to get user data when component mounts
   useEffect(() => {
     const userData = JSON.parse(localStorage.getItem('user'));
@@ -119,19 +122,39 @@ function DashboardCards() {
         ]);
 
       // Store the raw data
-      setOrders(ordersResponse.data);
-      setTotalOrders(ordersResponse.data.length);
-      setPendingOrders(ordersResponse.data.filter(order => order.status === 'Pending').length);
-      setNotifications(notificationsResponse.data);
+      const ordersData = ordersResponse.data;
+      setOrders(ordersData);
+      setTotalOrders(ordersData.length);
+      setPendingOrders(ordersData.filter(order => order.status === 'Pending').length);
+
+      // Calculate daily orders
+      const today = new Date().toISOString().split('T')[0];
+      const dailyOrders = ordersData.filter(order => {
+        const orderDate = new Date(order.createdAt).toISOString().split('T')[0];
+        return orderDate === today;
+      });
+      setDailyOrderCount(dailyOrders.length);
+
+      // Create notifications from latest orders
+      const latestOrders = ordersData
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+        .slice(0, 5)
+        .map(order => ({
+          message: `New order #${order.id} from ${order.clientName} for ${order.productName}`,
+          date: order.createdAt,
+          type: 'order'
+        }));
+
+      setNotifications(latestOrders);
       setUsers(usersResponse.data);
       setInventory(inventoryResponse.data);
 
       // Calculate analytics with new metrics
       try {
         const analyticsData = {
-          dailySales: calculateDailySales(ordersResponse.data || []),
-          weeklySales: calculateWeeklySales(ordersResponse.data || []),
-          salesByStatus: calculateSalesByStatus(ordersResponse.data || []),
+          dailySales: calculateDailySales(ordersData || []),
+          weeklySales: calculateWeeklySales(ordersData || []),
+          salesByStatus: calculateSalesByStatus(ordersData || []),
           inventoryLevels: calculateInventoryLevels(inventoryResponse.data || [])
         };
         setAnalytics(analyticsData);
@@ -327,11 +350,17 @@ function DashboardCards() {
       },
     },
     {
-      title: t('notifications'),
+      title: `${t('notifications')} (${dailyOrderCount} ${t('todayOrders')})`,
       icon: faBell,
       description: t('notificationsDesc'),
       badge: notifications.length > 0 ? notifications.length : null,
       onClick: () => setIsNotificationsModalOpen(true),
+      quickStats: [
+        {
+          label: t('todayOrders'),
+          value: dailyOrderCount
+        }
+      ]
     },
     {
       title: t('quickOrder'),
@@ -707,14 +736,14 @@ function DashboardCards() {
 
       {/* Notifications Modal */}
       <Modal isOpen={isNotificationsModalOpen} onClose={() => setIsNotificationsModalOpen(false)}>
-        <h2>Notifications</h2>
+        <h2>{t('notifications')} ({dailyOrderCount} {t('todayOrders')})</h2>
         <div className="notifications-list">
           {notifications.length > 0 ? (
             notifications.map((notification, index) => (
               <div key={index} className="notification-item">
-                <span className="notification-dot"></span>
+                <span className={`notification-dot ${notification.type}`}></span>
                 <p>{notification.message}</p>
-                <small>{new Date(notification.date).toLocaleDateString()}</small>
+                <small>{new Date(notification.date).toLocaleString()}</small>
               </div>
             ))
           ) : (
