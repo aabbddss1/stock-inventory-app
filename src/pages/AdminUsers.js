@@ -34,7 +34,8 @@ const AdminUsers = () => {
           username: customer.name,
           email: customer.email,
           role: customer.role,
-          status: 'Active'
+          status: 'Active',
+          phone: customer.phone || ''
         }));
       
       setUsers(transformedUsers);
@@ -57,14 +58,11 @@ const AdminUsers = () => {
         const updateData = {
           name: formData.username,
           email: formData.email,
-          role: 'admin',
+          password: formData.password || undefined,
           phone: selectedUser.phone || '',
-          status: formData.status
+          role: 'admin',
+          status: formData.status || 'Active'
         };
-        
-        if (formData.password && formData.password.trim() !== '') {
-          updateData.password = formData.password;
-        }
 
         console.log('Update payload:', updateData);
 
@@ -81,7 +79,7 @@ const AdminUsers = () => {
           password: formData.password,
           phone: '',
           role: 'admin',
-          status: formData.status
+          status: 'Active'
         };
         
         await axios.post('http://37.148.210.169:5001/api/customers', userData, {
@@ -102,7 +100,7 @@ const AdminUsers = () => {
     } catch (error) {
       console.error('Error saving user:', error);
       console.error('Error details:', error.response?.data);
-      alert(error.response?.data?.message || error.response?.data?.error || 'Error saving user');
+      alert(error.response?.data?.error || 'Error saving user');
     }
   };
 
@@ -111,8 +109,8 @@ const AdminUsers = () => {
     setFormData({
       username: user.username,
       email: user.email,
-      role: user.role,
-      status: user.status,
+      role: user.role || 'admin',
+      status: user.status || 'Active',
       password: ''
     });
   };
