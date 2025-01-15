@@ -58,15 +58,21 @@ const AdminUsers = () => {
           name: formData.username,
           email: formData.email,
           role: 'admin',
+          phone: selectedUser.phone || '',
+          status: formData.status
         };
         
-        if (formData.password) {
+        if (formData.password && formData.password.trim() !== '') {
           updateData.password = formData.password;
         }
 
-        await axios.put(`http://37.148.210.169:5001/api/customers/${selectedUser.id}`, updateData, {
+        console.log('Update payload:', updateData);
+
+        const response = await axios.put(`http://37.148.210.169:5001/api/customers/${selectedUser.id}`, updateData, {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
         });
+        
+        console.log('Update response:', response.data);
         alert('User updated successfully');
       } else {
         const userData = {
@@ -75,6 +81,7 @@ const AdminUsers = () => {
           password: formData.password,
           phone: '',
           role: 'admin',
+          status: formData.status
         };
         
         await axios.post('http://37.148.210.169:5001/api/customers', userData, {
@@ -94,7 +101,8 @@ const AdminUsers = () => {
       fetchUsers();
     } catch (error) {
       console.error('Error saving user:', error);
-      alert(error.response?.data?.message || 'Error saving user');
+      console.error('Error details:', error.response?.data);
+      alert(error.response?.data?.message || error.response?.data?.error || 'Error saving user');
     }
   };
 
