@@ -161,6 +161,9 @@ function DashboardCards() {
         setError('Error calculating analytics data');
       }
 
+      // Make sure to set the users state
+      setUsers(usersResponse.data);
+
     } catch (error) {
       setError('Failed to load dashboard data');
       console.error('Error fetching dashboard data:', error);
