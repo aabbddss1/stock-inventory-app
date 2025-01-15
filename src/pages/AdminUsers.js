@@ -34,8 +34,7 @@ const AdminUsers = () => {
           username: customer.name,
           email: customer.email,
           role: customer.role,
-          status: 'Active',
-          phone: customer.phone || ''
+          status: 'Active'
         }));
       
       setUsers(transformedUsers);
@@ -55,22 +54,15 @@ const AdminUsers = () => {
 
     try {
       if (selectedUser) {
-        const updateData = {
+        await axios.put(`http://37.148.210.169:5001/api/customers/${selectedUser.id}`, {
           name: formData.username,
           email: formData.email,
-          password: formData.password || undefined,
-          phone: selectedUser.phone || '',
+          password: formData.password,
+          phone: '',
           role: 'admin',
-          status: formData.status || 'Active'
-        };
-
-        console.log('Update payload:', updateData);
-
-        const response = await axios.put(`http://37.148.210.169:5001/api/customers/${selectedUser.id}`, updateData, {
+        }, {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
         });
-        
-        console.log('Update response:', response.data);
         alert('User updated successfully');
       } else {
         const userData = {
@@ -79,7 +71,6 @@ const AdminUsers = () => {
           password: formData.password,
           phone: '',
           role: 'admin',
-          status: 'Active'
         };
         
         await axios.post('http://37.148.210.169:5001/api/customers', userData, {
@@ -99,7 +90,6 @@ const AdminUsers = () => {
       fetchUsers();
     } catch (error) {
       console.error('Error saving user:', error);
-      console.error('Error details:', error.response?.data);
       alert(error.response?.data?.error || 'Error saving user');
     }
   };
@@ -109,9 +99,8 @@ const AdminUsers = () => {
     setFormData({
       username: user.username,
       email: user.email,
-      role: user.role || 'admin',
-      status: user.status || 'Active',
-      password: ''
+      role: user.role,
+      status: user.status,
     });
   };
 
@@ -207,12 +196,12 @@ const AdminUsers = () => {
                       <td>{user.role}</td>
                       <td>{user.status}</td>
                       <td>
-                      <div className="button-container">
-  <button onClick={() => handleEdit(user)} className="admin-users-edit-btn">
-    <i className="fa fa-edit"></i> Edit
+                      <div class="button-container">
+  <button onClick={() => handleEdit(user)} class="admin-users-edit-btn">
+    <i class="fa fa-edit"></i> Edit
   </button>
-  <button onClick={() => handleDelete(user.id)} className="admin-users-delete-btn">
-    <i className="fa fa-trash"></i> Delete
+  <button onClick={() => handleDelete(user.id)} class="admin-users-delete-btn">
+    <i class="fa fa-trash"></i> Delete
   </button>
 </div>
                       </td>
