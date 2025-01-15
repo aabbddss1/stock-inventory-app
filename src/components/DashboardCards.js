@@ -362,7 +362,7 @@ function DashboardCards() {
       title: t('notifications'),
       icon: faBell,
       description: `${dailyOrderCount} ${t('ordersToday')}`,
-      badge: latestOrders.length > 0 ? latestOrders.length : null,
+      badge: notifications.length > 0 ? notifications.length : null,
       onClick: () => setIsNotificationsModalOpen(true),
     },
     {
