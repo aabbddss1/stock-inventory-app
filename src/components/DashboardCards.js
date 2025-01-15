@@ -126,6 +126,7 @@ function DashboardCards() {
       setTotalOrders(ordersResponse.data.length);
       setPendingOrders(ordersResponse.data.filter(order => order.status === 'Pending').length);
 
+      // Get latest 5 orders for display in modal
       const latestOrders = ordersResponse.data
         .sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate))
         .slice(0, 5)
@@ -364,8 +365,8 @@ function DashboardCards() {
     {
       title: t('notifications'),
       icon: faBell,
-      description: `${dailyOrderCount} ${t('ordersToday')}`,
-      badge: notifications.length > 0 ? notifications.length : null,
+      description: `${dailyOrderCount} ${t('Orders Today')}`,
+      badge: totalOrders > 0 ? totalOrders : null,
       onClick: () => setIsNotificationsModalOpen(true),
     },
     {
