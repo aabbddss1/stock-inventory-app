@@ -79,7 +79,6 @@ function App() {
           <Route path="/sales" element={<ProtectedRoute><SalesPage /></ProtectedRoute>} />
           <Route path="/user/inventory" element={<UserInventory />} />
           <Route path="/user/documents" element={<UserDocuments />} />
-          <Route path="/help-center" element={<ProtectedRoute><HelpCenter /></ProtectedRoute>} />
 
 
           {/* Optional Routes for Add Customer and Add Supplier */}
