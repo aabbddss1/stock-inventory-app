@@ -110,40 +110,35 @@ function DashboardCards() {
     setIsLoading(true);
     setError(null);
     try {
-      const [ordersResponse, notificationsResponse, usersResponse, inventoryResponse] = 
-        await Promise.all([
-          axios.get('http://37.148.210.169:5001/api/orders', {
-            headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-          }),
-          axios.get('http://37.148.210.169:5001/api/notifications', {
-            headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-          }),
-          axios.get('http://37.148.210.169:5001/api/customers', {
-            headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-          }),
-          axios.get('http://37.148.210.169:5001/api/inventory', {
-            headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-          })
-        ]);
+      // Get token from localStorage
+      const token = localStorage.getItem('token');
+      
+      // Make all API calls in parallel
+      const [ordersResponse, usersResponse, inventoryResponse] = await Promise.all([
+        axios.get('http://37.148.210.169:5001/api/orders', {
+          headers: { Authorization: `Bearer ${token}` }
+        }),
+        axios.get('http://37.148.210.169:5001/api/customers', {
+          headers: { Authorization: `Bearer ${token}` }
+        }),
+        axios.get('http://37.148.210.169:5001/api/inventory', {
+          headers: { Authorization: `Bearer ${token}` }
+        })
+      ]);
 
-      // Store the raw data
+      // Log responses to debug
+      console.log('Orders Response:', ordersResponse.data);
+      console.log('Users Response:', usersResponse.data);
+      console.log('Inventory Response:', inventoryResponse.data);
+
+      // Set states
       setOrders(ordersResponse.data);
+      setUsers(usersResponse.data);
+      setInventory(inventoryResponse.data);
       setTotalOrders(ordersResponse.data.length);
       setPendingOrders(ordersResponse.data.filter(order => order.status === 'Pending').length);
 
-      // Get latest 5 orders for display in modal
-      const latestOrders = ordersResponse.data
-        .sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate))
-        .slice(0, 5)
-        .map(order => ({
-          message: `${t('New Order')}: ${order.productName} - ${order.clientName}`,
-          date: order.orderDate,
-          status: order.status
-        }));
-
-      setNotifications(latestOrders);
-      
-      // Calculate and set daily order count
+      // Calculate daily orders
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       const todayOrders = ordersResponse.data.filter(order => {
@@ -153,30 +148,39 @@ function DashboardCards() {
       }).length;
       setDailyOrderCount(todayOrders);
 
-      // Calculate analytics with new metrics
-      try {
-        const analyticsData = {
-          dailySales: calculateDailySales(ordersResponse.data || []),
-          weeklySales: calculateWeeklySales(ordersResponse.data || []),
-          salesByStatus: calculateSalesByStatus(ordersResponse.data || []),
-          inventoryLevels: calculateInventoryLevels(inventoryResponse.data || [])
-        };
-        setAnalytics(analyticsData);
-      } catch (analyticsError) {
-        console.error('Error calculating analytics:', analyticsError);
-        setError('Error calculating analytics data');
-      }
+      // Get latest orders for notifications
+      const latestOrders = ordersResponse.data
+        .sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate))
+        .slice(0, 5)
+        .map(order => ({
+          message: `${t('newOrder')}: ${order.productName} - ${order.clientName}`,
+          date: order.orderDate,
+          status: order.status
+        }));
 
-      // Make sure to set the users state
-      setUsers(usersResponse.data);
-
+      setNotifications(latestOrders);
+      setLastRefresh(new Date());
+      setIsLoading(false);
     } catch (error) {
+      console.error('Error fetching data:', error);
       setError('Failed to load dashboard data');
-      console.error('Error fetching dashboard data:', error);
-    } finally {
       setIsLoading(false);
     }
   }, [t]);
+
+  // Add this useEffect to call fetchData when component mounts
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  // Add this useEffect to debug data
+  useEffect(() => {
+    if (!isLoading) {
+      console.log('Current Inventory State:', inventory);
+      console.log('Current Orders State:', orders);
+      console.log('Current Users State:', users);
+    }
+  }, [inventory, orders, users, isLoading]);
 
   const handleRefresh = useCallback(async () => {
     setIsLoading(true);
@@ -188,11 +192,6 @@ function DashboardCards() {
   useEffect(() => {
     const refreshInterval = setInterval(handleRefresh, 300000);
     return () => clearInterval(refreshInterval);
-  }, []);
-
-  // Initial data fetch
-  useEffect(() => {
-    fetchData();
   }, []);
 
   // Handle creating a new quick order
