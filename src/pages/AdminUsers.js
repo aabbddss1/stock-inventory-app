@@ -54,13 +54,17 @@ const AdminUsers = () => {
 
     try {
       if (selectedUser) {
-        await axios.put(`http://37.148.210.169:5001/api/customers/${selectedUser.id}`, {
+        const updateData = {
           name: formData.username,
           email: formData.email,
-          password: formData.password,
-          phone: '',
           role: 'admin',
-        }, {
+        };
+        
+        if (formData.password) {
+          updateData.password = formData.password;
+        }
+
+        await axios.put(`http://37.148.210.169:5001/api/customers/${selectedUser.id}`, updateData, {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
         });
         alert('User updated successfully');
@@ -90,7 +94,7 @@ const AdminUsers = () => {
       fetchUsers();
     } catch (error) {
       console.error('Error saving user:', error);
-      alert(error.response?.data?.error || 'Error saving user');
+      alert(error.response?.data?.message || 'Error saving user');
     }
   };
 
@@ -101,6 +105,7 @@ const AdminUsers = () => {
       email: user.email,
       role: user.role,
       status: user.status,
+      password: ''
     });
   };
 
@@ -196,12 +201,12 @@ const AdminUsers = () => {
                       <td>{user.role}</td>
                       <td>{user.status}</td>
                       <td>
-                      <div class="button-container">
-  <button onClick={() => handleEdit(user)} class="admin-users-edit-btn">
-    <i class="fa fa-edit"></i> Edit
+                      <div className="button-container">
+  <button onClick={() => handleEdit(user)} className="admin-users-edit-btn">
+    <i className="fa fa-edit"></i> Edit
   </button>
-  <button onClick={() => handleDelete(user.id)} class="admin-users-delete-btn">
-    <i class="fa fa-trash"></i> Delete
+  <button onClick={() => handleDelete(user.id)} className="admin-users-delete-btn">
+    <i className="fa fa-trash"></i> Delete
   </button>
 </div>
                       </td>
