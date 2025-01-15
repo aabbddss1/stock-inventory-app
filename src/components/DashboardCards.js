@@ -784,20 +784,18 @@ function DashboardCards() {
               />
             </div>
             <button
-  type="submit"
-  className={`order-button ${actionLoading ? 'loading' : ''}`}
-  disabled={actionLoading}
->
-  {actionLoading ? (
-    <i className="fa fa-spinner fa-spin"></i> // Dönen yuvarlak
-  ) : (
-    <>
-      <i className="fa fa-plus"></i> {t('createOrder')}
-    </>
-  )}
-</button>
-
-
+              type="submit"
+              className={`order-button ${actionLoading ? 'loading' : ''}`}
+              disabled={actionLoading}
+            >
+              {actionLoading ? (
+                <i className="fa fa-spinner fa-spin"></i>
+              ) : (
+                <>
+                  <i className="fa fa-plus"></i> {t('createOrder')}
+                </>
+              )}
+            </button>
           </form>
         </Modal>
 
