@@ -95,6 +95,11 @@ function DashboardCards() {
   // Add this to your state declarations at the top of the component
   const [dailyOrderCount, setDailyOrderCount] = useState(0);
 
+  // Add these lines to get user data and token
+  const token = localStorage.getItem('token');
+  const userRole = user?.role;
+  const userEmail = user?.email;
+
   // Add this useEffect to get user data when component mounts
   useEffect(() => {
     const userData = JSON.parse(localStorage.getItem('user'));
