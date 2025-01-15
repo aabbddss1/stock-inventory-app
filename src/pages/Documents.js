@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next';
 const Documents = () => {
   const { t } = useTranslation();
   const [documents, setDocuments] = useState([]); // Document list
+  const [customers, setCustomers] = useState([]); // Customer list
   const [formData, setFormData] = useState({
     name: '',
     category: '',
@@ -23,7 +24,19 @@ const Documents = () => {
 
   useEffect(() => {
     fetchDocuments();
+    fetchCustomers(); // Fetch customers when component mounts
   }, [page]);
+
+  // Fetch customers from backend
+  const fetchCustomers = async () => {
+    try {
+      const response = await api.get('/api/customers');
+      setCustomers(response.data || []);
+    } catch (error) {
+      console.error('Error fetching customers:', error);
+      alert('Failed to fetch customers.');
+    }
+  };
 
   // Fetch documents from backend
   const fetchDocuments = async () => {
@@ -160,14 +173,19 @@ const Documents = () => {
 
           {/* Upload Form */}
           <form className="documents-form" onSubmit={handleUpload}>
-            <input
-              type="text"
+            <select
               name="customerId"
-              placeholder={t('customerId')}
               value={formData.customerId}
               onChange={handleChange}
               required
-            />
+            >
+              <option value="">{t('selectCustomer')}</option>
+              {customers.map((customer) => (
+                <option key={customer.id} value={customer.id}>
+                  {customer.name} ({customer.email})
+                </option>
+              ))}
+            </select>
             <input
               type="text"
               name="name"
