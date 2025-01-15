@@ -130,7 +130,7 @@ function DashboardCards() {
         .sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate))
         .slice(0, 5)
         .map(order => ({
-          message: `${t('newOrder')}: ${order.productName} - ${order.clientName}`,
+          message: `${t('New Order')}: ${order.productName} - ${order.clientName}`,
           date: order.orderDate,
           status: order.status
         }));
