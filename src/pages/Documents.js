@@ -22,19 +22,35 @@ const Documents = () => {
   const [totalPages, setTotalPages] = useState(1); // Total pages for pagination
   const [sendingEmails, setSendingEmails] = useState({}); // Track email sending state for each document
 
+  // Get token from localStorage
+  const token = localStorage.getItem('token');
+
   useEffect(() => {
+    if (!token) {
+      console.error('No token found. Redirecting to login.');
+      window.location.href = '/';
+      return;
+    }
     fetchDocuments();
-    fetchCustomers(); // Fetch customers when component mounts
-  }, [page]);
+    fetchCustomers();
+  }, [page, token]);
 
   // Fetch customers from backend
   const fetchCustomers = async () => {
     try {
-      const response = await api.get('/api/customers');
+      const response = await api.get('/api/customers', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       setCustomers(response.data || []);
     } catch (error) {
       console.error('Error fetching customers:', error);
-      alert('Failed to fetch customers.');
+      if (error.response?.status === 401) {
+        alert('Session expired. Please log in again.');
+        localStorage.removeItem('token');
+        window.location.href = '/';
+      } else {
+        alert('Failed to fetch customers.');
+      }
     }
   };
 
