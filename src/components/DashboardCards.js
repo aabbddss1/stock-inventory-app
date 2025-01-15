@@ -122,9 +122,18 @@ function DashboardCards() {
       setOrders(ordersResponse.data);
       setTotalOrders(ordersResponse.data.length);
       setPendingOrders(ordersResponse.data.filter(order => order.status === 'Pending').length);
-      setNotifications(notificationsResponse.data);
-      setUsers(usersResponse.data);
-      setInventory(inventoryResponse.data);
+
+      const latestOrders = ordersResponse.data
+        .sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate))
+        .slice(0, 5)
+        .map(order => ({
+          message: `${t('newOrder')}: ${order.productName} - ${order.clientName}`,
+          date: order.orderDate,
+          status: order.status
+        }));
+
+      setNotifications(latestOrders);
+      const dailyOrderCount = calculateDailyOrderCount(ordersResponse.data);
 
       // Calculate analytics with new metrics
       try {
@@ -308,6 +317,17 @@ function DashboardCards() {
     }
   };
 
+  const calculateDailyOrderCount = (orders) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    return orders.filter(order => {
+      const orderDate = new Date(order.orderDate);
+      orderDate.setHours(0, 0, 0, 0);
+      return orderDate.getTime() === today.getTime();
+    }).length;
+  };
+
   const cardsData = [
     {
       title: `${totalOrders} ${t('orders')}`,
@@ -329,8 +349,8 @@ function DashboardCards() {
     {
       title: t('notifications'),
       icon: faBell,
-      description: t('notificationsDesc'),
-      badge: notifications.length > 0 ? notifications.length : null,
+      description: `${dailyOrderCount} ${t('ordersToday')}`,
+      badge: latestOrders.length > 0 ? latestOrders.length : null,
       onClick: () => setIsNotificationsModalOpen(true),
     },
     {
@@ -707,14 +727,17 @@ function DashboardCards() {
 
       {/* Notifications Modal */}
       <Modal isOpen={isNotificationsModalOpen} onClose={() => setIsNotificationsModalOpen(false)}>
-        <h2>Notifications</h2>
+        <h2>{t('notifications')}</h2>
         <div className="notifications-list">
           {notifications.length > 0 ? (
             notifications.map((notification, index) => (
               <div key={index} className="notification-item">
-                <span className="notification-dot"></span>
-                <p>{notification.message}</p>
-                <small>{new Date(notification.date).toLocaleDateString()}</small>
+                <span className={`notification-status ${notification.status.toLowerCase()}`}></span>
+                <div className="notification-content">
+                  <p>{notification.message}</p>
+                  <small>{new Date(notification.date).toLocaleString()}</small>
+                </div>
+                <span className="notification-badge">{notification.status}</span>
               </div>
             ))
           ) : (
