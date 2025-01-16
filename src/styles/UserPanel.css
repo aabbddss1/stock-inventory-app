@@ -219,32 +219,121 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
   
+  .quick-order-section {
+    flex: 1;
+    background: linear-gradient(145deg, #ffffff, #f5f7fa);
+    padding: 1.8rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .quick-order-section:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+  }
+  
+  .quick-order-section h2 {
+    color: #2c3e50;
+    font-size: 1.5rem;
+    margin-bottom: 1.2rem;
+    position: relative;
+    padding-bottom: 0.8rem;
+  }
+  
+  .quick-order-section h2::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 50px;
+    height: 3px;
+    background: #4CAF50;
+    border-radius: 2px;
+  }
+  
   .quick-order-form {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
-    margin-top: 1rem;
+    gap: 1.2rem;
+    margin-top: 1.5rem;
   }
   
   .quick-order-select,
   .quick-order-input {
-    padding: 0.75rem;
-    border: 1px solid #ddd;
-    border-radius: 4px;
+    padding: 1rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
     font-size: 1rem;
+    background: #ffffff;
+    transition: all 0.3s ease;
+    color: #2c3e50;
+  }
+  
+  .quick-order-select:hover,
+  .quick-order-input:hover {
+    border-color: #4CAF50;
+  }
+  
+  .quick-order-select:focus,
+  .quick-order-input:focus {
+    outline: none;
+    border-color: #4CAF50;
+    box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
+  }
+  
+  .quick-order-select {
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%234CAF50' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 1.2em;
+    padding-right: 2.5rem;
+  }
+  
+  .quick-order-input::-webkit-inner-spin-button,
+  .quick-order-input::-webkit-outer-spin-button {
+    opacity: 1;
+    height: 2em;
+    margin-right: 0.5em;
   }
   
   .quick-order-button {
-    background: #4CAF50;
+    background: linear-gradient(145deg, #4CAF50, #45a049);
     color: white;
     border: none;
-    padding: 0.75rem;
-    border-radius: 4px;
+    padding: 1rem;
+    border-radius: 8px;
     cursor: pointer;
-    font-size: 1rem;
-    transition: background-color 0.2s;
+    font-size: 1.1rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+    margin-top: 0.5rem;
+    position: relative;
+    overflow: hidden;
   }
   
   .quick-order-button:hover {
-    background: #45a049;
+    background: linear-gradient(145deg, #45a049, #3d8b40);
+    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+    transform: translateY(-1px);
+  }
+  
+  .quick-order-button:active {
+    transform: translateY(1px);
+  }
+  
+  @media (max-width: 768px) {
+    .user-info-section {
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .quick-order-section,
+    .user-details-section {
+      width: 100%;
+    }
   }
