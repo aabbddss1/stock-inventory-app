@@ -384,7 +384,7 @@ const UserPanel = () => {
                 disabled={!selectedProduct || !orderQuantity || isLoading}
               >
                 {isLoading ? (
-                  <div className="loader"></div>
+                  <div className="loader">Loading...</div>
                 ) : 'Place Order'}
               </button>
             </form>
