@@ -87,10 +87,10 @@ margin-right: 0; /* Son butonun sağında boşluk olmaması için */
 
 .create-order-form {
 background: none; /* No card style */
-padding: 20px;
+padding: 30px;
 margin: 10px 0;
-border: 1px solid #ddd; /* Subtle border */
-border-radius: 5px; /* Slight rounding */
+background-color: white;
+border-radius: 20px; /* Slight rounding */
 }
 
 .create-order-form h2 {
