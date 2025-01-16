@@ -360,11 +360,15 @@ const UserPanel = () => {
                 required
               >
                 <option value="">Select Product</option>
-                {inventory.map(item => (
-                  <option key={item.id} value={item.id}>
-                    {item.name} - Stock: {item.quantity} - Price: ${item.price}
-                  </option>
-                ))}
+                {Array.isArray(inventory) && inventory.length > 0 ? (
+                  inventory.map(item => (
+                    <option key={item.id} value={item.id}>
+                      {item.name} - Stock: {item.quantity} - Price: ${item.price}
+                    </option>
+                  ))
+                ) : (
+                  <option value="" disabled>No products available</option>
+                )}
               </select>
               <input 
                 type="number" 
@@ -373,7 +377,15 @@ const UserPanel = () => {
                 min="1"
                 max={selectedProduct ? inventory.find(item => item.id === parseInt(selectedProduct))?.quantity : undefined}
                 value={orderQuantity}
-                onChange={(e) => setOrderQuantity(e.target.value)}
+                onChange={(e) => {
+                  const product = inventory.find(item => item.id === parseInt(selectedProduct));
+                  const quantity = parseInt(e.target.value);
+                  if (!product || quantity > product.quantity) {
+                    alert('Not enough stock available');
+                    return;
+                  }
+                  setOrderQuantity(e.target.value);
+                }}
                 disabled={isLoading}
                 required
               />
