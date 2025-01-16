@@ -358,16 +358,20 @@ function DashboardCards() {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
       
+      const emailData = response.data?.emails || [];
+      
       if (page === 1) {
-        setEmailHistory(response.data.emails);
+        setEmailHistory(emailData);
       } else {
-        setEmailHistory(prev => [...prev, ...response.data.emails]);
+        setEmailHistory(prev => [...prev, ...emailData]);
       }
       
-      setHasMoreEmails(response.data.hasMore);
+      setHasMoreEmails(response.data?.hasMore || false);
       setEmailPage(page);
     } catch (error) {
       console.error('Error fetching email history:', error);
+      setEmailHistory([]);
+      setHasMoreEmails(false);
     } finally {
       setIsLoadingMore(false);
     }
@@ -841,55 +845,63 @@ function DashboardCards() {
         <div className="email-history-modal">
           <h2>{t('emailHistory')}</h2>
           <div className="email-list-container">
-            <table className="email-history-table">
-              <thead>
-                <tr>
-                  <th>{t('type')}</th>
-                  <th>{t('recipient')}</th>
-                  <th>{t('subject')}</th>
-                  <th>{t('date')}</th>
-                  <th>{t('status')}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {emailHistory.map((email, index) => (
-                  <tr key={index} className="email-history-row">
-                    <td>
-                      <span className="email-type">{email.type}</span>
-                    </td>
-                    <td>{email.recipient}</td>
-                    <td>{email.subject}</td>
-                    <td>{new Date(email.sentAt).toLocaleString()}</td>
-                    <td>
-                      <span className={`status-badge ${email.status.toLowerCase()}`}>
-                        {email.status}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            
-            {emailHistory.length === 0 && (
-              <div className="no-emails">
-                <p>{t('noEmailHistory')}</p>
+            {isLoadingMore && emailHistory.length === 0 ? (
+              <div className="loading-container">
+                <div className="loading-spinner"></div>
               </div>
-            )}
-            
-            {hasMoreEmails && (
-              <div className="load-more-container">
-                <button 
-                  className="load-more-button" 
-                  onClick={handleLoadMore}
-                  disabled={isLoadingMore}
-                >
-                  {isLoadingMore ? (
-                    <span className="loading-spinner-small"></span>
-                  ) : (
-                    t('loadMore')
-                  )}
-                </button>
-              </div>
+            ) : (
+              <>
+                <table className="email-history-table">
+                  <thead>
+                    <tr>
+                      <th>{t('type')}</th>
+                      <th>{t('recipient')}</th>
+                      <th>{t('subject')}</th>
+                      <th>{t('date')}</th>
+                      <th>{t('status')}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {emailHistory.map((email, index) => (
+                      <tr key={index} className="email-history-row">
+                        <td>
+                          <span className="email-type">{email.type}</span>
+                        </td>
+                        <td>{email.recipient}</td>
+                        <td>{email.subject}</td>
+                        <td>{new Date(email.sentAt).toLocaleString()}</td>
+                        <td>
+                          <span className={`status-badge ${email.status.toLowerCase()}`}>
+                            {email.status}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                
+                {emailHistory.length === 0 && (
+                  <div className="no-emails">
+                    <p>{t('noEmailHistory')}</p>
+                  </div>
+                )}
+                
+                {hasMoreEmails && (
+                  <div className="load-more-container">
+                    <button 
+                      className="load-more-button" 
+                      onClick={handleLoadMore}
+                      disabled={isLoadingMore}
+                    >
+                      {isLoadingMore ? (
+                        <span className="loading-spinner-small"></span>
+                      ) : (
+                        t('loadMore')
+                      )}
+                    </button>
+                  </div>
+                )}
+              </>
             )}
           </div>
         </div>
