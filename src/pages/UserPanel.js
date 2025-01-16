@@ -20,6 +20,9 @@ import {
   Legend
 } from 'chart.js';
 import { Line, Bar, Doughnut } from 'react-chartjs-2';
+import Modal from '../components/Modal';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPlus } from '@fortawesome/free-solid-svg-icons';
 
 // Register ChartJS components
 ChartJS.register(
@@ -54,6 +57,7 @@ const UserPanel = () => {
   });
   const [selectedProduct, setSelectedProduct] = useState('');
   const [orderQuantity, setOrderQuantity] = useState('');
+  const [isQuickOrderModalOpen, setIsQuickOrderModalOpen] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -261,36 +265,43 @@ const UserPanel = () => {
               <p><strong>Last Logged In:</strong> {user.lastLoggedIn}</p>
             </div>
 
-            <div className="quick-order-section">
+            <div className="quick-order-card" onClick={() => setIsQuickOrderModalOpen(true)}>
+              <FontAwesomeIcon icon={faPlus} className="card-icon" />
               <h2>Quick Order</h2>
-              <div className="quick-order-form">
-                <select 
-                  className="quick-order-select"
-                  value={selectedProduct}
-                  onChange={(e) => setSelectedProduct(e.target.value)}
-                >
-                  <option value="">Select Product</option>
-                  {inventory.map(item => (
-                    <option key={item.id} value={item.id}>{item.name}</option>
-                  ))}
-                </select>
-                <input 
-                  type="number" 
-                  className="quick-order-input"
-                  placeholder="Quantity"
-                  min="1"
-                  value={orderQuantity}
-                  onChange={(e) => setOrderQuantity(e.target.value)}
-                />
-                <button 
-                  className="quick-order-button"
-                  onClick={handleQuickOrder}
-                >
-                  Place Order
-                </button>
-              </div>
+              <p>Create a new order quickly</p>
             </div>
           </div>
+
+          {/* Quick Order Modal */}
+          <Modal isOpen={isQuickOrderModalOpen} onClose={() => setIsQuickOrderModalOpen(false)}>
+            <h2>Create Quick Order</h2>
+            <div className="quick-order-form">
+              <select 
+                className="quick-order-select"
+                value={selectedProduct}
+                onChange={(e) => setSelectedProduct(e.target.value)}
+              >
+                <option value="">Select Product</option>
+                {inventory.map(item => (
+                  <option key={item.id} value={item.id}>{item.name}</option>
+                ))}
+              </select>
+              <input 
+                type="number" 
+                className="quick-order-input"
+                placeholder="Quantity"
+                min="1"
+                value={orderQuantity}
+                onChange={(e) => setOrderQuantity(e.target.value)}
+              />
+              <button 
+                className="quick-order-button"
+                onClick={handleQuickOrder}
+              >
+                Place Order
+              </button>
+            </div>
+          </Modal>
 
           {/* Analytics Graphs */}
           <div className="analytics-section two-columns">
