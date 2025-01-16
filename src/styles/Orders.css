@@ -498,3 +498,21 @@ color: white;
   z-index: 1;
 }
 
+.order-status-group {
+  margin-bottom: 2rem;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.status-group-header {
+  padding: 1rem;
+  margin: 0;
+  background: #f8f9fa;
+  border-bottom: 1px solid #e9ecef;
+  color: #495057;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
