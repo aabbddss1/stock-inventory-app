@@ -349,7 +349,7 @@ function DashboardCards() {
 
   const fetchEmailHistory = useCallback(async () => {
     try {
-      const response = await axios.get('http://37.148.210.169:5001/api/email-history', {
+      const response = await axios.get('http://37.148.210.169:5001/api/email/history', {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
       setEmailHistory(response.data);
