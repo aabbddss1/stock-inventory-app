@@ -58,6 +58,7 @@ const UserPanel = () => {
   const [selectedProduct, setSelectedProduct] = useState('');
   const [orderQuantity, setOrderQuantity] = useState('');
   const [isQuickOrderModalOpen, setIsQuickOrderModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -206,6 +207,7 @@ const UserPanel = () => {
       return;
     }
 
+    setIsLoading(true);
     try {
       // Get the selected product details from inventory
       const product = inventory.find(item => item.id === parseInt(selectedProduct));
@@ -221,25 +223,6 @@ const UserPanel = () => {
         return;
       }
 
-      // First update the inventory
-      const updatedQuantity = parseInt(product.quantity) - parseInt(orderQuantity);
-      const updatedInventoryResponse = await api.put(`/api/inventory/${product.id}`, 
-        { 
-          ...product, 
-          quantity: updatedQuantity 
-        },
-        { 
-          headers: { 
-            Authorization: `Bearer ${localStorage.getItem('token')}` 
-          }
-        }
-      );
-
-      if (!updatedInventoryResponse.data) {
-        throw new Error('Failed to update inventory');
-      }
-
-      // Then create the order
       const orderData = {
         productId: parseInt(selectedProduct),
         quantity: parseInt(orderQuantity),
@@ -252,6 +235,7 @@ const UserPanel = () => {
         totalPrice: product.price * parseInt(orderQuantity)
       };
 
+      // Create the order first
       const orderResponse = await api.post('/api/orders', orderData, {
         headers: { 
           Authorization: `Bearer ${localStorage.getItem('token')}` 
@@ -259,34 +243,22 @@ const UserPanel = () => {
       });
 
       if (!orderResponse.data) {
-        // If order creation fails, revert the inventory change
-        await api.put(`/api/inventory/${product.id}`, 
-          { ...product, quantity: product.quantity },
-          { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }}
-        );
         throw new Error('Failed to create order');
       }
 
-      // Send confirmation email
-      try {
-        await api.post('/api/email/send', {
-          to: user.email,
-          subject: 'Order Confirmation',
-          type: 'ORDER_CONFIRMATION',
-          data: {
-            orderNumber: orderResponse.data.id,
-            productName: product.name,
-            quantity: orderQuantity,
-            totalPrice: (product.price * parseInt(orderQuantity)).toFixed(2),
-            customerName: user.name
+      // Then update the inventory
+      const updatedQuantity = parseInt(product.quantity) - parseInt(orderQuantity);
+      await api.put(`/api/inventory/${product.id}`, 
+        { 
+          ...product, 
+          quantity: updatedQuantity 
+        },
+        { 
+          headers: { 
+            Authorization: `Bearer ${localStorage.getItem('token')}` 
           }
-        }, {
-          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-        });
-      } catch (emailError) {
-        console.error('Error sending confirmation email:', emailError);
-        // Don't throw error here, as the order is already created
-      }
+        }
+      );
 
       // Refresh data
       await Promise.all([
@@ -298,11 +270,32 @@ const UserPanel = () => {
       setSelectedProduct('');
       setOrderQuantity('');
       setIsQuickOrderModalOpen(false);
-      
-      alert('Order placed successfully! A confirmation email will be sent to your inbox.');
+
+      // Show success message using a custom success modal or toast
+      const successMessage = document.createElement('div');
+      successMessage.className = 'success-message';
+      successMessage.innerHTML = `
+        <div class="success-content">
+          <div class="success-icon">✓</div>
+          <h3>Order Placed Successfully!</h3>
+          <p>A confirmation email will be sent to your inbox.</p>
+        </div>
+      `;
+      document.body.appendChild(successMessage);
+
+      // Remove the success message after 3 seconds
+      setTimeout(() => {
+        successMessage.classList.add('fade-out');
+        setTimeout(() => {
+          document.body.removeChild(successMessage);
+        }, 300);
+      }, 3000);
+
     } catch (error) {
       console.error('Error placing order:', error);
       alert(error.response?.data?.message || 'Failed to place order. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -357,6 +350,7 @@ const UserPanel = () => {
                 className="quick-order-select"
                 value={selectedProduct}
                 onChange={(e) => setSelectedProduct(e.target.value)}
+                disabled={isLoading}
               >
                 <option value="">Select Product</option>
                 {inventory.map(item => (
@@ -373,6 +367,7 @@ const UserPanel = () => {
                 max={selectedProduct ? inventory.find(item => item.id === parseInt(selectedProduct))?.quantity : undefined}
                 value={orderQuantity}
                 onChange={(e) => setOrderQuantity(e.target.value)}
+                disabled={isLoading}
               />
               <div className="order-summary">
                 {selectedProduct && orderQuantity ? (
@@ -383,11 +378,13 @@ const UserPanel = () => {
                 ) : null}
               </div>
               <button 
-                className="quick-order-button"
+                className={`quick-order-button ${isLoading ? 'loading' : ''}`}
                 onClick={handleQuickOrder}
-                disabled={!selectedProduct || !orderQuantity}
+                disabled={!selectedProduct || !orderQuantity || isLoading}
               >
-                Place Order
+                {isLoading ? (
+                  <div className="loader"></div>
+                ) : 'Place Order'}
               </button>
             </div>
           </Modal>
