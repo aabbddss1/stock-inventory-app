@@ -20,6 +20,7 @@ const Documents = () => {
   const [isUploading, setIsUploading] = useState(false); // Uploading state
   const [page, setPage] = useState(1); // Current page
   const [totalPages, setTotalPages] = useState(1); // Total pages for pagination
+  const [sortOrder, setSortOrder] = useState('desc'); // Add this new state
   const [sendingEmails, setSendingEmails] = useState({}); // Track email sending state for each document
 
   // Get token from localStorage
@@ -155,6 +156,18 @@ const Documents = () => {
     }
   };
 
+    // Add this new sorting function
+    const toggleSortOrder = () => {
+      const newOrder = sortOrder === 'desc' ? 'asc' : 'desc';
+      setSortOrder(newOrder);
+      const sorted = [...filteredDocuments].sort((a, b) => {
+        return newOrder === 'desc' 
+          ? new Date(b.upload_date) - new Date(a.upload_date)
+          : new Date(a.upload_date) - new Date(b.upload_date);
+      });
+      setDocuments(sorted);
+    };
+
   // Send document via email
   const handleSendEmail = async (id) => {
     try {
@@ -245,7 +258,9 @@ const Documents = () => {
                     <th>{t('name')}</th>
                     <th>{t('category')}</th>
                     <th>{t('customerIdHeader')}</th>
-                    <th>{t('uploadDate')}</th>
+                   <th onClick={toggleSortOrder} style={{ cursor: 'pointer' }}>
+                      {t('uploadDate')} {sortOrder === 'desc' ? '▼' : '▲'}
+                    </th>
                     <th>{t('actions')}</th>
                   </tr>
                 </thead>
