@@ -11,6 +11,7 @@ function Customers() {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingCustomer, setEditingCustomer] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const token = localStorage.getItem('token');
   const axiosInstance = React.useMemo(() => {
@@ -122,6 +123,15 @@ function Customers() {
     }
   };
 
+  const filteredCustomers = customers.filter(customer => {
+    const query = searchQuery.toLowerCase();
+    return (
+      customer.name?.toLowerCase().includes(query) ||
+      customer.email?.toLowerCase().includes(query) ||
+      customer.phone?.toLowerCase().includes(query)
+    );
+  });
+
   return (
     <div className="admin-panel">
       <Sidebar />
@@ -130,9 +140,21 @@ function Customers() {
         <div className="dashboard-main">
           <div className="customers-header">
             <h2>{t('customers.title')}</h2>
-            <button className="add-customer-btn" onClick={handleAdd}>
-              <i className="fa fa-user-plus"></i> {t('customers.addCustomer')}
-            </button>
+            <div className="customers-header-actions">
+              <div className="search-container">
+                <input
+                  type="text"
+                  className="search-input"
+                  placeholder={t('customers.searchPlaceholder')}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+                <i className="fas fa-search search-icon"></i>
+              </div>
+              <button className="add-customer-btn" onClick={handleAdd}>
+                <i className="fa fa-user-plus"></i> {t('customers.addCustomer')}
+              </button>
+            </div>
           </div>
           {loading ? (
             <p>{t('customers.loading')}</p>
@@ -149,7 +171,7 @@ function Customers() {
                 </tr>
               </thead>
               <tbody>
-                {customers.map((customer) => (
+                {filteredCustomers.map((customer) => (
                   <tr key={customer.id}>
                     <td>{customer.id}</td>
                     <td>{customer.name}</td>
