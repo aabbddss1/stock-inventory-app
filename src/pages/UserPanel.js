@@ -5,6 +5,19 @@ import TopNavbar from '../components/TopNavbar';
 import { api } from '../config/api';
 import Calendar from '../components/Calendar';
 import Notifications from '../components/Notifications';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { 
+  faShoppingCart, 
+  faClockRotateLeft, 
+  faBell, 
+  faPlus,
+  faCircleQuestion,
+  faChartBar,
+  faChartPie,
+  faTasks,
+  faCalendarAlt,
+  faEnvelope
+} from '@fortawesome/free-solid-svg-icons';
 import '../styles/UserPanel.css';
 import '../styles/UserEnhancements.css';
 import {
@@ -224,32 +237,68 @@ const UserPanel = () => {
 
           {/* Quick Statistics Cards */}
           <div className="dashboard-stats">
-            <div className="stat-card total-orders">
-              <h3>Total Orders</h3>
-              <p className="stat-number">{orders.length}</p>
+            <div className="stat-card">
+              <div className="card-icon">
+                <FontAwesomeIcon icon={faShoppingCart} />
+              </div>
+              <div className="card-content">
+                <h3>Total Orders</h3>
+                <p className="stat-number">{orders.length}</p>
+                <p className="card-description">Total orders in your account</p>
+              </div>
             </div>
-            <div className="stat-card pending-orders">
-              <h3>Pending Orders</h3>
-              <p className="stat-number">{orders.filter(order => order.status === 'Pending').length}</p>
+
+            <div className="stat-card">
+              <div className="card-icon">
+                <FontAwesomeIcon icon={faClockRotateLeft} />
+              </div>
+              <div className="card-content">
+                <h3>Pending Orders</h3>
+                <p className="stat-number">{orders.filter(order => order.status === 'Pending').length}</p>
+                <p className="card-description">Orders awaiting processing</p>
+              </div>
             </div>
-            <div className="stat-card notifications">
-              <h3>Notifications</h3>
-              <p className="stat-number">{notifications.length}</p>
+
+            <div className="stat-card">
+              <div className="card-icon">
+                <FontAwesomeIcon icon={faBell} />
+              </div>
+              <div className="card-content">
+                <h3>Notifications</h3>
+                <p className="stat-number">{notifications.length}</p>
+                <p className="card-description">Unread notifications</p>
+              </div>
             </div>
-            <div className="stat-card quick-order">
-              <h3>Quick Order</h3>
-              <button className="quick-order-btn">+</button>
+
+            <div className="stat-card">
+              <div className="card-icon">
+                <FontAwesomeIcon icon={faPlus} />
+              </div>
+              <div className="card-content">
+                <h3>Quick Order</h3>
+                <button className="quick-order-btn">+</button>
+                <p className="card-description">Create a new order quickly</p>
+              </div>
             </div>
-            <div className="stat-card help-card">
-              <h3>Need help?</h3>
-              <p>You can check the documentations or you can contact to our call center.</p>
+
+            <div className="stat-card">
+              <div className="card-icon">
+                <FontAwesomeIcon icon={faCircleQuestion} />
+              </div>
+              <div className="card-content">
+                <h3>Need help?</h3>
+                <p className="card-description">Check documentation or contact our support</p>
+              </div>
             </div>
           </div>
 
           {/* Analytics Section */}
           <div className="analytics-section">
             <div className="graph-container inventory-chart">
-              <h3>Inventory Levels</h3>
+              <div className="graph-header">
+                <FontAwesomeIcon icon={faChartBar} className="graph-icon" />
+                <h3>Inventory Levels</h3>
+              </div>
               <Bar
                 data={{
                   labels: analytics.inventoryLevels.labels,
@@ -294,7 +343,10 @@ const UserPanel = () => {
             </div>
 
             <div className="graph-container status-chart">
-              <h3>Order Status Distribution</h3>
+              <div className="graph-header">
+                <FontAwesomeIcon icon={faChartPie} className="graph-icon" />
+                <h3>Order Status Distribution</h3>
+              </div>
               <Doughnut
                 data={{
                   labels: ['Approved', 'Completed', 'On Process', 'Pending'],
@@ -329,7 +381,10 @@ const UserPanel = () => {
           <div className="bottom-section">
             <div className="task-calendar-container">
               <div className="task-manager">
-                <h2>Task Manager</h2>
+                <div className="section-header">
+                  <FontAwesomeIcon icon={faTasks} className="section-icon" />
+                  <h2>Task Manager</h2>
+                </div>
                 <div className="task-input">
                   <input
                     type="text"
@@ -360,11 +415,19 @@ const UserPanel = () => {
               </div>
 
               <div className="calendar-section">
+                <div className="section-header">
+                  <FontAwesomeIcon icon={faCalendarAlt} className="section-icon" />
+                  <h2>Calendar</h2>
+                </div>
                 <Calendar />
               </div>
             </div>
 
             <div className="notifications-section">
+              <div className="section-header">
+                <FontAwesomeIcon icon={faEnvelope} className="section-icon" />
+                <h2>Notifications</h2>
+              </div>
               <Notifications notifications={notifications} />
             </div>
           </div>
