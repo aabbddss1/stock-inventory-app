@@ -86,6 +86,8 @@ function TopNavbar() {
             <div className="language-menu">
               <button onClick={() => handleLanguageChange('en')}>English</button>
               <button onClick={() => handleLanguageChange('tr')}>Türkçe</button>
+              <button onClick={() => handleLanguageChange('de')}>Deutsch</button>
+              <button onClick={() => handleLanguageChange('es')}>Español</button>
             </div>
           )}
         </div>
