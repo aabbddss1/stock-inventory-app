@@ -226,9 +226,7 @@ const UserPanel = () => {
 
       // Create order with exact backend structure
       const orderData = {
-        client_name: user.name,
         clientName: user.name,
-        product_name: product.name,
         productName: product.name,
         quantity: parseInt(orderQuantity),
         price: product.price,
@@ -244,10 +242,10 @@ const UserPanel = () => {
       // Then update inventory with complete payload
       const inventoryUpdateData = {
         name: product.name,
+        category: product.category || 'General',
         quantity: product.quantity - parseInt(orderQuantity),
         price: product.price,
         description: product.description || '',
-        category: product.category || '',
         supplier: product.supplier || ''
       };
 
@@ -256,7 +254,10 @@ const UserPanel = () => {
         `/api/inventory/${product.id}`,
         inventoryUpdateData,
         {
-          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+          headers: { 
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json'
+          }
         }
       );
 
@@ -292,7 +293,14 @@ const UserPanel = () => {
 
     } catch (error) {
       console.error('Error placing order:', error);
-      alert('Failed to create order. Please try again.');
+      let errorMessage = 'Failed to create order. Please try again.';
+      
+      // Check if the error response contains a warning about email
+      if (error.response?.data?.warning?.includes('email')) {
+        errorMessage = 'Order created but email notification could not be sent. Please contact support.';
+      }
+      
+      alert(errorMessage);
     } finally {
       setIsLoading(false);
     }
