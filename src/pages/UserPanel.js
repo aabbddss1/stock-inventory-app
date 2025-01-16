@@ -203,35 +203,52 @@ const UserPanel = () => {
       <div className="main-content">
         <TopNavbar />
         <div className="user-panel-container">
-          <h1>Welcome, {user.name}!</h1>
+          <div className="welcome-section">
+            <div className="welcome-text">
+              <h1>Welcome, {user.name}</h1>
+              <p className="welcome-description">
+                Efficiently track, manage, and optimize your inventory and customers with our advanced stock
+                management solution. Qubite ensures seamless order processing, real-time updates, and insightful
+                analytics to help you make smarter business decisions.
+              </p>
+            </div>
+            <div className="user-info-card">
+              <h3>User Details</h3>
+              <div className="user-info-content">
+                <p><strong>Email:</strong> {user.email}</p>
+                <p><strong>Phone:</strong> {user.phone}</p>
+                <p><strong>Last Logged In:</strong> {user.lastLoggedIn}</p>
+              </div>
+            </div>
+          </div>
 
-          {/* Quick Statistics */}
+          {/* Quick Statistics Cards */}
           <div className="dashboard-stats">
-            <div className="stat-card">
+            <div className="stat-card total-orders">
               <h3>Total Orders</h3>
-              <p>{orders.length}</p>
+              <p className="stat-number">{orders.length}</p>
             </div>
-            <div className="stat-card">
+            <div className="stat-card pending-orders">
               <h3>Pending Orders</h3>
-              <p>{orders.filter((order) => order.status === 'Pending').length}</p>
+              <p className="stat-number">{orders.filter(order => order.status === 'Pending').length}</p>
             </div>
-            <div className="stat-card">
+            <div className="stat-card notifications">
               <h3>Notifications</h3>
-              <p>{notifications.length}</p>
+              <p className="stat-number">{notifications.length}</p>
+            </div>
+            <div className="stat-card quick-order">
+              <h3>Quick Order</h3>
+              <button className="quick-order-btn">+</button>
+            </div>
+            <div className="stat-card help-card">
+              <h3>Need help?</h3>
+              <p>You can check the documentations or you can contact to our call center.</p>
             </div>
           </div>
 
-          {/* User Details */}
-          <div className="user-details-section">
-            <h2>User Details</h2>
-            <p><strong>Email:</strong> {user.email}</p>
-            <p><strong>Phone:</strong> {user.phone}</p>
-            <p><strong>Last Logged In:</strong> {user.lastLoggedIn}</p>
-          </div>
-
-          {/* Analytics Graphs */}
-          <div className="analytics-section two-columns">
-            <div className="graph-container">
+          {/* Analytics Section */}
+          <div className="analytics-section">
+            <div className="graph-container inventory-chart">
               <h3>Inventory Levels</h3>
               <Bar
                 data={{
@@ -252,7 +269,7 @@ const UserPanel = () => {
                   responsive: true,
                   maintainAspectRatio: false,
                   plugins: {
-                    legend: { position: 'bottom' },
+                    legend: { display: false },
                     tooltip: {
                       callbacks: {
                         label: (context) => `Stock: ${context.raw} units`
@@ -262,9 +279,13 @@ const UserPanel = () => {
                   scales: {
                     y: { 
                       beginAtZero: true,
-                      title: {
-                        display: true,
-                        text: 'Quantity in Stock'
+                      grid: {
+                        color: 'rgba(0, 0, 0, 0.1)'
+                      }
+                    },
+                    x: {
+                      grid: {
+                        display: false
                       }
                     }
                   }
@@ -272,11 +293,11 @@ const UserPanel = () => {
               />
             </div>
 
-            <div className="graph-container">
+            <div className="graph-container status-chart">
               <h3>Order Status Distribution</h3>
               <Doughnut
                 data={{
-                  labels: analytics.statusDistribution.labels,
+                  labels: ['Approved', 'Completed', 'On Process', 'Pending'],
                   datasets: [{
                     data: analytics.statusDistribution.data,
                     backgroundColor: [
@@ -294,7 +315,8 @@ const UserPanel = () => {
                     legend: { 
                       position: 'bottom',
                       labels: {
-                        padding: 20
+                        padding: 20,
+                        usePointStyle: true
                       }
                     }
                   }
@@ -303,81 +325,49 @@ const UserPanel = () => {
             </div>
           </div>
 
-          {/* Recent Orders */}
-          <div className="recent-orders-section">
-            <h2>Recent Orders</h2>
-            <ul>
-              {orders
-                .sort((a, b) => new Date(b.date) - new Date(a.date)) // Sort by date (latest first)
-                .slice(0, 10) // Get the first 10 orders
-                .map((order) => (
-                  <li key={order.id} style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>
-                    <div style={{ fontWeight: 'bold', marginBottom: '5px' }}>
-                      Order #{order.id} - {order.status} 
-                    </div>
-                    <div>
-                      <strong>Product:</strong> {order.productName}
-                    </div>
-                    <div>
-                      <strong>Quantity:</strong> {order.quantity}
-                    </div>
-                    <div>
-                      <strong>Date:</strong> {order.date}
-                    </div>
-                  </li>
-                ))}
-            </ul>
-            {orders.length === 0 && <p>No recent orders available.</p>}
-          </div>
+          {/* Task Manager and Calendar Section */}
+          <div className="bottom-section">
+            <div className="task-calendar-container">
+              <div className="task-manager">
+                <h2>Task Manager</h2>
+                <div className="task-input">
+                  <input
+                    type="text"
+                    placeholder="Add a new task..."
+                    value={newTask}
+                    onChange={(e) => setNewTask(e.target.value)}
+                  />
+                  <button onClick={addTask}>Add</button>
+                </div>
+                <ul className="task-list">
+                  {tasks.map((task, index) => (
+                    <li key={index} className={`task-item ${task.completed ? 'completed' : ''}`}>
+                      <span>{task.text}</span>
+                      <div className="task-buttons">
+                        <button onClick={() => toggleTaskCompletion(index)} className="complete-btn">
+                          {task.completed ? 'Undo' : 'Complete'}
+                        </button>
+                        <button onClick={() => removeTask(index)} className="delete-btn">
+                          Remove
+                        </button>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+                {tasks.length === 0 && (
+                  <p className="no-tasks">No tasks available. Start adding your tasks!</p>
+                )}
+              </div>
 
-          <div className="user-panel-content">
-            {/* Notifications */}
+              <div className="calendar-section">
+                <Calendar />
+              </div>
+            </div>
+
             <div className="notifications-section">
               <Notifications notifications={notifications} />
             </div>
-
-            {/* Calendar */}
-            <div className="calendar-section">
-              <h2>Your Calendar</h2>
-              <Calendar />
-            </div>
-
-            {/* Task Manager */}
-            <div className="task-manager">
-              <h2>Task Manager</h2>
-              <div className="task-input">
-                <input
-                  type="text"
-                  placeholder="Add a new task..."
-                  value={newTask}
-                  onChange={(e) => setNewTask(e.target.value)}
-                />
-                <button onClick={addTask}>Add</button>
-              </div>
-              <ul className="task-list">
-                {tasks.map((task, index) => (
-                  <li key={index} className={`task-item ${task.completed ? 'completed' : ''}`}>
-                    <span>{task.text}</span>
-                    <div className="task-buttons">
-                      <button onClick={() => toggleTaskCompletion(index)} className="complete-btn">
-                        {task.completed ? 'Undo' : 'Complete'}
-                      </button>
-                      <button onClick={() => removeTask(index)} className="delete-btn">
-                        Remove
-                      </button>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-              {tasks.length === 0 && (
-                <p className="no-tasks">No tasks available. Start adding your tasks!</p>
-              )}
-            </div>
           </div>
-
-          <button onClick={handleLogout} className="logout-button">
-            Logout
-          </button>
         </div>
       </div>
     </div>
