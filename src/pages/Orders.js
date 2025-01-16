@@ -28,6 +28,12 @@ const Orders = () => {
   const [sortOrder, setSortOrder] = useState('desc');
   const [quantitySortOrder, setQuantitySortOrder] = useState('desc');
   const [statusLoading, setStatusLoading] = useState(null); // Track which order is updating status
+  const [expandedSections, setExpandedSections] = useState({
+    Pending: true,    // Start with Pending orders visible
+    Approved: false,
+    'On Process': false,
+    Completed: false
+  });
 
   // Move token and userData declarations before using them
   const token = localStorage.getItem('token');
@@ -390,6 +396,13 @@ const Orders = () => {
   // Add status options constant
   const statusOptions = ['Pending', 'Approved', 'On Process', 'Completed'];
 
+  const toggleSection = (status) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [status]: !prev[status]
+    }));
+  };
+
   return (
     <div className="orders-page">
       <Sidebar />
@@ -496,87 +509,99 @@ const Orders = () => {
                 if (ordersInGroup.length === 0) return null;
                 
                 return (
-                  <div key={statusGroup} className="order-status-group">
-                    <h3 className="status-group-header">
-                      {statusGroup} ({ordersInGroup.length})
-                    </h3>
-                    <table className="orders-table">
-                      <thead>
-                        <tr>
-                          <th>{t('clientName')}</th>
-                          <th>{t('productName')}</th>
-                          <th onClick={toggleSortOrder} style={{ cursor: 'pointer' }}>
-                            {t('date')} {sortOrder === 'desc' ? '▼' : '▲'}
-                          </th>
-                          <th onClick={toggleQuantitySort} style={{ cursor: 'pointer' }}>
-                            {t('quantity')} {quantitySortOrder === 'desc' ? '▼' : '▲'}
-                          </th>
-                          <th>{t('price')}</th>
-                          <th>{t('status')}</th>
-                          <th>{t('actions')}</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {ordersInGroup.map((order) => (
-                          <tr 
-                            key={order.id} 
-                            onClick={userRole === 'admin' ? (e) => {
-                              if (!e.target.closest('select') && !e.target.closest('button')) {
-                                handleEditOrder(order);
-                              }
-                            } : undefined}
-                            style={{ cursor: userRole === 'admin' ? 'pointer' :'default' }}
-                            className={userRole === 'admin' ? 'order-row' :''}
-                          >
-                            <td>{order.clientName}</td>
-                            <td>{order.productName}</td>
-                            <td>{order.orderDate ? new Date(order.orderDate).toLocaleString() : 'N/A'}</td>
-                            <td>{order.quantity}</td>
-                            <td>${order.price}</td>
-                            <td>
-                              {userRole === 'admin' ? (
-                                <select
-                                  value={order.status}
-                                  onChange={(e) => handleStatusChange(order.id, e.target.value)}
-                                  className="status-select"
-                                  disabled={statusLoading === order.id}
-                                >
-                                  {statusLoading === order.id ? (
-                                    <option>Loading...</option>
-                                  ) : (
-                                    statusOptions.map((status) => (
-                                      <option key={status} value={status}>
-                                        {status}
-                                      </option>
-                                    ))
-                                  )}
-                                </select>
-                              ) : (
-                                order.status
-                              )}
-                            </td>
-                            <td onClick={(e) => e.stopPropagation()}>
-                              <button
-                                className="edit-order-btn"
-                                onClick={() => handleEditOrder(order)}
-                                disabled={userRole !== 'admin' && order.status !== 'Pending'}
-                              >
-                                <i className="fas fa-edit" style={{ marginRight: '5px' }}></i>
-                                {t('edit')}
-                              </button>
-                              <button
-                                className="delete-order-btn"
-                                onClick={() => handleDelete(order.id)}
-                                disabled={userRole !== 'admin' && order.status !== 'Pending'}
-                              >
-                                <i className="fas fa-trash" style={{ marginRight:'5px' }}></i>
-                                {t('delete')}
-                              </button>
-                            </td>
+                  <div key={statusGroup} className="order-section">
+                    <div 
+                      className="order-section-header" 
+                      onClick={() => toggleSection(statusGroup)}
+                    >
+                      <div className="header-content">
+                        <h3>{statusGroup}</h3>
+                        <span className="order-count">
+                          {ordersInGroup.length} {t('orders')}
+                        </span>
+                      </div>
+                      <i className={`fas fa-chevron-${expandedSections[statusGroup] ? 'up' : 'down'}`} />
+                    </div>
+                    
+                    <div className={`order-section-content ${expandedSections[statusGroup] ? 'expanded' : ''}`}>
+                      <table className="orders-table">
+                        <thead>
+                          <tr>
+                            <th>{t('clientName')}</th>
+                            <th>{t('productName')}</th>
+                            <th onClick={toggleSortOrder} style={{ cursor: 'pointer' }}>
+                              {t('date')} {sortOrder === 'desc' ? '▼' : '▲'}
+                            </th>
+                            <th onClick={toggleQuantitySort} style={{ cursor: 'pointer' }}>
+                              {t('quantity')} {quantitySortOrder === 'desc' ? '▼' : '▲'}
+                            </th>
+                            <th>{t('price')}</th>
+                            <th>{t('status')}</th>
+                            <th>{t('actions')}</th>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                        </thead>
+                        <tbody>
+                          {ordersInGroup.map((order) => (
+                            <tr 
+                              key={order.id} 
+                              onClick={userRole === 'admin' ? (e) => {
+                                if (!e.target.closest('select') && !e.target.closest('button')) {
+                                  handleEditOrder(order);
+                                }
+                              } : undefined}
+                              style={{ cursor: userRole === 'admin' ? 'pointer' :'default' }}
+                              className={userRole === 'admin' ? 'order-row' :''}
+                            >
+                              <td>{order.clientName}</td>
+                              <td>{order.productName}</td>
+                              <td>{order.orderDate ? new Date(order.orderDate).toLocaleString() : 'N/A'}</td>
+                              <td>{order.quantity}</td>
+                              <td>${order.price}</td>
+                              <td>
+                                {userRole === 'admin' ? (
+                                  <select
+                                    value={order.status}
+                                    onChange={(e) => handleStatusChange(order.id, e.target.value)}
+                                    className="status-select"
+                                    disabled={statusLoading === order.id}
+                                  >
+                                    {statusLoading === order.id ? (
+                                      <option>Loading...</option>
+                                    ) : (
+                                      statusOptions.map((status) => (
+                                        <option key={status} value={status}>
+                                          {status}
+                                        </option>
+                                      ))
+                                    )}
+                                  </select>
+                                ) : (
+                                  order.status
+                                )}
+                              </td>
+                              <td onClick={(e) => e.stopPropagation()}>
+                                <button
+                                  className="edit-order-btn"
+                                  onClick={() => handleEditOrder(order)}
+                                  disabled={userRole !== 'admin' && order.status !== 'Pending'}
+                                >
+                                  <i className="fas fa-edit" style={{ marginRight: '5px' }}></i>
+                                  {t('edit')}
+                                </button>
+                                <button
+                                  className="delete-order-btn"
+                                  onClick={() => handleDelete(order.id)}
+                                  disabled={userRole !== 'admin' && order.status !== 'Pending'}
+                                >
+                                  <i className="fas fa-trash" style={{ marginRight:'5px' }}></i>
+                                  {t('delete')}
+                                </button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
                 );
               })}
