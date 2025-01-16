@@ -52,6 +52,8 @@ const UserPanel = () => {
       data: []
     }
   });
+  const [selectedProduct, setSelectedProduct] = useState('');
+  const [orderQuantity, setOrderQuantity] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -194,6 +196,35 @@ const UserPanel = () => {
     }
   }, [inventory]);
 
+  const handleQuickOrder = async () => {
+    if (!selectedProduct || !orderQuantity) {
+      alert('Please select a product and specify quantity');
+      return;
+    }
+
+    try {
+      const response = await api.post('/api/orders', {
+        productId: selectedProduct,
+        quantity: parseInt(orderQuantity),
+        userId: user.id
+      }, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+      });
+
+      // Refresh orders after placing new order
+      fetchUserOrders(user.id);
+      
+      // Reset form
+      setSelectedProduct('');
+      setOrderQuantity('');
+      
+      alert('Order placed successfully!');
+    } catch (error) {
+      console.error('Error placing order:', error);
+      alert('Failed to place order. Please try again.');
+    }
+  };
+
   if (error) return <p>{error}</p>;
   if (!user) return <p>Loading user details...</p>;
 
@@ -221,12 +252,44 @@ const UserPanel = () => {
             </div>
           </div>
 
-          {/* User Details */}
-          <div className="user-details-section">
-            <h2>User Details</h2>
-            <p><strong>Email:</strong> {user.email}</p>
-            <p><strong>Phone:</strong> {user.phone}</p>
-            <p><strong>Last Logged In:</strong> {user.lastLoggedIn}</p>
+          {/* User Details and Quick Order Section */}
+          <div className="user-info-section">
+            <div className="user-details-section">
+              <h2>User Details</h2>
+              <p><strong>Email:</strong> {user.email}</p>
+              <p><strong>Phone:</strong> {user.phone}</p>
+              <p><strong>Last Logged In:</strong> {user.lastLoggedIn}</p>
+            </div>
+
+            <div className="quick-order-section">
+              <h2>Quick Order</h2>
+              <div className="quick-order-form">
+                <select 
+                  className="quick-order-select"
+                  value={selectedProduct}
+                  onChange={(e) => setSelectedProduct(e.target.value)}
+                >
+                  <option value="">Select Product</option>
+                  {inventory.map(item => (
+                    <option key={item.id} value={item.id}>{item.name}</option>
+                  ))}
+                </select>
+                <input 
+                  type="number" 
+                  className="quick-order-input"
+                  placeholder="Quantity"
+                  min="1"
+                  value={orderQuantity}
+                  onChange={(e) => setOrderQuantity(e.target.value)}
+                />
+                <button 
+                  className="quick-order-button"
+                  onClick={handleQuickOrder}
+                >
+                  Place Order
+                </button>
+              </div>
+            </div>
           </div>
 
           {/* Analytics Graphs */}
