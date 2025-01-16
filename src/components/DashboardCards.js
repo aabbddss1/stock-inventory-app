@@ -132,6 +132,7 @@ function DashboardCards() {
       setOrders(ordersResponse.data);
       setTotalOrders(ordersResponse.data.length);
       setPendingOrders(ordersResponse.data.filter(order => order.status === 'Pending').length);
+      setInventory(inventoryResponse.data); // Set inventory data
 
       // Get latest 5 orders for display in modal
       const latestOrders = ordersResponse.data
@@ -691,78 +692,96 @@ function DashboardCards() {
         {/* Quick Order Modal */}
         <Modal isOpen={isQuickOrderModalOpen} onClose={() => setIsQuickOrderModalOpen(false)}>
           <h2>{t('quickOrderCreation')}</h2>
-          <form onSubmit={handleCreateOrder}>
-            <div className="form-row">
-              <select
-                value={newOrder.clientEmail}
-                onChange={(e) => setNewOrder({ ...newOrder, clientEmail: e.target.value })}
-                required
+          {isLoading ? (
+            <div className="loading-spinner">Loading...</div>
+          ) : error ? (
+            <div className="error-message">{error}</div>
+          ) : (
+            <form onSubmit={handleCreateOrder}>
+              <div className="form-row">
+                <select
+                  value={newOrder.clientEmail}
+                  onChange={(e) => setNewOrder({ ...newOrder, clientEmail: e.target.value })}
+                  required
+                >
+                  <option value="">{t('selectAUser')}</option>
+                  {users.map((user) => (
+                    <option key={user.email} value={user.email}>
+                      {user.name} ({user.email})
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="form-row">
+                <select
+                  value={newOrder.productName}
+                  onChange={(e) => {
+                    const selectedProduct = inventory.find(
+                      (item) => item.name === e.target.value
+                    );
+                    setNewOrder({
+                      ...newOrder,
+                      productName: e.target.value,
+                      price: selectedProduct?.price || '',
+                    });
+                  }}
+                  required
+                >
+                  <option value="">{t('selectAProduct')}</option>
+                  {Array.isArray(inventory) && inventory.length > 0 ? (
+                    inventory.map((item) => (
+                      <option key={item.id || item._id} value={item.name}>
+                        {item.name} ({t('stock')}: {item.quantity})
+                      </option>
+                    ))
+                  ) : (
+                    <option value="" disabled>{t('noProductsAvailable')}</option>
+                  )}
+                </select>
+              </div>
+              <div className="form-row">
+                <input
+                  type="number"
+                  placeholder={t('quantity')}
+                  value={newOrder.quantity}
+                  onChange={(e) => {
+                    const selectedProduct = inventory.find(
+                      (item) => item.name === newOrder.productName
+                    );
+                    const quantity = parseInt(e.target.value);
+                    if (!selectedProduct || quantity > selectedProduct.quantity) {
+                      alert(t('insufficientStock'));
+                      return;
+                    }
+                    setNewOrder({ ...newOrder, quantity: e.target.value });
+                  }}
+                  min="1"
+                  max={inventory.find(item => item.name === newOrder.productName)?.quantity || 1}
+                  required
+                />
+                <input
+                  type="number"
+                  placeholder={t('price')}
+                  value={newOrder.price}
+                  readOnly
+                  required
+                />
+              </div>
+              <button
+                type="submit"
+                className={`order-button ${actionLoading ? 'loading' : ''}`}
+                disabled={actionLoading || !newOrder.clientEmail || !newOrder.productName || !newOrder.quantity}
               >
-                <option value="">{t('selectAUser')}</option>
-                {users.map((user) => (
-                  <option key={user.email} value={user.email}>
-                    {user.name} ({user.email})
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="form-row">
-              <select
-                value={newOrder.productName}
-                onChange={(e) => {
-                  const selectedProduct = inventory.find(
-                    (item) => item.name === e.target.value
-                  );
-                  setNewOrder({
-                    ...newOrder,
-                    productName: e.target.value,
-                    price: selectedProduct?.price || '',
-                  });
-                }}
-                required
-              >
-                <option value="">{t('selectAProduct')}</option>
-                {inventory.map((item) => (
-                  <option key={item.id} value={item.name}>
-                    {item.name} ({t('stock')}: {item.quantity})
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="form-row">
-              <input
-                type="number"
-                placeholder="Quantity"
-                value={newOrder.quantity}
-                onChange={(e) =>
-                  setNewOrder({ ...newOrder, quantity: e.target.value })
-                }
-                required
-              />
-              <input
-                type="number"
-                placeholder="Price"
-                value={newOrder.price}
-                readOnly
-                required
-              />
-            </div>
-            <button
-  type="submit"
-  className={`order-button ${actionLoading ? 'loading' : ''}`}
-  disabled={actionLoading}
->
-  {actionLoading ? (
-    <i className="fa fa-spinner fa-spin"></i> // Dönen yuvarlak
-  ) : (
-    <>
-      <i className="fa fa-plus"></i> {t('createOrder')}
-    </>
-  )}
-</button>
-
-
-          </form>
+                {actionLoading ? (
+                  <i className="fa fa-spinner fa-spin"></i>
+                ) : (
+                  <>
+                    <i className="fa fa-plus"></i> {t('createOrder')}
+                  </>
+                )}
+              </button>
+            </form>
+          )}
         </Modal>
 
    {/* Add Customer Modal */}
