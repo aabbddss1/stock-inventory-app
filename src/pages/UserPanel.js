@@ -224,63 +224,57 @@ const UserPanel = () => {
         return;
       }
 
-      // Create order
+      // Create order with exact backend structure
       const orderData = {
-        clientEmail: user.email,
+        client_name: user.name,
+        clientName: user.name,
+        product_name: product.name,
         productName: product.name,
         quantity: parseInt(orderQuantity),
-        price: product.price
+        price: product.price,
+        clientEmail: user.email,
+        status: 'Pending'
       };
 
       const response = await api.post('/api/orders', orderData, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
 
-      if (response.data) {
-        // Update inventory
-        const updatedQuantity = product.quantity - parseInt(orderQuantity);
-        await api.put(`/api/inventory/${product.id}`, {
-          ...product,
-          quantity: updatedQuantity
-        }, {
-          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-        });
+      // Reset form and close modal immediately after order creation
+      setSelectedProduct('');
+      setOrderQuantity('');
+      setIsLoading(false);
+      setIsQuickOrderModalOpen(false);
 
-        // Reset form and close modal
-        setSelectedProduct('');
-        setOrderQuantity('');
-        setIsQuickOrderModalOpen(false);
+      // Show success message
+      const successMessage = document.createElement('div');
+      successMessage.className = 'success-message';
+      successMessage.innerHTML = `
+        <div class="success-content">
+          <div class="success-icon">✓</div>
+          <h3>Order Placed Successfully!</h3>
+          <p>Your order has been created.</p>
+        </div>
+      `;
+      document.body.appendChild(successMessage);
 
-        // Show success message
-        const successMessage = document.createElement('div');
-        successMessage.className = 'success-message';
-        successMessage.innerHTML = `
-          <div class="success-content">
-            <div class="success-icon">✓</div>
-            <h3>Order Placed Successfully!</h3>
-            <p>Your order has been created.</p>
-          </div>
-        `;
-        document.body.appendChild(successMessage);
-
+      setTimeout(() => {
+        successMessage.classList.add('fade-out');
         setTimeout(() => {
-          successMessage.classList.add('fade-out');
-          setTimeout(() => {
-            document.body.removeChild(successMessage);
-          }, 300);
-        }, 3000);
+          document.body.removeChild(successMessage);
+        }, 300);
+      }, 3000);
 
-        // Refresh data
-        await Promise.all([
-          fetchUserOrders(user.id),
-          fetchInventory()
-        ]);
-      }
+      // Refresh data after showing success message
+      await Promise.all([
+        fetchUserOrders(user.id),
+        fetchInventory()
+      ]);
+
     } catch (error) {
       console.error('Error placing order:', error);
-      alert('Failed to create order. Please try again.');
-    } finally {
       setIsLoading(false);
+      alert('Failed to create order. Please try again.');
     }
   };
 
