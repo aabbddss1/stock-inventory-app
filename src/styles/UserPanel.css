@@ -456,3 +456,30 @@
       width: 100%;
     }
   }
+  
+  .order-summary {
+    background: #f8f9fa;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-top: 0.5rem;
+  }
+  
+  .order-summary p {
+    color: #2c3e50;
+    font-weight: 600;
+    margin: 0;
+    text-align: right;
+  }
+  
+  .quick-order-button:disabled {
+    background: #cccccc;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+  
+  .quick-order-button:disabled:hover {
+    background: #cccccc;
+    transform: none;
+    box-shadow: none;
+  }

@@ -207,25 +207,58 @@ const UserPanel = () => {
     }
 
     try {
-      const response = await api.post('/api/orders', {
-        productId: selectedProduct,
+      // Get the selected product details from inventory
+      const product = inventory.find(item => item.id === parseInt(selectedProduct));
+      
+      if (!product) {
+        alert('Selected product not found');
+        return;
+      }
+
+      // Check if enough stock is available
+      if (product.quantity < parseInt(orderQuantity)) {
+        alert('Not enough stock available');
+        return;
+      }
+
+      // Create the order
+      const orderData = {
+        productId: parseInt(selectedProduct),
         quantity: parseInt(orderQuantity),
-        userId: user.id
-      }, {
+        userId: user.id,
+        productName: product.name,
+        price: product.price,
+        status: 'Pending',
+        clientName: user.name,
+        clientEmail: user.email
+      };
+
+      const response = await api.post('/api/orders', orderData, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
 
-      // Refresh orders after placing new order
-      fetchUserOrders(user.id);
+      // Update inventory quantity
+      const updatedQuantity = product.quantity - parseInt(orderQuantity);
+      await api.put(`/api/inventory/${product.id}`, 
+        { ...product, quantity: updatedQuantity },
+        { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }}
+      );
+
+      // Refresh data
+      await Promise.all([
+        fetchUserOrders(user.id),
+        fetchInventory()
+      ]);
       
-      // Reset form
+      // Reset form and close modal
       setSelectedProduct('');
       setOrderQuantity('');
+      setIsQuickOrderModalOpen(false);
       
       alert('Order placed successfully!');
     } catch (error) {
       console.error('Error placing order:', error);
-      alert('Failed to place order. Please try again.');
+      alert(error.response?.data?.message || 'Failed to place order. Please try again.');
     }
   };
 
@@ -283,7 +316,9 @@ const UserPanel = () => {
               >
                 <option value="">Select Product</option>
                 {inventory.map(item => (
-                  <option key={item.id} value={item.id}>{item.name}</option>
+                  <option key={item.id} value={item.id}>
+                    {item.name} - Stock: {item.quantity} - Price: ${item.price}
+                  </option>
                 ))}
               </select>
               <input 
@@ -291,12 +326,22 @@ const UserPanel = () => {
                 className="quick-order-input"
                 placeholder="Quantity"
                 min="1"
+                max={selectedProduct ? inventory.find(item => item.id === parseInt(selectedProduct))?.quantity : undefined}
                 value={orderQuantity}
                 onChange={(e) => setOrderQuantity(e.target.value)}
               />
+              <div className="order-summary">
+                {selectedProduct && orderQuantity ? (
+                  <p>
+                    Total Price: $
+                    {(inventory.find(item => item.id === parseInt(selectedProduct))?.price * parseInt(orderQuantity || 0)).toFixed(2)}
+                  </p>
+                ) : null}
+              </div>
               <button 
                 className="quick-order-button"
                 onClick={handleQuickOrder}
+                disabled={!selectedProduct || !orderQuantity}
               >
                 Place Order
               </button>
