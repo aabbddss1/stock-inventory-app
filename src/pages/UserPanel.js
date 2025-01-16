@@ -234,10 +234,14 @@ const UserPanel = () => {
         status: 'Pending'
       };
 
+      console.log('Creating order:', orderData);
+
       // First create the order
       const orderResponse = await api.post('/api/orders', orderData, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
+
+      console.log('Order created:', orderResponse.data);
 
       // Then update inventory with complete payload
       const inventoryUpdateData = {
@@ -248,6 +252,8 @@ const UserPanel = () => {
         description: product.description || '',
         supplier: product.supplier || ''
       };
+
+      console.log('Updating inventory:', inventoryUpdateData);
 
       // Update inventory
       await api.put(
@@ -265,6 +271,7 @@ const UserPanel = () => {
       setSelectedProduct('');
       setOrderQuantity('');
       setIsQuickOrderModalOpen(false);
+      setIsLoading(false); // Make sure to reset loading state before showing success message
 
       // Show success message
       const successMessage = document.createElement('div');
@@ -295,14 +302,13 @@ const UserPanel = () => {
       console.error('Error placing order:', error);
       let errorMessage = 'Failed to create order. Please try again.';
       
-      // Check if the error response contains a warning about email
       if (error.response?.data?.warning?.includes('email')) {
         errorMessage = 'Order created but email notification could not be sent. Please contact support.';
       }
       
       alert(errorMessage);
-    } finally {
-      setIsLoading(false);
+      setIsLoading(false); // Make sure to reset loading state on error
+      setIsQuickOrderModalOpen(false); // Close modal on error
     }
   };
 
