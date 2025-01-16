@@ -309,8 +309,8 @@ const UserPanel = () => {
             <div className="orders-container">
               {orders
                 .sort((a, b) => {
-                  const dateA = a.date ? new Date(a.date).getTime() : 0;
-                  const dateB = b.date ? new Date(b.date).getTime() : 0;
+                  const dateA = a.orderDate ? new Date(a.orderDate).getTime() : 0;
+                  const dateB = b.orderDate ? new Date(b.orderDate).getTime() : 0;
                   return dateB - dateA;
                 })
                 .slice(0, 5)
@@ -335,7 +335,7 @@ const UserPanel = () => {
                         <div className="info-row">
                           <span className="info-label">Date</span>
                           <span className="info-value">
-                            {order.date ? new Date(order.date).toLocaleDateString('en-US', {
+                            {order.orderDate ? new Date(order.orderDate).toLocaleString('en-US', {
                               year: 'numeric',
                               month: 'short',
                               day: 'numeric',
