@@ -95,6 +95,9 @@ function DashboardCards() {
   // Add this to your state declarations at the top of the component
   const [dailyOrderCount, setDailyOrderCount] = useState(0);
 
+  const [emailHistory, setEmailHistory] = useState([]);
+  const [isEmailHistoryModalOpen, setIsEmailHistoryModalOpen] = useState(false);
+
   // Add this useEffect to get user data when component mounts
   useEffect(() => {
     const userData = JSON.parse(localStorage.getItem('user'));
@@ -344,6 +347,17 @@ function DashboardCards() {
     }).length;
   };
 
+  const fetchEmailHistory = useCallback(async () => {
+    try {
+      const response = await axios.get('http://37.148.210.169:5001/api/email-history', {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+      });
+      setEmailHistory(response.data);
+    } catch (error) {
+      console.error('Error fetching email history:', error);
+    }
+  }, []);
+
   const cardsData = [
     {
       title: `${totalOrders} ${t('orders')}`,
@@ -410,7 +424,8 @@ function DashboardCards() {
       icon: faEnvelope,
       description: t('mailsDesc'),
       onClick: () => {
-        window.location.href = "mailto:qubite.net@gmail.com?subject=Hello%20Qubite&body=Write%20your%20message%20here";
+        fetchEmailHistory();
+        setIsEmailHistoryModalOpen(true);
       },
     },
   ];
@@ -796,6 +811,40 @@ function DashboardCards() {
             ) : (
               <div className="dashboard-no-pending">
                 <p>{t('noPendingOrders')}</p>
+              </div>
+            )}
+          </div>
+        </div>
+      </Modal>
+
+      {/* Email History Modal */}
+      <Modal isOpen={isEmailHistoryModalOpen} onClose={() => setIsEmailHistoryModalOpen(false)}>
+        <div className="email-history-modal">
+          <h2>{t('emailHistory')}</h2>
+          <div className="email-history-list">
+            {emailHistory.length > 0 ? (
+              emailHistory.map((email, index) => (
+                <div key={index} className="email-history-item">
+                  <div className="email-history-header">
+                    <span className="email-type">{email.type}</span>
+                    <span className="email-date">{new Date(email.sentAt).toLocaleString()}</span>
+                  </div>
+                  <div className="email-history-content">
+                    <p><strong>{t('to')}:</strong> {email.recipient}</p>
+                    <p><strong>{t('subject')}:</strong> {email.subject}</p>
+                    {email.orderId && <p><strong>{t('orderId')}:</strong> #{email.orderId}</p>}
+                    {email.documentId && <p><strong>{t('documentId')}:</strong> #{email.documentId}</p>}
+                  </div>
+                  <div className="email-status">
+                    <span className={`status-badge ${email.status.toLowerCase()}`}>
+                      {email.status}
+                    </span>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="no-emails">
+                <p>{t('noEmailHistory')}</p>
               </div>
             )}
           </div>

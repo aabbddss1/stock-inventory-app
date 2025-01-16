@@ -1,4 +1,5 @@
 const nodemailer = require('nodemailer');
+const db = require('../db');
 
 const transporter = nodemailer.createTransport({
   service: 'gmail',
@@ -14,7 +15,7 @@ const transporter = nodemailer.createTransport({
   }
 });
 
-const sendEmail = async ({ to, subject, html, attachments }) => {
+const sendEmail = async ({ to, subject, html, attachments, type = 'GENERAL', orderId = null, documentId = null, customerId = null }) => {
   try {
     const mailOptions = {
       from: `"Qubite Stock Management" <${process.env.EMAIL_USER}>`,
@@ -28,8 +29,48 @@ const sendEmail = async ({ to, subject, html, attachments }) => {
     }
     
     const info = await transporter.sendMail(mailOptions);
+
+    // Track the email in database
+    const query = `
+      INSERT INTO email_history 
+      (email_type, recipient_email, subject, status, order_id, document_id, customer_id) 
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `;
+
+    await db.promise().query(query, [
+      type,
+      to,
+      subject,
+      'sent',
+      orderId,
+      documentId,
+      customerId
+    ]);
+
     return info;
   } catch (error) {
+    // Log failed email attempt
+    if (db) {
+      try {
+        const query = `
+          INSERT INTO email_history 
+          (email_type, recipient_email, subject, status, order_id, document_id, customer_id) 
+          VALUES (?, ?, ?, ?, ?, ?, ?)
+        `;
+
+        await db.promise().query(query, [
+          type,
+          to,
+          subject,
+          'failed',
+          orderId,
+          documentId,
+          customerId
+        ]);
+      } catch (dbError) {
+        console.error('Error logging failed email:', dbError);
+      }
+    }
     throw error;
   }
 };
