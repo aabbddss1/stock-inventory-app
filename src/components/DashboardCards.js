@@ -92,22 +92,15 @@ function DashboardCards() {
   // Add new state for user
   const [user, setUser] = useState(null);
 
-  // Add email-related states
+  // Add this to your state declarations at the top of the component
+  const [dailyOrderCount, setDailyOrderCount] = useState(0);
+
   const [emailHistory, setEmailHistory] = useState([]);
   const [isEmailHistoryModalOpen, setIsEmailHistoryModalOpen] = useState(false);
   const [emailPage, setEmailPage] = useState(1);
   const [hasMoreEmails, setHasMoreEmails] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [dailyOrderCount, setDailyOrderCount] = useState(0);
   const EMAILS_PER_PAGE = 10;
-
-  // Add this state for tracking expanded rows
-  const [expandedEmailId, setExpandedEmailId] = useState(null);
-
-  // Add this function to handle row clicks
-  const handleEmailRowClick = (emailId) => {
-    setExpandedEmailId(expandedEmailId === emailId ? null : emailId);
-  };
 
   // Add this useEffect to get user data when component mounts
   useEffect(() => {
@@ -863,76 +856,26 @@ function DashboardCards() {
                     <tr>
                       <th>{t('type')}</th>
                       <th>{t('recipient')}</th>
-                      <th className="hide-on-mobile">{t('subject')}</th>
-                      <th className="hide-on-mobile">{t('date')}</th>
-                      <th className="hide-on-mobile">{t('status')}</th>
+                      <th>{t('subject')}</th>
+                      <th>{t('date')}</th>
+                      <th>{t('status')}</th>
                     </tr>
                   </thead>
                   <tbody>
                     {emailHistory.map((email, index) => (
-                      <React.Fragment key={email.id || index}>
-                        <tr 
-                          className={`email-history-row ${expandedEmailId === (email.id || index) ? 'expanded' : ''}`}
-                          onClick={() => handleEmailRowClick(email.id || index)}
-                        >
-                          <td>
-                            <span className="email-type">{email.type}</span>
-                          </td>
-                          <td>{email.recipient}</td>
-                          <td className="hide-on-mobile">{email.subject}</td>
-                          <td className="hide-on-mobile">{new Date(email.sentAt).toLocaleString()}</td>
-                          <td className="hide-on-mobile">
-                            <span className={`status-badge ${email.status.toLowerCase()}`}>
-                              {email.status}
-                            </span>
-                          </td>
-                        </tr>
-                        {expandedEmailId === (email.id || index) && (
-                          <tr className="email-detail-row">
-                            <td colSpan="5">
-                              <div className="email-details">
-                                <div className="email-detail-section">
-                                  <h4>{t('emailDetails')}</h4>
-                                  <div className="detail-grid">
-                                    <div className="detail-item">
-                                      <label>{t('subject')}:</label>
-                                      <span>{email.subject}</span>
-                                    </div>
-                                    <div className="detail-item">
-                                      <label>{t('sentAt')}:</label>
-                                      <span>{new Date(email.sentAt).toLocaleString()}</span>
-                                    </div>
-                                    <div className="detail-item">
-                                      <label>{t('status')}:</label>
-                                      <span className={`status-badge ${email.status.toLowerCase()}`}>
-                                        {email.status}
-                                      </span>
-                                    </div>
-                                    {email.orderId && (
-                                      <div className="detail-item">
-                                        <label>{t('orderId')}:</label>
-                                        <span>#{email.orderId}</span>
-                                      </div>
-                                    )}
-                                    {email.documentId && (
-                                      <div className="detail-item">
-                                        <label>{t('documentId')}:</label>
-                                        <span>#{email.documentId}</span>
-                                      </div>
-                                    )}
-                                    {email.customerId && (
-                                      <div className="detail-item">
-                                        <label>{t('customerId')}:</label>
-                                        <span>#{email.customerId}</span>
-                                      </div>
-                                    )}
-                                  </div>
-                                </div>
-                              </div>
-                            </td>
-                          </tr>
-                        )}
-                      </React.Fragment>
+                      <tr key={index} className="email-history-row">
+                        <td>
+                          <span className="email-type">{email.type}</span>
+                        </td>
+                        <td>{email.recipient}</td>
+                        <td>{email.subject}</td>
+                        <td>{new Date(email.sentAt).toLocaleString()}</td>
+                        <td>
+                          <span className={`status-badge ${email.status.toLowerCase()}`}>
+                            {email.status}
+                          </span>
+                        </td>
+                      </tr>
                     ))}
                   </tbody>
                 </table>
