@@ -81,6 +81,26 @@ function DashboardCards() {
 
   const [orders, setOrders] = useState([]); // Add this state if you haven't already
 
+  // Add new states for analytics
+  const [analytics, setAnalytics] = useState({
+    dailySales: [],
+    weeklySales: [],
+    salesByStatus: [],
+    inventoryLevels: []
+  });
+
+  // Add new state for user
+  const [user, setUser] = useState(null);
+
+  // Add email-related states
+  const [emailHistory, setEmailHistory] = useState([]);
+  const [isEmailHistoryModalOpen, setIsEmailHistoryModalOpen] = useState(false);
+  const [emailPage, setEmailPage] = useState(1);
+  const [hasMoreEmails, setHasMoreEmails] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [dailyOrderCount, setDailyOrderCount] = useState(0);
+  const EMAILS_PER_PAGE = 10;
+
   // Add this state for tracking expanded rows
   const [expandedEmailId, setExpandedEmailId] = useState(null);
 
