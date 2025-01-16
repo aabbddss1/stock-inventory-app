@@ -549,78 +549,66 @@
 
 /* Email History Modal Styles */
 .email-history-modal {
-  max-width: 800px;
+  max-width: 1000px;
   margin: 0 auto;
+  padding: 20px;
 }
 
 .email-history-modal h2 {
   color: #333;
   margin-bottom: 20px;
   text-align: center;
+  font-size: 24px;
 }
 
-.email-history-list {
-  max-height: 500px;
-  overflow-y: auto;
-  padding: 10px;
-}
-
-.email-history-item {
+.email-list-container {
   background: #fff;
-  border: 1px solid #e0e0e0;
   border-radius: 8px;
-  margin-bottom: 15px;
-  padding: 15px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
 }
 
-.email-history-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid #eee;
+.email-history-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
 }
 
-.email-type {
-  font-weight: bold;
-  color: #2196F3;
-  background: #e3f2fd;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 0.9em;
+.email-history-table th {
+  background: #f8f9fa;
+  padding: 12px 16px;
+  text-align: left;
+  font-weight: 600;
+  color: #333;
+  border-bottom: 2px solid #dee2e6;
+  white-space: nowrap;
 }
 
-.email-date {
-  color: #666;
-  font-size: 0.9em;
-}
-
-.email-history-content {
-  margin: 15px 0;
-}
-
-.email-history-content p {
-  margin: 8px 0;
+.email-history-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid #e9ecef;
   color: #333;
 }
 
-.email-history-content strong {
-  color: #555;
-  margin-right: 8px;
+.email-history-row:hover {
+  background-color: #f8f9fa;
 }
 
-.email-status {
-  text-align: right;
-  margin-top: 10px;
+.email-type {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.85em;
+  font-weight: 500;
+  background: #e3f2fd;
+  color: #1976d2;
 }
 
 .status-badge {
   display: inline-block;
   padding: 4px 8px;
   border-radius: 4px;
-  font-size: 0.9em;
+  font-size: 0.85em;
   font-weight: 500;
 }
 
@@ -639,15 +627,74 @@
   color: #ef6c00;
 }
 
+.load-more-container {
+  text-align: center;
+  padding: 20px;
+  background: #f8f9fa;
+  border-top: 1px solid #dee2e6;
+}
+
+.load-more-button {
+  background: #3aafa9;
+  color: white;
+  border: none;
+  padding: 8px 24px;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.load-more-button:hover {
+  background: #2a9d8f;
+}
+
+.load-more-button:disabled {
+  background: #cccccc;
+  cursor: not-allowed;
+}
+
+.loading-spinner-small {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid #ffffff;
+  border-top: 2px solid transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
 .no-emails {
   text-align: center;
   padding: 40px 20px;
   color: #666;
-  background: #f5f5f5;
-  border-radius: 8px;
+  background: #f8f9fa;
 }
 
-.no-emails p {
-  margin: 0;
-  font-size: 1.1em;
+/* Responsive styles for email history */
+@media (max-width: 768px) {
+  .email-history-modal {
+    padding: 10px;
+  }
+
+  .email-history-table {
+    display: block;
+    overflow-x: auto;
+  }
+
+  .email-history-table th,
+  .email-history-table td {
+    padding: 8px 12px;
+    font-size: 0.9em;
+  }
+
+  .email-type {
+    font-size: 0.8em;
+    padding: 3px 6px;
+  }
+
+  .status-badge {
+    font-size: 0.8em;
+    padding: 3px 6px;
+  }
 }

@@ -97,6 +97,10 @@ function DashboardCards() {
 
   const [emailHistory, setEmailHistory] = useState([]);
   const [isEmailHistoryModalOpen, setIsEmailHistoryModalOpen] = useState(false);
+  const [emailPage, setEmailPage] = useState(1);
+  const [hasMoreEmails, setHasMoreEmails] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const EMAILS_PER_PAGE = 10;
 
   // Add this useEffect to get user data when component mounts
   useEffect(() => {
@@ -347,16 +351,31 @@ function DashboardCards() {
     }).length;
   };
 
-  const fetchEmailHistory = useCallback(async () => {
+  const fetchEmailHistory = useCallback(async (page = 1) => {
     try {
-      const response = await axios.get('http://37.148.210.169:5001/api/email/history', {
+      setIsLoadingMore(page > 1);
+      const response = await axios.get(`http://37.148.210.169:5001/api/email/history?page=${page}&limit=${EMAILS_PER_PAGE}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
-      setEmailHistory(response.data);
+      
+      if (page === 1) {
+        setEmailHistory(response.data.emails);
+      } else {
+        setEmailHistory(prev => [...prev, ...response.data.emails]);
+      }
+      
+      setHasMoreEmails(response.data.hasMore);
+      setEmailPage(page);
     } catch (error) {
       console.error('Error fetching email history:', error);
+    } finally {
+      setIsLoadingMore(false);
     }
   }, []);
+
+  const handleLoadMore = () => {
+    fetchEmailHistory(emailPage + 1);
+  };
 
   const cardsData = [
     {
@@ -821,30 +840,55 @@ function DashboardCards() {
       <Modal isOpen={isEmailHistoryModalOpen} onClose={() => setIsEmailHistoryModalOpen(false)}>
         <div className="email-history-modal">
           <h2>{t('emailHistory')}</h2>
-          <div className="email-history-list">
-            {emailHistory.length > 0 ? (
-              emailHistory.map((email, index) => (
-                <div key={index} className="email-history-item">
-                  <div className="email-history-header">
-                    <span className="email-type">{email.type}</span>
-                    <span className="email-date">{new Date(email.sentAt).toLocaleString()}</span>
-                  </div>
-                  <div className="email-history-content">
-                    <p><strong>{t('to')}:</strong> {email.recipient}</p>
-                    <p><strong>{t('subject')}:</strong> {email.subject}</p>
-                    {email.orderId && <p><strong>{t('orderId')}:</strong> #{email.orderId}</p>}
-                    {email.documentId && <p><strong>{t('documentId')}:</strong> #{email.documentId}</p>}
-                  </div>
-                  <div className="email-status">
-                    <span className={`status-badge ${email.status.toLowerCase()}`}>
-                      {email.status}
-                    </span>
-                  </div>
-                </div>
-              ))
-            ) : (
+          <div className="email-list-container">
+            <table className="email-history-table">
+              <thead>
+                <tr>
+                  <th>{t('type')}</th>
+                  <th>{t('recipient')}</th>
+                  <th>{t('subject')}</th>
+                  <th>{t('date')}</th>
+                  <th>{t('status')}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {emailHistory.map((email, index) => (
+                  <tr key={index} className="email-history-row">
+                    <td>
+                      <span className="email-type">{email.type}</span>
+                    </td>
+                    <td>{email.recipient}</td>
+                    <td>{email.subject}</td>
+                    <td>{new Date(email.sentAt).toLocaleString()}</td>
+                    <td>
+                      <span className={`status-badge ${email.status.toLowerCase()}`}>
+                        {email.status}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            
+            {emailHistory.length === 0 && (
               <div className="no-emails">
                 <p>{t('noEmailHistory')}</p>
+              </div>
+            )}
+            
+            {hasMoreEmails && (
+              <div className="load-more-container">
+                <button 
+                  className="load-more-button" 
+                  onClick={handleLoadMore}
+                  disabled={isLoadingMore}
+                >
+                  {isLoadingMore ? (
+                    <span className="loading-spinner-small"></span>
+                  ) : (
+                    t('loadMore')
+                  )}
+                </button>
               </div>
             )}
           </div>
