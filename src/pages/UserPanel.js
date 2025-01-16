@@ -59,6 +59,12 @@ const UserPanel = () => {
   const [orderQuantity, setOrderQuantity] = useState('');
   const [isQuickOrderModalOpen, setIsQuickOrderModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [actionLoading, setActionLoading] = useState(false); // Add this for order creation loading
+  const [newOrder, setNewOrder] = useState({
+    productName: '',
+    quantity: '',
+    price: ''
+  });
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -203,33 +209,31 @@ const UserPanel = () => {
 
   const handleQuickOrder = async (e) => {
     e.preventDefault();
-    if (!selectedProduct || !orderQuantity) {
+    if (!newOrder.productName || !newOrder.quantity) {
       alert('Please select a product and specify quantity');
       return;
     }
 
-    setIsLoading(true);
+    setActionLoading(true);
     try {
-      const product = inventory.find(item => item.id === parseInt(selectedProduct));
+      const selectedProduct = inventory.find(item => item.name === newOrder.productName);
       
-      if (!product) {
+      if (!selectedProduct) {
         alert('Selected product not found');
-        setIsLoading(false);
         return;
       }
 
-      if (product.quantity < parseInt(orderQuantity)) {
+      if (selectedProduct.quantity < parseInt(newOrder.quantity)) {
         alert('Not enough stock available');
-        setIsLoading(false);
         return;
       }
 
-      // Create order with exact backend structure
+      // Create order
       const orderData = {
         clientName: user.name,
-        productName: product.name,
-        quantity: parseInt(orderQuantity),
-        price: product.price,
+        productName: selectedProduct.name,
+        quantity: parseInt(newOrder.quantity),
+        price: parseFloat(selectedProduct.price),
         clientEmail: user.email,
         status: 'Pending'
       };
@@ -239,19 +243,19 @@ const UserPanel = () => {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
 
-      // Then update inventory with complete payload
+      // Update inventory with complete payload
       const inventoryUpdateData = {
-        name: product.name,
-        category: product.category || 'General',
-        quantity: product.quantity - parseInt(orderQuantity),
-        price: product.price,
-        description: product.description || '',
-        supplier: product.supplier || ''
+        name: selectedProduct.name,
+        quantity: selectedProduct.quantity - parseInt(newOrder.quantity),
+        price: selectedProduct.price,
+        description: selectedProduct.description || '',
+        category: selectedProduct.category || '',
+        supplier: selectedProduct.supplier || ''
       };
 
       // Update inventory
       await api.put(
-        `/api/inventory/${product.id}`,
+        `/api/inventory/${selectedProduct.id}`,
         inventoryUpdateData,
         {
           headers: { 
@@ -262,8 +266,7 @@ const UserPanel = () => {
       );
 
       // Reset form and close modal
-      setSelectedProduct('');
-      setOrderQuantity('');
+      setNewOrder({ productName: '', quantity: '', price: '' });
       setIsQuickOrderModalOpen(false);
 
       // Refresh data
@@ -273,35 +276,12 @@ const UserPanel = () => {
       ]);
 
       // Show success message
-      const successMessage = document.createElement('div');
-      successMessage.className = 'success-message';
-      successMessage.innerHTML = `
-        <div class="success-content">
-          <div class="success-icon">✓</div>
-          <h3>Order Placed Successfully!</h3>
-          <p>Your order has been created.</p>
-        </div>
-      `;
-      document.body.appendChild(successMessage);
-
-      setTimeout(() => {
-        successMessage.classList.add('fade-out');
-        setTimeout(() => {
-          document.body.removeChild(successMessage);
-        }, 300);
-      }, 3000);
-
+      alert('Order created successfully!');
     } catch (error) {
-      console.error('Error placing order:', error);
-      let errorMessage = 'Failed to create order. Please try again.';
-      
-      if (error.response?.data?.warning?.includes('email')) {
-        errorMessage = 'Order created but email notification could not be sent. Please contact support.';
-      }
-      
-      alert(errorMessage);
+      console.error('Error creating order:', error);
+      alert(error.response?.data?.error || 'Failed to create order');
     } finally {
-      setIsLoading(false);
+      setActionLoading(false);
     }
   };
 
@@ -349,20 +329,27 @@ const UserPanel = () => {
           </div>
 
           {/* Quick Order Modal */}
-          <Modal isOpen={isQuickOrderModalOpen} onClose={() => !isLoading && setIsQuickOrderModalOpen(false)}>
+          <Modal isOpen={isQuickOrderModalOpen} onClose={() => !actionLoading && setIsQuickOrderModalOpen(false)}>
             <h2>Create Quick Order</h2>
             <form onSubmit={handleQuickOrder} className="quick-order-form">
               <select 
                 className="quick-order-select"
-                value={selectedProduct}
-                onChange={(e) => setSelectedProduct(e.target.value)}
-                disabled={isLoading}
+                value={newOrder.productName}
+                onChange={(e) => {
+                  const selectedProduct = inventory.find(item => item.name === e.target.value);
+                  setNewOrder({
+                    ...newOrder,
+                    productName: e.target.value,
+                    price: selectedProduct?.price || ''
+                  });
+                }}
+                disabled={actionLoading}
                 required
               >
                 <option value="">Select Product</option>
                 {Array.isArray(inventory) && inventory.length > 0 ? (
                   inventory.map(item => (
-                    <option key={item.id} value={item.id}>
+                    <option key={item.id} value={item.name}>
                       {item.name} - Stock: {item.quantity} - Price: ${item.price}
                     </option>
                   ))
@@ -375,34 +362,34 @@ const UserPanel = () => {
                 className="quick-order-input"
                 placeholder="Quantity"
                 min="1"
-                max={selectedProduct ? inventory.find(item => item.id === parseInt(selectedProduct))?.quantity : undefined}
-                value={orderQuantity}
+                max={inventory.find(item => item.name === newOrder.productName)?.quantity || 1}
+                value={newOrder.quantity}
                 onChange={(e) => {
-                  const product = inventory.find(item => item.id === parseInt(selectedProduct));
+                  const selectedProduct = inventory.find(item => item.name === newOrder.productName);
                   const quantity = parseInt(e.target.value);
-                  if (!product || quantity > product.quantity) {
+                  if (!selectedProduct || quantity > selectedProduct.quantity) {
                     alert('Not enough stock available');
                     return;
                   }
-                  setOrderQuantity(e.target.value);
+                  setNewOrder({ ...newOrder, quantity: e.target.value });
                 }}
-                disabled={isLoading}
+                disabled={actionLoading}
                 required
               />
               <div className="order-summary">
-                {selectedProduct && orderQuantity ? (
+                {newOrder.productName && newOrder.quantity ? (
                   <p>
                     Total Price: $
-                    {(inventory.find(item => item.id === parseInt(selectedProduct))?.price * parseInt(orderQuantity || 0)).toFixed(2)}
+                    {(inventory.find(item => item.name === newOrder.productName)?.price * parseInt(newOrder.quantity || 0)).toFixed(2)}
                   </p>
                 ) : null}
               </div>
               <button 
                 type="submit"
-                className={`quick-order-button ${isLoading ? 'loading' : ''}`}
-                disabled={!selectedProduct || !orderQuantity || isLoading}
+                className={`quick-order-button ${actionLoading ? 'loading' : ''}`}
+                disabled={!newOrder.productName || !newOrder.quantity || actionLoading}
               >
-                {isLoading ? (
+                {actionLoading ? (
                   <div className="loader">Loading...</div>
                 ) : 'Place Order'}
               </button>
