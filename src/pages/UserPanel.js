@@ -201,7 +201,8 @@ const UserPanel = () => {
     }
   }, [inventory]);
 
-  const handleQuickOrder = async () => {
+  const handleQuickOrder = async (e) => {
+    e.preventDefault();
     if (!selectedProduct || !orderQuantity) {
       alert('Please select a product and specify quantity');
       return;
@@ -223,55 +224,61 @@ const UserPanel = () => {
         return;
       }
 
-      // Create order with the exact same structure as DashboardCards
+      // Create order
       const orderData = {
-        clientName: user.name,
         clientEmail: user.email,
-        product_name: product.name,
         productName: product.name,
         quantity: parseInt(orderQuantity),
-        price: product.price,
-        status: 'Pending'
+        price: product.price
       };
 
-      await api.post('/api/orders', orderData, {
+      const response = await api.post('/api/orders', orderData, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
 
-      // Refresh data
-      await Promise.all([
-        fetchUserOrders(user.id),
-        fetchInventory()
-      ]);
-      
-      // Reset form and close modal
-      setSelectedProduct('');
-      setOrderQuantity('');
-      setIsQuickOrderModalOpen(false);
-      
-      // Show success message
-      const successMessage = document.createElement('div');
-      successMessage.className = 'success-message';
-      successMessage.innerHTML = `
-        <div class="success-content">
-          <div class="success-icon">✓</div>
-          <h3>Order Placed Successfully!</h3>
-          <p>Your order has been created.</p>
-        </div>
-      `;
-      document.body.appendChild(successMessage);
+      if (response.data) {
+        // Update inventory
+        const updatedQuantity = product.quantity - parseInt(orderQuantity);
+        await api.put(`/api/inventory/${product.id}`, {
+          ...product,
+          quantity: updatedQuantity
+        }, {
+          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+        });
 
-      setTimeout(() => {
-        successMessage.classList.add('fade-out');
+        // Reset form and close modal
+        setSelectedProduct('');
+        setOrderQuantity('');
+        setIsQuickOrderModalOpen(false);
+
+        // Show success message
+        const successMessage = document.createElement('div');
+        successMessage.className = 'success-message';
+        successMessage.innerHTML = `
+          <div class="success-content">
+            <div class="success-icon">✓</div>
+            <h3>Order Placed Successfully!</h3>
+            <p>Your order has been created.</p>
+          </div>
+        `;
+        document.body.appendChild(successMessage);
+
         setTimeout(() => {
-          document.body.removeChild(successMessage);
-        }, 300);
-      }, 3000);
+          successMessage.classList.add('fade-out');
+          setTimeout(() => {
+            document.body.removeChild(successMessage);
+          }, 300);
+        }, 3000);
 
+        // Refresh data
+        await Promise.all([
+          fetchUserOrders(user.id),
+          fetchInventory()
+        ]);
+      }
     } catch (error) {
       console.error('Error placing order:', error);
-      const errorMessage = error.response?.data?.error || error.response?.data?.message || 'Failed to create order. Please try again.';
-      alert(errorMessage);
+      alert('Failed to create order. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -321,14 +328,15 @@ const UserPanel = () => {
           </div>
 
           {/* Quick Order Modal */}
-          <Modal isOpen={isQuickOrderModalOpen} onClose={() => setIsQuickOrderModalOpen(false)}>
+          <Modal isOpen={isQuickOrderModalOpen} onClose={() => !isLoading && setIsQuickOrderModalOpen(false)}>
             <h2>Create Quick Order</h2>
-            <div className="quick-order-form">
+            <form onSubmit={handleQuickOrder} className="quick-order-form">
               <select 
                 className="quick-order-select"
                 value={selectedProduct}
                 onChange={(e) => setSelectedProduct(e.target.value)}
                 disabled={isLoading}
+                required
               >
                 <option value="">Select Product</option>
                 {inventory.map(item => (
@@ -346,6 +354,7 @@ const UserPanel = () => {
                 value={orderQuantity}
                 onChange={(e) => setOrderQuantity(e.target.value)}
                 disabled={isLoading}
+                required
               />
               <div className="order-summary">
                 {selectedProduct && orderQuantity ? (
@@ -356,15 +365,15 @@ const UserPanel = () => {
                 ) : null}
               </div>
               <button 
+                type="submit"
                 className={`quick-order-button ${isLoading ? 'loading' : ''}`}
-                onClick={handleQuickOrder}
                 disabled={!selectedProduct || !orderQuantity || isLoading}
               >
                 {isLoading ? (
                   <div className="loader"></div>
                 ) : 'Place Order'}
               </button>
-            </div>
+            </form>
           </Modal>
 
           {/* Analytics Graphs */}
