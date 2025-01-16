@@ -56,7 +56,7 @@ function LoginPage() {
   };
 
   const toggleLanguage = () => {
-    const newLang = i18n.language === 'en' ? 'tr' : 'en';
+    const newLang = i18n.language === 'en' ? 'tr' : i18n.language === 'tr' ? 'de' : i18n.language === 'de' ? 'es' : 'en';
     i18n.changeLanguage(newLang);
     localStorage.setItem('language', newLang);
   };
@@ -87,7 +87,7 @@ function LoginPage() {
         <div className="login-form">
           <div className="language-toggle">
             <button onClick={toggleLanguage} className="lang-button">
-              {i18n.language === 'en' ? 'TR' : 'EN'}
+            {i18n.language === 'en' ? 'EN' : i18n.language === 'tr' ? 'TR' : i18n.language === 'de' ? 'DE' : 'ES'}
             </button>
           </div>
           <div className="golfplast-icon">
