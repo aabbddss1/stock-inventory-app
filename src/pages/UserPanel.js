@@ -221,7 +221,25 @@ const UserPanel = () => {
         return;
       }
 
-      // Create the order
+      // First update the inventory
+      const updatedQuantity = parseInt(product.quantity) - parseInt(orderQuantity);
+      const updatedInventoryResponse = await api.put(`/api/inventory/${product.id}`, 
+        { 
+          ...product, 
+          quantity: updatedQuantity 
+        },
+        { 
+          headers: { 
+            Authorization: `Bearer ${localStorage.getItem('token')}` 
+          }
+        }
+      );
+
+      if (!updatedInventoryResponse.data) {
+        throw new Error('Failed to update inventory');
+      }
+
+      // Then create the order
       const orderData = {
         productId: parseInt(selectedProduct),
         quantity: parseInt(orderQuantity),
@@ -230,19 +248,45 @@ const UserPanel = () => {
         price: product.price,
         status: 'Pending',
         clientName: user.name,
-        clientEmail: user.email
+        clientEmail: user.email,
+        totalPrice: product.price * parseInt(orderQuantity)
       };
 
-      const response = await api.post('/api/orders', orderData, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+      const orderResponse = await api.post('/api/orders', orderData, {
+        headers: { 
+          Authorization: `Bearer ${localStorage.getItem('token')}` 
+        }
       });
 
-      // Update inventory quantity
-      const updatedQuantity = product.quantity - parseInt(orderQuantity);
-      await api.put(`/api/inventory/${product.id}`, 
-        { ...product, quantity: updatedQuantity },
-        { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }}
-      );
+      if (!orderResponse.data) {
+        // If order creation fails, revert the inventory change
+        await api.put(`/api/inventory/${product.id}`, 
+          { ...product, quantity: product.quantity },
+          { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }}
+        );
+        throw new Error('Failed to create order');
+      }
+
+      // Send confirmation email
+      try {
+        await api.post('/api/email/send', {
+          to: user.email,
+          subject: 'Order Confirmation',
+          type: 'ORDER_CONFIRMATION',
+          data: {
+            orderNumber: orderResponse.data.id,
+            productName: product.name,
+            quantity: orderQuantity,
+            totalPrice: (product.price * parseInt(orderQuantity)).toFixed(2),
+            customerName: user.name
+          }
+        }, {
+          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+        });
+      } catch (emailError) {
+        console.error('Error sending confirmation email:', emailError);
+        // Don't throw error here, as the order is already created
+      }
 
       // Refresh data
       await Promise.all([
@@ -255,7 +299,7 @@ const UserPanel = () => {
       setOrderQuantity('');
       setIsQuickOrderModalOpen(false);
       
-      alert('Order placed successfully!');
+      alert('Order placed successfully! A confirmation email will be sent to your inbox.');
     } catch (error) {
       console.error('Error placing order:', error);
       alert(error.response?.data?.message || 'Failed to place order. Please try again.');
