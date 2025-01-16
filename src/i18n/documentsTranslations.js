@@ -102,5 +102,85 @@ export const documentsTranslations = {
     
     // Sayfalama
     pageOf: "Sayfa {{current}} / {{total}}",
+  },
+  de: {
+    documents: "Dokumente",
+    searchDocuments: "Dokumente durchsuchen",
+    customerId: "Kunden-ID",
+    documentName: "Dokumentname",
+    selectCategory: "Kategorie auswählen",
+    
+    invoice: "Rechnung",
+    contract: "Vertrag",
+    report: "Bericht",
+    other: "Sonstige",
+    
+    upload: "Hochladen",
+    uploading: "Wird hochgeladen...",
+    download: "Herunterladen",
+    delete: "Löschen",
+    previous: "Zurück",
+    next: "Weiter",
+    
+    name: "Name",
+    category: "Kategorie",
+    customerIdHeader: "Kunden-ID",
+    uploadDate: "Uploaddatum",
+    actions: "Aktionen",
+    
+    loading: "Dokumente werden geladen...",
+    noDocuments: "Keine Dokumente gefunden.",
+    uploadSuccess: "Dokument erfolgreich hochgeladen!",
+    deleteSuccess: "Dokument erfolgreich gelöscht!",
+    
+    deleteConfirm: "Möchten Sie dieses Dokument wirklich löschen?",
+    
+    fetchError: "Fehler beim Laden der Dokumente.",
+    uploadError: "Fehler beim Hochladen des Dokuments.",
+    deleteError: "Fehler beim Löschen des Dokuments.",
+    downloadError: "Fehler beim Herunterladen des Dokuments.",
+    fileTypeError: "Nur PDF- und Word-Dokumente sind erlaubt.",
+    
+    pageOf: "Seite {{current}} von {{total}}",
+  },
+  es: {
+    documents: "Documentos",
+    searchDocuments: "Buscar documentos",
+    customerId: "ID de Cliente",
+    documentName: "Nombre del Documento",
+    selectCategory: "Seleccionar Categoría",
+    
+    invoice: "Factura",
+    contract: "Contrato",
+    report: "Informe",
+    other: "Otro",
+    
+    upload: "Subir",
+    uploading: "Subiendo...",
+    download: "Descargar",
+    delete: "Eliminar",
+    previous: "Anterior",
+    next: "Siguiente",
+    
+    name: "Nombre",
+    category: "Categoría",
+    customerIdHeader: "ID de Cliente",
+    uploadDate: "Fecha de Subida",
+    actions: "Acciones",
+    
+    loading: "Cargando documentos...",
+    noDocuments: "No se encontraron documentos.",
+    uploadSuccess: "¡Documento subido exitosamente!",
+    deleteSuccess: "¡Documento eliminado exitosamente!",
+    
+    deleteConfirm: "¿Está seguro de que desea eliminar este documento?",
+    
+    fetchError: "Error al cargar documentos.",
+    uploadError: "Error al subir documento.",
+    deleteError: "Error al eliminar documento.",
+    downloadError: "Error al descargar documento.",
+    fileTypeError: "Solo se permiten documentos PDF y Word.",
+    
+    pageOf: "Página {{current}} de {{total}}",
   }
 }; 

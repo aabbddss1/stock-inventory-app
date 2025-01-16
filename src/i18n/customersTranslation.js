@@ -84,5 +84,91 @@ export const customersTranslation = {
       },
       confirmDelete: "Silmek istediğinizden emin misiniz"
     }
+  },
+  de: {
+    customers: {
+      title: "Kunden",
+      addCustomer: "Kunde hinzufügen",
+      loading: "Wird geladen...",
+      tableHeaders: {
+        id: "ID",
+        name: "Name",
+        email: "E-Mail",
+        phone: "Telefon",
+        password: "Passwort",
+        actions: "Aktionen"
+      },
+      actions: {
+        edit: "Bearbeiten",
+        delete: "Löschen"
+      },
+      modal: {
+        editCustomer: "Kunde bearbeiten",
+        addCustomer: "Kunde hinzufügen",
+        name: "Name:",
+        email: "E-Mail:",
+        phone: "Telefon:",
+        password: "Passwort:",
+        enterFullName: "Vollständigen Namen eingeben",
+        enterEmail: "E-Mail-Adresse eingeben",
+        enterPhone: "Telefonnummer eingeben",
+        enterPassword: "Passwort eingeben oder generieren",
+        randomize: "Zufällig",
+        save: "Speichern",
+        cancel: "Abbrechen"
+      },
+      validation: {
+        nameRequired: "Name ist erforderlich",
+        emailRequired: "E-Mail ist erforderlich",
+        emailInvalid: "Ungültiges E-Mail-Format",
+        phoneRequired: "Telefonnummer ist erforderlich",
+        phoneInvalid: "Telefonnummer muss 10-15 Ziffern haben",
+        passwordRequired: "Passwort ist erforderlich"
+      },
+      confirmDelete: "Sind Sie sicher, dass Sie löschen möchten"
+    }
+  },
+  es: {
+    customers: {
+      title: "Clientes",
+      addCustomer: "Añadir Cliente",
+      loading: "Cargando...",
+      tableHeaders: {
+        id: "ID",
+        name: "Nombre",
+        email: "Correo",
+        phone: "Teléfono",
+        password: "Contraseña",
+        actions: "Acciones"
+      },
+      actions: {
+        edit: "Editar",
+        delete: "Eliminar"
+      },
+      modal: {
+        editCustomer: "Editar Cliente",
+        addCustomer: "Añadir Cliente",
+        name: "Nombre:",
+        email: "Correo:",
+        phone: "Teléfono:",
+        password: "Contraseña:",
+        enterFullName: "Ingrese nombre completo",
+        enterEmail: "Ingrese dirección de correo",
+        enterPhone: "Ingrese número de teléfono",
+        enterPassword: "Ingrese o genere una contraseña",
+        randomize: "Aleatorio",
+        save: "Guardar",
+        cancel: "Cancelar"
+      },
+      validation: {
+        nameRequired: "El nombre es obligatorio",
+        emailRequired: "El correo es obligatorio",
+        emailInvalid: "Formato de correo inválido",
+        phoneRequired: "El número de teléfono es obligatorio",
+        phoneInvalid: "El número de teléfono debe tener 10-15 dígitos",
+        passwordRequired: "La contraseña es obligatoria"
+      },
+      confirmDelete: "¿Está seguro de que desea eliminar"
+    }
   }
 }; 

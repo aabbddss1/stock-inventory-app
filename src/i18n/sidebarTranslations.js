@@ -48,5 +48,55 @@ export const sidebarTranslations = {
       receivables: "Alacaklar",
       payables: "Borçlar"
     }
+  },
+  de: {
+    sidebar: {
+      // Hauptbereich
+      main: "Hauptmenü",
+      dashboard: "Dashboard",
+      orders: "Bestellungen",
+      inventory: "Inventar",
+      
+      // Admin-Menüelemente
+      customers: "Kunden",
+      suppliers: "Lieferanten",
+      dealerships: "Händler",
+      sales: "Verkäufe",
+      quotations: "Angebote",
+      
+      // Dokumentenbereich
+      documents: "Dokumente",
+      myDocuments: "Meine Dokumente",
+      
+      // Kontenbereich
+      accounts: "KONTEN",
+      receivables: "Forderungen",
+      payables: "Verbindlichkeiten"
+    }
+  },
+  es: {
+    sidebar: {
+      // Sección principal
+      main: "Menú Principal",
+      dashboard: "Panel de Control",
+      orders: "Pedidos",
+      inventory: "Inventario",
+      
+      // Elementos del menú de administración
+      customers: "Clientes",
+      suppliers: "Proveedores",
+      dealerships: "Concesionarios",
+      sales: "Ventas",
+      quotations: "Cotizaciones",
+      
+      // Sección de documentos
+      documents: "Documentos",
+      myDocuments: "Mis Documentos",
+      
+      // Sección de cuentas
+      accounts: "CUENTAS",
+      receivables: "Cuentas por Cobrar",
+      payables: "Cuentas por Pagar"
+    }
   }
 }; 

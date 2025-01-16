@@ -48,5 +48,55 @@ export const inventoryTranslation = {
       edit: "Düzenle",
       delete: "Sil"
     }
+  },
+  de: {
+    title: "Inventar",
+    search: "Nach Name oder Kategorie suchen",
+    exportBtn: "Nach Excel exportieren",
+    form: {
+      productName: "Produktname",
+      category: "Kategorie",
+      quantity: "Menge",
+      price: "Preis",
+      addProduct: "Produkt hinzufügen",
+      updateProduct: "Produkt aktualisieren"
+    },
+    table: {
+      productName: "Produktname",
+      category: "Kategorie",
+      quantity: "Menge",
+      price: "Preis",
+      status: "Status",
+      actions: "Aktionen"
+    },
+    buttons: {
+      edit: "Bearbeiten",
+      delete: "Löschen"
+    }
+  },
+  es: {
+    title: "Inventario",
+    search: "Buscar por nombre o categoría",
+    exportBtn: "Exportar a Excel",
+    form: {
+      productName: "Nombre del Producto",
+      category: "Categoría",
+      quantity: "Cantidad",
+      price: "Precio",
+      addProduct: "Añadir Producto",
+      updateProduct: "Actualizar Producto"
+    },
+    table: {
+      productName: "Nombre del Producto",
+      category: "Categoría",
+      quantity: "Cantidad",
+      price: "Precio",
+      status: "Estado",
+      actions: "Acciones"
+    },
+    buttons: {
+      edit: "Editar",
+      delete: "Eliminar"
+    }
   }
 }; 

@@ -1,0 +1,42 @@
+export const userInventoryTranslations = {
+  en: {
+    title: "User Inventory",
+    searchPlaceholder: "Search by name or category",
+    exportButton: "Export to Excel",
+    loading: "Loading inventory...",
+    noProductsFound: "No products found.",
+    inStock: "In Stock",
+    lowStock: "Low Stock",
+    outOfStock: "Out of Stock",
+  },
+  tr: {
+    title: "Kullanıcı Envanteri",
+    searchPlaceholder: "İsim veya kategori ile ara",
+    exportButton: "Excel'e Aktar",
+    loading: "Envanter yükleniyor...",
+    noProductsFound: "Ürün bulunamadı.",
+    inStock: "Stokta Var",
+    lowStock: "Düşük Stok",
+    outOfStock: "Stokta Yok",
+  },
+  de: {
+    title: "Benutzerinventar",
+    searchPlaceholder: "Nach Name oder Kategorie suchen",
+    exportButton: "Nach Excel exportieren",
+    loading: "Inventar wird geladen...",
+    noProductsFound: "Keine Produkte gefunden.",
+    inStock: "Auf Lager",
+    lowStock: "Niedriger Lagerbestand",
+    outOfStock: "Nicht auf Lager",
+  },
+  es: {
+    title: "Inventario de Usuario",
+    searchPlaceholder: "Buscar por nombre o categoría",
+    exportButton: "Exportar a Excel",
+    loading: "Cargando inventario...",
+    noProductsFound: "No se encontraron productos.",
+    inStock: "En Stock",
+    lowStock: "Bajo Stock",
+    outOfStock: "Agotado",
+  }
+}; 
