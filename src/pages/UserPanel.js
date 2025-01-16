@@ -236,14 +236,33 @@ const UserPanel = () => {
         status: 'Pending'
       };
 
-      const response = await api.post('/api/orders', orderData, {
+      // First create the order
+      const orderResponse = await api.post('/api/orders', orderData, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
 
-      // Reset form and close modal immediately after order creation
+      // Then update inventory with complete payload
+      const inventoryUpdateData = {
+        name: product.name,
+        quantity: product.quantity - parseInt(orderQuantity),
+        price: product.price,
+        description: product.description || '',
+        category: product.category || '',
+        supplier: product.supplier || ''
+      };
+
+      // Update inventory
+      await api.put(
+        `/api/inventory/${product.id}`,
+        inventoryUpdateData,
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+        }
+      );
+
+      // Reset form and close modal
       setSelectedProduct('');
       setOrderQuantity('');
-      setIsLoading(false);
       setIsQuickOrderModalOpen(false);
 
       // Show success message
@@ -265,7 +284,7 @@ const UserPanel = () => {
         }, 300);
       }, 3000);
 
-      // Refresh data after showing success message
+      // Refresh data
       await Promise.all([
         fetchUserOrders(user.id),
         fetchInventory()
@@ -273,8 +292,9 @@ const UserPanel = () => {
 
     } catch (error) {
       console.error('Error placing order:', error);
-      setIsLoading(false);
       alert('Failed to create order. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
