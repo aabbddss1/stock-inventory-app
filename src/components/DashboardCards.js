@@ -212,9 +212,14 @@ function DashboardCards() {
       await axios.post('http://37.148.210.169:5001/api/orders', newOrder, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
-      alert('Quick order created successfully!');
+      
+      // Refresh data after successful order
+      await fetchData();
+      
+      // Reset form and close modal
       setNewOrder({ clientEmail: '', productName: '', quantity: '', price: '' });
       setIsQuickOrderModalOpen(false);
+      alert('Quick order created successfully!');
     } catch (error) {
       console.error('Error creating order:', error);
       alert('Failed to create quick order.');
