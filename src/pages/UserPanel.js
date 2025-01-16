@@ -209,7 +209,6 @@ const UserPanel = () => {
 
     setIsLoading(true);
     try {
-      // Get the selected product details from inventory
       const product = inventory.find(item => item.id === parseInt(selectedProduct));
       
       if (!product) {
@@ -218,49 +217,23 @@ const UserPanel = () => {
         return;
       }
 
-      // Check if enough stock is available
       if (product.quantity < parseInt(orderQuantity)) {
         alert('Not enough stock available');
         setIsLoading(false);
         return;
       }
 
+      // Create order with simplified data structure
       const orderData = {
-        productId: parseInt(selectedProduct),
-        quantity: parseInt(orderQuantity),
-        userId: user.id,
-        productName: product.name,
-        price: product.price,
-        status: 'Pending',
-        clientName: user.name,
         clientEmail: user.email,
-        totalPrice: product.price * parseInt(orderQuantity)
+        productName: product.name,
+        quantity: parseInt(orderQuantity),
+        price: product.price
       };
 
-      // Create the order
-      const orderResponse = await api.post('/api/orders', orderData, {
-        headers: { 
-          Authorization: `Bearer ${localStorage.getItem('token')}` 
-        }
+      const response = await api.post('/api/orders', orderData, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
-
-      if (!orderResponse.data) {
-        throw new Error('Failed to create order');
-      }
-
-      // Update inventory quantity
-      const updatedQuantity = parseInt(product.quantity) - parseInt(orderQuantity);
-      await api.put(`/api/inventory/${product.id}`, 
-        { 
-          ...product, 
-          quantity: updatedQuantity 
-        },
-        { 
-          headers: { 
-            Authorization: `Bearer ${localStorage.getItem('token')}` 
-          }
-        }
-      );
 
       // Refresh data
       await Promise.all([
@@ -272,7 +245,7 @@ const UserPanel = () => {
       setSelectedProduct('');
       setOrderQuantity('');
       setIsQuickOrderModalOpen(false);
-
+      
       // Show success message
       const successMessage = document.createElement('div');
       successMessage.className = 'success-message';
@@ -280,7 +253,7 @@ const UserPanel = () => {
         <div class="success-content">
           <div class="success-icon">✓</div>
           <h3>Order Placed Successfully!</h3>
-          <p>Order #${orderResponse.data.id} has been created.</p>
+          <p>Order has been created.</p>
         </div>
       `;
       document.body.appendChild(successMessage);
@@ -294,15 +267,7 @@ const UserPanel = () => {
 
     } catch (error) {
       console.error('Error placing order:', error);
-      let errorMessage = 'Failed to place order. Please try again.';
-      
-      if (error.response?.data?.error) {
-        errorMessage = error.response.data.error;
-      } else if (error.response?.data?.message) {
-        errorMessage = error.response.data.message;
-      }
-      
-      alert(errorMessage);
+      alert('Failed to create order. Please try again.');
     } finally {
       setIsLoading(false);
     }
