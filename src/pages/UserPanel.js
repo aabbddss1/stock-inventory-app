@@ -308,8 +308,13 @@ const UserPanel = () => {
             <h2>Recent Orders</h2>
             <ul>
               {orders
-                .sort((a, b) => new Date(b.date) - new Date(a.date)) // Sort by date (latest first)
-                .slice(0, 10) // Get the first 10 orders
+                .sort((a, b) => {
+                  // Safely handle date parsing
+                  const dateA = a.date ? new Date(a.date).getTime() : 0;
+                  const dateB = b.date ? new Date(b.date).getTime() : 0;
+                  return dateB - dateA;
+                })
+                .slice(0, 5) // Get only the 5 most recent orders
                 .map((order) => (
                   <li key={order.id} style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>
                     <div style={{ fontWeight: 'bold', marginBottom: '5px' }}>
@@ -322,7 +327,13 @@ const UserPanel = () => {
                       <strong>Quantity:</strong> {order.quantity}
                     </div>
                     <div>
-                      <strong>Date:</strong> {order.date}
+                      <strong>Date:</strong> {order.date ? new Date(order.date).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      }) : 'N/A'}
                     </div>
                   </li>
                 ))}
