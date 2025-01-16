@@ -223,15 +223,18 @@ const UserPanel = () => {
         return;
       }
 
-      // Create order with simplified data structure
+      // Create order with the exact same structure as DashboardCards
       const orderData = {
+        clientName: user.name,
         clientEmail: user.email,
+        product_name: product.name,
         productName: product.name,
         quantity: parseInt(orderQuantity),
-        price: product.price
+        price: product.price,
+        status: 'Pending'
       };
 
-      const response = await api.post('/api/orders', orderData, {
+      await api.post('/api/orders', orderData, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
 
@@ -253,7 +256,7 @@ const UserPanel = () => {
         <div class="success-content">
           <div class="success-icon">✓</div>
           <h3>Order Placed Successfully!</h3>
-          <p>Order has been created.</p>
+          <p>Your order has been created.</p>
         </div>
       `;
       document.body.appendChild(successMessage);
@@ -267,7 +270,8 @@ const UserPanel = () => {
 
     } catch (error) {
       console.error('Error placing order:', error);
-      alert('Failed to create order. Please try again.');
+      const errorMessage = error.response?.data?.error || error.response?.data?.message || 'Failed to create order. Please try again.';
+      alert(errorMessage);
     } finally {
       setIsLoading(false);
     }
