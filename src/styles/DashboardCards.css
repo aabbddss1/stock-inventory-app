@@ -549,9 +549,11 @@
 
 /* Email History Modal Styles */
 .email-history-modal {
-  max-width: 1000px;
+  max-width: 90vw; /* Changed from fixed width to viewport-relative */
   margin: 0 auto;
   padding: 20px;
+  max-height: 90vh; /* Limit maximum height */
+  overflow: hidden; /* Prevent double scrollbars */
 }
 
 .email-history-modal h2 {
@@ -566,12 +568,71 @@
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   overflow: hidden;
+  max-height: calc(90vh - 100px); /* Account for header and padding */
+}
+
+/* Table wrapper for horizontal scroll */
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  padding-bottom: 5px; /* Space for scrollbar */
 }
 
 .email-history-table {
   width: 100%;
+  min-width: 800px; /* Minimum width to prevent squishing */
   border-collapse: collapse;
   background: white;
+}
+
+/* Column widths */
+.email-history-table th:nth-child(1), /* Type */
+.email-history-table td:nth-child(1) {
+  width: 15%;
+  min-width: 120px;
+}
+
+.email-history-table th:nth-child(2), /* Recipient */
+.email-history-table td:nth-child(2) {
+  width: 20%;
+  min-width: 150px;
+}
+
+.email-history-table th:nth-child(3), /* Subject */
+.email-history-table td:nth-child(3) {
+  width: 35%;
+  min-width: 250px;
+}
+
+.email-history-table th:nth-child(4), /* Date */
+.email-history-table td:nth-child(4) {
+  width: 20%;
+  min-width: 150px;
+}
+
+.email-history-table th:nth-child(5), /* Status */
+.email-history-table td:nth-child(5) {
+  width: 10%;
+  min-width: 100px;
+}
+
+/* Scrollbar styling */
+.table-wrapper::-webkit-scrollbar {
+  height: 8px;
+}
+
+.table-wrapper::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.table-wrapper::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.table-wrapper::-webkit-scrollbar-thumb:hover {
+  background: #555;
 }
 
 .email-history-table th {

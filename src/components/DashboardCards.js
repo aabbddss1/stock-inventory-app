@@ -851,34 +851,36 @@ function DashboardCards() {
               </div>
             ) : (
               <>
-                <table className="email-history-table">
-                  <thead>
-                    <tr>
-                      <th>{t('type')}</th>
-                      <th>{t('recipient')}</th>
-                      <th>{t('subject')}</th>
-                      <th>{t('date')}</th>
-                      <th>{t('status')}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {emailHistory.map((email, index) => (
-                      <tr key={index} className="email-history-row">
-                        <td>
-                          <span className="email-type">{email.type}</span>
-                        </td>
-                        <td>{email.recipient}</td>
-                        <td>{email.subject}</td>
-                        <td>{new Date(email.sentAt).toLocaleString()}</td>
-                        <td>
-                          <span className={`status-badge ${email.status.toLowerCase()}`}>
-                            {email.status}
-                          </span>
-                        </td>
+                <div className="table-wrapper">
+                  <table className="email-history-table">
+                    <thead>
+                      <tr>
+                        <th>{t('type')}</th>
+                        <th>{t('recipient')}</th>
+                        <th>{t('subject')}</th>
+                        <th>{t('date')}</th>
+                        <th>{t('status')}</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {emailHistory.map((email, index) => (
+                        <tr key={index} className="email-history-row">
+                          <td>
+                            <span className="email-type">{email.type}</span>
+                          </td>
+                          <td>{email.recipient}</td>
+                          <td>{email.subject}</td>
+                          <td>{new Date(email.sentAt).toLocaleString()}</td>
+                          <td>
+                            <span className={`status-badge ${email.status.toLowerCase()}`}>
+                              {email.status}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
                 
                 {emailHistory.length === 0 && (
                   <div className="no-emails">
