@@ -214,12 +214,14 @@ const UserPanel = () => {
       
       if (!product) {
         alert('Selected product not found');
+        setIsLoading(false);
         return;
       }
 
       // Check if enough stock is available
       if (product.quantity < parseInt(orderQuantity)) {
         alert('Not enough stock available');
+        setIsLoading(false);
         return;
       }
 
@@ -235,7 +237,7 @@ const UserPanel = () => {
         totalPrice: product.price * parseInt(orderQuantity)
       };
 
-      // Create the order first
+      // Create the order
       const orderResponse = await api.post('/api/orders', orderData, {
         headers: { 
           Authorization: `Bearer ${localStorage.getItem('token')}` 
@@ -246,7 +248,7 @@ const UserPanel = () => {
         throw new Error('Failed to create order');
       }
 
-      // Then update the inventory
+      // Update inventory quantity
       const updatedQuantity = parseInt(product.quantity) - parseInt(orderQuantity);
       await api.put(`/api/inventory/${product.id}`, 
         { 
@@ -271,19 +273,18 @@ const UserPanel = () => {
       setOrderQuantity('');
       setIsQuickOrderModalOpen(false);
 
-      // Show success message using a custom success modal or toast
+      // Show success message
       const successMessage = document.createElement('div');
       successMessage.className = 'success-message';
       successMessage.innerHTML = `
         <div class="success-content">
           <div class="success-icon">✓</div>
           <h3>Order Placed Successfully!</h3>
-          <p>A confirmation email will be sent to your inbox.</p>
+          <p>Order #${orderResponse.data.id} has been created.</p>
         </div>
       `;
       document.body.appendChild(successMessage);
 
-      // Remove the success message after 3 seconds
       setTimeout(() => {
         successMessage.classList.add('fade-out');
         setTimeout(() => {
@@ -293,7 +294,15 @@ const UserPanel = () => {
 
     } catch (error) {
       console.error('Error placing order:', error);
-      alert(error.response?.data?.message || 'Failed to place order. Please try again.');
+      let errorMessage = 'Failed to place order. Please try again.';
+      
+      if (error.response?.data?.error) {
+        errorMessage = error.response.data.error;
+      } else if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      }
+      
+      alert(errorMessage);
     } finally {
       setIsLoading(false);
     }
