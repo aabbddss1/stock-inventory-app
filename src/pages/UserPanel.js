@@ -5,19 +5,6 @@ import TopNavbar from '../components/TopNavbar';
 import { api } from '../config/api';
 import Calendar from '../components/Calendar';
 import Notifications from '../components/Notifications';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { 
-  faShoppingCart, 
-  faClockRotateLeft, 
-  faBell, 
-  faPlus,
-  faCircleQuestion,
-  faChartBar,
-  faChartPie,
-  faTasks,
-  faCalendarAlt,
-  faEnvelope
-} from '@fortawesome/free-solid-svg-icons';
 import '../styles/UserPanel.css';
 import '../styles/UserEnhancements.css';
 import {
@@ -216,89 +203,36 @@ const UserPanel = () => {
       <div className="main-content">
         <TopNavbar />
         <div className="user-panel-container">
-          <div className="welcome-section">
-            <div className="welcome-text">
-              <h1>Welcome, {user.name}</h1>
-              <p className="welcome-description">
-                Efficiently track, manage, and optimize your inventory and customers with our advanced stock
-                management solution. Qubite ensures seamless order processing, real-time updates, and insightful
-                analytics to help you make smarter business decisions.
-              </p>
-            </div>
-            <div className="user-info-card">
-              <h3>User Details</h3>
-              <div className="user-info-content">
-                <p><strong>Email:</strong> {user.email}</p>
-                <p><strong>Phone:</strong> {user.phone}</p>
-                <p><strong>Last Logged In:</strong> {user.lastLoggedIn}</p>
-              </div>
-            </div>
-          </div>
+          <h1>Welcome, {user.name}!</h1>
 
-          {/* Quick Statistics Cards */}
+          {/* Quick Statistics */}
           <div className="dashboard-stats">
             <div className="stat-card">
-              <div className="card-icon">
-                <FontAwesomeIcon icon={faShoppingCart} />
-              </div>
-              <div className="card-content">
-                <h3>Total Orders</h3>
-                <p className="stat-number">{orders.length}</p>
-                <p className="card-description">Total orders in your account</p>
-              </div>
+              <h3>Total Orders</h3>
+              <p>{orders.length}</p>
             </div>
-
             <div className="stat-card">
-              <div className="card-icon">
-                <FontAwesomeIcon icon={faClockRotateLeft} />
-              </div>
-              <div className="card-content">
-                <h3>Pending Orders</h3>
-                <p className="stat-number">{orders.filter(order => order.status === 'Pending').length}</p>
-                <p className="card-description">Orders awaiting processing</p>
-              </div>
+              <h3>Pending Orders</h3>
+              <p>{orders.filter((order) => order.status === 'Pending').length}</p>
             </div>
-
             <div className="stat-card">
-              <div className="card-icon">
-                <FontAwesomeIcon icon={faBell} />
-              </div>
-              <div className="card-content">
-                <h3>Notifications</h3>
-                <p className="stat-number">{notifications.length}</p>
-                <p className="card-description">Unread notifications</p>
-              </div>
-            </div>
-
-            <div className="stat-card">
-              <div className="card-icon">
-                <FontAwesomeIcon icon={faPlus} />
-              </div>
-              <div className="card-content">
-                <h3>Quick Order</h3>
-                <button className="quick-order-btn">+</button>
-                <p className="card-description">Create a new order quickly</p>
-              </div>
-            </div>
-
-            <div className="stat-card">
-              <div className="card-icon">
-                <FontAwesomeIcon icon={faCircleQuestion} />
-              </div>
-              <div className="card-content">
-                <h3>Need help?</h3>
-                <p className="card-description">Check documentation or contact our support</p>
-              </div>
+              <h3>Notifications</h3>
+              <p>{notifications.length}</p>
             </div>
           </div>
 
-          {/* Analytics Section */}
-          <div className="analytics-section">
-            <div className="graph-container inventory-chart">
-              <div className="graph-header">
-                <FontAwesomeIcon icon={faChartBar} className="graph-icon" />
-                <h3>Inventory Levels</h3>
-              </div>
+          {/* User Details */}
+          <div className="user-details-section">
+            <h2>User Details</h2>
+            <p><strong>Email:</strong> {user.email}</p>
+            <p><strong>Phone:</strong> {user.phone}</p>
+            <p><strong>Last Logged In:</strong> {user.lastLoggedIn}</p>
+          </div>
+
+          {/* Analytics Graphs */}
+          <div className="analytics-section two-columns">
+            <div className="graph-container">
+              <h3>Inventory Levels</h3>
               <Bar
                 data={{
                   labels: analytics.inventoryLevels.labels,
@@ -318,7 +252,7 @@ const UserPanel = () => {
                   responsive: true,
                   maintainAspectRatio: false,
                   plugins: {
-                    legend: { display: false },
+                    legend: { position: 'bottom' },
                     tooltip: {
                       callbacks: {
                         label: (context) => `Stock: ${context.raw} units`
@@ -328,13 +262,9 @@ const UserPanel = () => {
                   scales: {
                     y: { 
                       beginAtZero: true,
-                      grid: {
-                        color: 'rgba(0, 0, 0, 0.1)'
-                      }
-                    },
-                    x: {
-                      grid: {
-                        display: false
+                      title: {
+                        display: true,
+                        text: 'Quantity in Stock'
                       }
                     }
                   }
@@ -342,14 +272,11 @@ const UserPanel = () => {
               />
             </div>
 
-            <div className="graph-container status-chart">
-              <div className="graph-header">
-                <FontAwesomeIcon icon={faChartPie} className="graph-icon" />
-                <h3>Order Status Distribution</h3>
-              </div>
+            <div className="graph-container">
+              <h3>Order Status Distribution</h3>
               <Doughnut
                 data={{
-                  labels: ['Approved', 'Completed', 'On Process', 'Pending'],
+                  labels: analytics.statusDistribution.labels,
                   datasets: [{
                     data: analytics.statusDistribution.data,
                     backgroundColor: [
@@ -367,8 +294,7 @@ const UserPanel = () => {
                     legend: { 
                       position: 'bottom',
                       labels: {
-                        padding: 20,
-                        usePointStyle: true
+                        padding: 20
                       }
                     }
                   }
@@ -377,60 +303,81 @@ const UserPanel = () => {
             </div>
           </div>
 
-          {/* Task Manager and Calendar Section */}
-          <div className="bottom-section">
-            <div className="task-calendar-container">
-              <div className="task-manager">
-                <div className="section-header">
-                  <FontAwesomeIcon icon={faTasks} className="section-icon" />
-                  <h2>Task Manager</h2>
-                </div>
-                <div className="task-input">
-                  <input
-                    type="text"
-                    placeholder="Add a new task..."
-                    value={newTask}
-                    onChange={(e) => setNewTask(e.target.value)}
-                  />
-                  <button onClick={addTask}>Add</button>
-                </div>
-                <ul className="task-list">
-                  {tasks.map((task, index) => (
-                    <li key={index} className={`task-item ${task.completed ? 'completed' : ''}`}>
-                      <span>{task.text}</span>
-                      <div className="task-buttons">
-                        <button onClick={() => toggleTaskCompletion(index)} className="complete-btn">
-                          {task.completed ? 'Undo' : 'Complete'}
-                        </button>
-                        <button onClick={() => removeTask(index)} className="delete-btn">
-                          Remove
-                        </button>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-                {tasks.length === 0 && (
-                  <p className="no-tasks">No tasks available. Start adding your tasks!</p>
-                )}
-              </div>
+          {/* Recent Orders */}
+          <div className="recent-orders-section">
+            <h2>Recent Orders</h2>
+            <ul>
+              {orders
+                .sort((a, b) => new Date(b.date) - new Date(a.date)) // Sort by date (latest first)
+                .slice(0, 10) // Get the first 10 orders
+                .map((order) => (
+                  <li key={order.id} style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>
+                    <div style={{ fontWeight: 'bold', marginBottom: '5px' }}>
+                      Order #{order.id} - {order.status} 
+                    </div>
+                    <div>
+                      <strong>Product:</strong> {order.productName}
+                    </div>
+                    <div>
+                      <strong>Quantity:</strong> {order.quantity}
+                    </div>
+                    <div>
+                      <strong>Date:</strong> {order.date}
+                    </div>
+                  </li>
+                ))}
+            </ul>
+            {orders.length === 0 && <p>No recent orders available.</p>}
+          </div>
 
-              <div className="calendar-section">
-                <div className="section-header">
-                  <FontAwesomeIcon icon={faCalendarAlt} className="section-icon" />
-                  <h2>Calendar</h2>
-                </div>
-                <Calendar />
-              </div>
-            </div>
-
+          <div className="user-panel-content">
+            {/* Notifications */}
             <div className="notifications-section">
-              <div className="section-header">
-                <FontAwesomeIcon icon={faEnvelope} className="section-icon" />
-                <h2>Notifications</h2>
-              </div>
               <Notifications notifications={notifications} />
             </div>
+
+            {/* Calendar */}
+            <div className="calendar-section">
+              <h2>Your Calendar</h2>
+              <Calendar />
+            </div>
+
+            {/* Task Manager */}
+            <div className="task-manager">
+              <h2>Task Manager</h2>
+              <div className="task-input">
+                <input
+                  type="text"
+                  placeholder="Add a new task..."
+                  value={newTask}
+                  onChange={(e) => setNewTask(e.target.value)}
+                />
+                <button onClick={addTask}>Add</button>
+              </div>
+              <ul className="task-list">
+                {tasks.map((task, index) => (
+                  <li key={index} className={`task-item ${task.completed ? 'completed' : ''}`}>
+                    <span>{task.text}</span>
+                    <div className="task-buttons">
+                      <button onClick={() => toggleTaskCompletion(index)} className="complete-btn">
+                        {task.completed ? 'Undo' : 'Complete'}
+                      </button>
+                      <button onClick={() => removeTask(index)} className="delete-btn">
+                        Remove
+                      </button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+              {tasks.length === 0 && (
+                <p className="no-tasks">No tasks available. Start adding your tasks!</p>
+              )}
+            </div>
           </div>
+
+          <button onClick={handleLogout} className="logout-button">
+            Logout
+          </button>
         </div>
       </div>
     </div>
