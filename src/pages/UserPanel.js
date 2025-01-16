@@ -306,39 +306,54 @@ const UserPanel = () => {
           {/* Recent Orders */}
           <div className="recent-orders-section">
             <h2>Recent Orders</h2>
-            <ul>
+            <div className="orders-container">
               {orders
                 .sort((a, b) => {
-                  // Safely handle date parsing
                   const dateA = a.date ? new Date(a.date).getTime() : 0;
                   const dateB = b.date ? new Date(b.date).getTime() : 0;
                   return dateB - dateA;
                 })
-                .slice(0, 5) // Get only the 5 most recent orders
+                .slice(0, 5)
                 .map((order) => (
-                  <li key={order.id} style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>
-                    <div style={{ fontWeight: 'bold', marginBottom: '5px' }}>
-                      Order #{order.id} - {order.status} 
+                  <div key={order.id} className="order-card">
+                    <div className="order-header">
+                      <div className="order-id">Order #{order.id}</div>
+                      <div className={`order-status ${order.status?.toLowerCase()}`}>
+                        {order.status}
+                      </div>
                     </div>
-                    <div>
-                      <strong>Product:</strong> {order.productName}
+                    <div className="order-details">
+                      <div className="order-info">
+                        <div className="info-row">
+                          <span className="info-label">Product</span>
+                          <span className="info-value">{order.productName}</span>
+                        </div>
+                        <div className="info-row">
+                          <span className="info-label">Quantity</span>
+                          <span className="info-value">{order.quantity}</span>
+                        </div>
+                        <div className="info-row">
+                          <span className="info-label">Date</span>
+                          <span className="info-value">
+                            {order.date ? new Date(order.date).toLocaleDateString('en-US', {
+                              year: 'numeric',
+                              month: 'short',
+                              day: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            }) : 'N/A'}
+                          </span>
+                        </div>
+                      </div>
                     </div>
-                    <div>
-                      <strong>Quantity:</strong> {order.quantity}
-                    </div>
-                    <div>
-                      <strong>Date:</strong> {order.date ? new Date(order.date).toLocaleDateString('en-US', {
-                        year: 'numeric',
-                        month: 'short',
-                        day: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                      }) : 'N/A'}
-                    </div>
-                  </li>
+                  </div>
                 ))}
-            </ul>
-            {orders.length === 0 && <p>No recent orders available.</p>}
+              {orders.length === 0 && (
+                <div className="no-orders">
+                  <p>No recent orders available.</p>
+                </div>
+              )}
+            </div>
           </div>
 
           <div className="user-panel-content">

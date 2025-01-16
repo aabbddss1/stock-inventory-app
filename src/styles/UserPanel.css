@@ -92,3 +92,114 @@
       min-height: 300px;
     }
   }
+  
+  /* Recent Orders Section */
+  .recent-orders-section {
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    margin: 20px 0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .recent-orders-section h2 {
+    color: #2c3e50;
+    margin-bottom: 20px;
+    font-size: 1.5rem;
+  }
+  
+  .orders-container {
+    display: grid;
+    gap: 15px;
+  }
+  
+  .order-card {
+    background: #ffffff;
+    border-radius: 8px;
+    padding: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  
+  .order-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  }
+  
+  .order-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .order-id {
+    font-weight: 600;
+    color: #2c3e50;
+    font-size: 1.1rem;
+  }
+  
+  .order-status {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-transform: capitalize;
+  }
+  
+  .order-status.pending {
+    background-color: #fff8e1;
+    color: #f57c00;
+  }
+  
+  .order-status.completed {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+  }
+  
+  .order-status.processing {
+    background-color: #e3f2fd;
+    color: #1976d2;
+  }
+  
+  .order-status.cancelled {
+    background-color: #fbe9e7;
+    color: #d32f2f;
+  }
+  
+  .order-details {
+    padding-top: 8px;
+  }
+  
+  .order-info {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 0;
+  }
+  
+  .info-label {
+    color: #666;
+    font-size: 0.9rem;
+  }
+  
+  .info-value {
+    color: #2c3e50;
+    font-weight: 500;
+  }
+  
+  .no-orders {
+    text-align: center;
+    padding: 40px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    color: #6c757d;
+  }
