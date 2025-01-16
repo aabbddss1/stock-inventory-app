@@ -145,7 +145,7 @@ function Customers() {
                 <input
                   type="text"
                   className="search-input"
-                  placeholder={t('customers.searchPlaceholder')}
+                  placeholder={t('Search')}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
