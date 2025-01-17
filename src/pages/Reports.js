@@ -183,16 +183,18 @@ function Reports() {
   };
 
   const processCustomerData = (data) => {
-    const customersByRegion = data.reduce((acc, customer) => {
-      acc[customer.region] = (acc[customer.region] || 0) + 1;
+    // Group customers by their category/type
+    const customersByType = data.reduce((acc, customer) => {
+      const type = customer.type || 'Regular'; // Default to 'Regular' if type is not specified
+      acc[type] = (acc[type] || 0) + 1;
       return acc;
     }, {});
 
     return {
       chartData: {
-        labels: Object.keys(customersByRegion),
+        labels: Object.keys(customersByType),
         datasets: [{
-          data: Object.values(customersByRegion),
+          data: Object.values(customersByType),
           backgroundColor: [
             'rgba(255, 99, 132, 0.5)',
             'rgba(54, 162, 235, 0.5)',
@@ -203,16 +205,23 @@ function Reports() {
       },
       summary: {
         totalCustomers: data.length,
-        newCustomers: data.filter(c => new Date(c.createdAt) >= new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)).length
+        activeCustomers: data.filter(c => c.status === 'active').length,
+        newCustomers: data.filter(c => {
+          const createdDate = new Date(c.created_at);
+          return createdDate >= new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+        }).length
       }
     };
   };
 
   const processInventoryData = (data) => {
-    const stockLevels = data.reduce((acc, item) => {
-      acc[item.name] = item.quantity;
-      return acc;
-    }, {});
+    // Sort inventory items by quantity to show most critical items
+    const sortedItems = [...data].sort((a, b) => a.quantity - b.quantity).slice(0, 10);
+    const stockLevels = {};
+    
+    sortedItems.forEach(item => {
+      stockLevels[item.name] = item.quantity;
+    });
 
     return {
       chartData: {
@@ -221,12 +230,14 @@ function Reports() {
           label: 'Stock Levels',
           data: Object.values(stockLevels),
           backgroundColor: 'rgba(54, 162, 235, 0.5)',
+          borderColor: 'rgba(54, 162, 235, 1)',
+          borderWidth: 1
         }]
       },
       summary: {
         totalItems: data.length,
-        lowStock: data.filter(item => item.quantity < 10).length,
-        outOfStock: data.filter(item => item.quantity === 0).length
+        lowStock: data.filter(item => item.status === 'Low Stock').length,
+        outOfStock: data.filter(item => item.status === 'Out of Stock').length
       }
     };
   };
