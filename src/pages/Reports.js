@@ -257,7 +257,18 @@ function Reports() {
         // Calculate order frequency (orders per month)
         const orderDates = customerOrders.map(order => new Date(order.orderDate));
         const orderFrequency = orderDates.length > 0 
-          ? orderDates.length / (Math.max(...orderDates) - Math.min(...orderDates)) * 30 || 0 
+          ? (() => {
+              const firstOrder = Math.min(...orderDates);
+              const lastOrder = Math.max(...orderDates);
+              const monthsDiff = (lastOrder - firstOrder) / (1000 * 60 * 60 * 24 * 30);
+              // If less than a month between first and last order, calculate based on current month
+              if (monthsDiff < 1) {
+                const today = new Date();
+                const thisMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+                return orderDates.filter(date => date >= thisMonth).length;
+              }
+              return (orderDates.length / monthsDiff) || 0;
+            })()
           : 0;
 
         return {
@@ -301,7 +312,11 @@ function Reports() {
         labels: customerAnalytics.slice(0, 10).map(c => c.name),
         datasets: [{
           label: 'Orders per Month',
-          data: customerAnalytics.slice(0, 10).map(c => c.orderFrequency.toFixed(1)),
+          data: customerAnalytics.slice(0, 10).map(c => 
+            typeof c.orderFrequency === 'number' && isFinite(c.orderFrequency) 
+              ? Number(c.orderFrequency.toFixed(1)) 
+              : 0
+          ),
           backgroundColor: 'rgba(75, 192, 192, 0.5)',
           borderColor: 'rgba(75, 192, 192, 1)',
           borderWidth: 1
