@@ -177,7 +177,7 @@
 /* Ensure charts maintain aspect ratio */
 .chart-wrapper {
   position: relative;
-  height: 300px;
+  height: 180px;
   width: 100%;
 }
 
