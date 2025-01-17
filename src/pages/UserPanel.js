@@ -318,15 +318,15 @@ const UserPanel = () => {
               <h2>User Details</h2>
               <p><strong>Email:</strong> {user.email}</p>
               <p><strong>Phone:</strong> {user.phone}</p>
-              <p><strong>Last Logged In:</strong> {user.lastLoggedIn ? 
-                new Date(user.lastLoggedIn).toLocaleString('en-US', {
+              <p><strong>Last Logged In:</strong> {
+                new Date(user.lastLoggedIn || new Date()).toLocaleString('en-US', {
                   year: 'numeric',
                   month: 'short',
                   day: 'numeric',
                   hour: '2-digit',
                   minute: '2-digit'
-                }) : 'First time login'}
-              </p>
+                })
+              }</p>
             </div>
 
             <div className="quick-order-card" onClick={() => setIsQuickOrderModalOpen(true)}>
