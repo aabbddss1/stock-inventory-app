@@ -168,7 +168,7 @@ const Inventory = () => {
               onChange={handleSearch}
             />
             <button onClick={exportAsExcel} className="excel-export-btn">
-              <i className="fa fa-th"></i> {t('inventoryTranslation.exportBtn')}
+            <i className="fa fa-file-excel"></i> {t('inventoryTranslation.exportBtn')}
             </button>
           </div>
 

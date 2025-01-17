@@ -96,8 +96,8 @@ const UserInventory = () => {
               onChange={handleSearch}
             />
             <button className="export-button" onClick={exportAsExcel}>
-  <i className="fa fa-th"></i> Export to Excel
-</button>
+            <i className="fas fa-file-excel"></i> Export to Excel
+            </button>
           </div>
 
           {/* Inventory Table */}

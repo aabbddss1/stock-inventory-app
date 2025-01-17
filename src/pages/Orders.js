@@ -420,7 +420,7 @@ const Orders = () => {
               onChange={handleSearch}
             />
             <button onClick={exportToExcel}>
-              <i className="fa fa-th"></i> {t('exportButton')}
+            <i className="fa fa-file-excel"></i> {t('exportButton')}
             </button>
           </div>
 

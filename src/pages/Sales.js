@@ -334,7 +334,9 @@ const Sales = () => {
 
               {/* Export Buttons */}
               <div className="sales-actions">
-                <button onClick={exportAsExcel}>{t('exportAsExcel')}</button>
+              <button onClick={exportAsExcel}>
+  <i className="fa fa-file-excel"></i> {t('exportAsExcel')}
+</button>
                 <button onClick={exportAsPDF}>{t('exportAsPDF')}</button>
               </div>
 
