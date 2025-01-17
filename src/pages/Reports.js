@@ -525,7 +525,19 @@ function Reports() {
                     <Card>
                       <Card.Body>
                         <h5 className="mb-3">Customer Spending Distribution</h5>
-                        <Pie data={currentData.chartData.spending} />
+                        <div style={{ height: '300px', position: 'relative' }}>
+                          <Pie 
+                            data={currentData.chartData.spending}
+                            options={{
+                              maintainAspectRatio: false,
+                              plugins: {
+                                legend: {
+                                  position: 'bottom'
+                                }
+                              }
+                            }}
+                          />
+                        </div>
                       </Card.Body>
                     </Card>
                   </Col>
@@ -533,7 +545,19 @@ function Reports() {
                     <Card>
                       <Card.Body>
                         <h5 className="mb-3">Top 10 Customer Order Frequency</h5>
-                        <Bar data={currentData.chartData.orderFrequency} />
+                        <div style={{ height: '300px', position: 'relative' }}>
+                          <Bar 
+                            data={currentData.chartData.orderFrequency}
+                            options={{
+                              maintainAspectRatio: false,
+                              plugins: {
+                                legend: {
+                                  position: 'bottom'
+                                }
+                              }
+                            }}
+                          />
+                        </div>
                       </Card.Body>
                     </Card>
                   </Col>
@@ -543,17 +567,20 @@ function Reports() {
                     <Card>
                       <Card.Body>
                         <h5 className="mb-3">Top 5 Products by Customer Purchases</h5>
-                        <Bar 
-                          data={currentData.chartData.topProducts}
-                          options={{
-                            indexAxis: 'y',
-                            plugins: {
-                              legend: {
-                                display: false
+                        <div style={{ height: '300px', position: 'relative' }}>
+                          <Bar 
+                            data={currentData.chartData.topProducts}
+                            options={{
+                              maintainAspectRatio: false,
+                              indexAxis: 'y',
+                              plugins: {
+                                legend: {
+                                  display: false
+                                }
                               }
-                            }
-                          }}
-                        />
+                            }}
+                          />
+                        </div>
                       </Card.Body>
                     </Card>
                   </Col>
@@ -561,16 +588,24 @@ function Reports() {
                     <Card>
                       <Card.Body>
                         <h5 className="mb-3">Customer Lifetime Value Distribution</h5>
-                        <Line 
-                          data={currentData.chartData.lifetimeValue}
-                          options={{
-                            plugins: {
-                              legend: {
-                                display: false
+                        <div style={{ height: '300px', position: 'relative' }}>
+                          <Line 
+                            data={currentData.chartData.lifetimeValue}
+                            options={{
+                              maintainAspectRatio: false,
+                              plugins: {
+                                legend: {
+                                  display: false
+                                }
+                              },
+                              scales: {
+                                y: {
+                                  beginAtZero: true
+                                }
                               }
-                            }
-                          }}
-                        />
+                            }}
+                          />
+                        </div>
                       </Card.Body>
                     </Card>
                   </Col>
