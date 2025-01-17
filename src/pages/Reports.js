@@ -490,12 +490,7 @@ function Reports() {
 
   const renderReportContent = () => {
     if (loading) {
-      return (
-        <div className="loading-spinner">
-          <div className="spinner"></div>
-          <div className="loading-text">Loading report data...</div>
-        </div>
-      );
+      return null; // Return nothing during loading since it's fast
     }
 
     if (error) {
