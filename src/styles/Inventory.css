@@ -207,6 +207,8 @@ margin-right: 0; /* Son butonun sağında boşluk olmaması için */
   .inventory-container {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
+    padding: 30px;
+    padding-right: 1px;
   }
 
   /* Compact the action buttons */
