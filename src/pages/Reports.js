@@ -204,49 +204,120 @@ function Reports() {
     };
   };
 
-  const processCustomerData = (data) => {
-    console.log('Processing customer data:', data);
+  const processCustomerData = async (customerData) => {
+    console.log('Processing customer data:', customerData);
 
-    // Filter out admin users and group customers by role
-    const filteredCustomers = data.filter(customer => 
-      customer.role?.toLowerCase() === 'user'
-    );
-    
-    console.log('Filtered customers (users only):', filteredCustomers);
+    // Fetch orders data for customer analysis
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch('http://37.148.210.169:5001/api/orders', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch orders data');
+      }
 
-    // Group customers by some meaningful attribute (e.g., has phone number or not)
-    const customerGroups = {
-      'Active Users': filteredCustomers.filter(c => c.phone).length,
-      'Incomplete Profile': filteredCustomers.filter(c => !c.phone).length
-    };
+      const ordersData = await response.json();
+      console.log('Orders data for customer analysis:', ordersData);
 
-    console.log('Customer groups:', customerGroups);
+      // Filter out admin users
+      const filteredCustomers = customerData.filter(customer => 
+        customer.role?.toLowerCase() === 'user'
+      );
+      
+      // Process detailed customer analytics
+      const customerAnalytics = filteredCustomers.map(customer => {
+        const customerOrders = ordersData.filter(order => 
+          order.clientEmail === customer.email
+        );
 
-    const chartData = {
-      labels: Object.keys(customerGroups),
-      datasets: [{
-        data: Object.values(customerGroups),
-        backgroundColor: [
-          'rgba(54, 162, 235, 0.5)',
-          'rgba(255, 99, 132, 0.5)',
-        ],
-      }]
-    };
+        // Calculate total spending
+        const totalSpent = customerOrders.reduce((sum, order) => 
+          sum + (order.price * order.quantity), 0
+        );
 
-    // Calculate new customers (registered in last 30 days)
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+        // Calculate product frequency
+        const productFrequency = customerOrders.reduce((acc, order) => {
+          acc[order.productName] = (acc[order.productName] || 0) + order.quantity;
+          return acc;
+        }, {});
 
-    const summary = {
-      totalCustomers: filteredCustomers.length,
-      activeCustomers: filteredCustomers.filter(c => c.phone).length,
-      newCustomers: filteredCustomers.length // Since we don't have creation date, show total for now
-    };
+        // Get most purchased product
+        const mostPurchasedProduct = Object.entries(productFrequency)
+          .sort(([,a], [,b]) => b - a)[0] || ['None', 0];
 
-    return {
-      chartData,
-      summary
-    };
+        // Calculate average order value
+        const averageOrderValue = customerOrders.length > 0 
+          ? totalSpent / customerOrders.length 
+          : 0;
+
+        return {
+          id: customer.id,
+          name: customer.name,
+          email: customer.email,
+          phone: customer.phone || 'Not provided',
+          totalOrders: customerOrders.length,
+          totalSpent: totalSpent,
+          averageOrderValue: averageOrderValue,
+          mostPurchasedProduct: mostPurchasedProduct[0],
+          mostPurchasedQuantity: mostPurchasedProduct[1],
+          lastOrderDate: customerOrders.length > 0 
+            ? new Date(Math.max(...customerOrders.map(o => new Date(o.orderDate)))).toLocaleDateString()
+            : 'No orders'
+        };
+      });
+
+      // Sort customers by total spent
+      customerAnalytics.sort((a, b) => b.totalSpent - a.totalSpent);
+
+      // Prepare chart data for customer spending distribution
+      const spendingRanges = {
+        '$0-$100': 0,
+        '$101-$500': 0,
+        '$501-$1000': 0,
+        '$1000+': 0
+      };
+
+      customerAnalytics.forEach(customer => {
+        if (customer.totalSpent <= 100) spendingRanges['$0-$100']++;
+        else if (customer.totalSpent <= 500) spendingRanges['$101-$500']++;
+        else if (customer.totalSpent <= 1000) spendingRanges['$501-$1000']++;
+        else spendingRanges['$1000+']++;
+      });
+
+      const chartData = {
+        labels: Object.keys(spendingRanges),
+        datasets: [{
+          data: Object.values(spendingRanges),
+          backgroundColor: [
+            'rgba(54, 162, 235, 0.5)',
+            'rgba(75, 192, 192, 0.5)',
+            'rgba(255, 206, 86, 0.5)',
+            'rgba(255, 99, 132, 0.5)',
+          ],
+        }]
+      };
+
+      // Calculate summary metrics
+      const summary = {
+        totalCustomers: filteredCustomers.length,
+        activeCustomers: customerAnalytics.filter(c => c.totalOrders > 0).length,
+        averageCustomerSpend: customerAnalytics.reduce((sum, c) => sum + c.totalSpent, 0) / filteredCustomers.length
+      };
+
+      return {
+        chartData,
+        summary,
+        customerAnalytics // Include detailed customer data
+      };
+    } catch (error) {
+      console.error('Error processing customer data:', error);
+      throw error;
+    }
   };
 
   const processInventoryData = (data) => {
@@ -337,22 +408,26 @@ function Reports() {
       <Card className="mt-4">
         <Card.Body>
           <h4>{reportCards.find(card => card.type === activeReport)?.title}</h4>
-          <div className="report-filters mb-3">
-            <Button 
-              variant={dateRange === '7days' ? 'primary' : 'outline-primary'} 
-              className="me-2"
-              onClick={() => setDateRange('7days')}
-            >
-              Last 7 Days
-            </Button>
-            <Button 
-              variant={dateRange === '30days' ? 'primary' : 'outline-primary'} 
-              className="me-2"
-              onClick={() => setDateRange('30days')}
-            >
-              Last 30 Days
-            </Button>
-          </div>
+          
+          {/* Date range filters - only show for non-customer reports */}
+          {activeReport !== 'customers' && (
+            <div className="report-filters mb-3">
+              <Button 
+                variant={dateRange === '7days' ? 'primary' : 'outline-primary'} 
+                className="me-2"
+                onClick={() => setDateRange('7days')}
+              >
+                Last 7 Days
+              </Button>
+              <Button 
+                variant={dateRange === '30days' ? 'primary' : 'outline-primary'} 
+                className="me-2"
+                onClick={() => setDateRange('30days')}
+              >
+                Last 30 Days
+              </Button>
+            </div>
+          )}
 
           <Row className="mb-4">
             {Object.entries(currentData.summary).map(([key, value]) => (
@@ -360,7 +435,13 @@ function Reports() {
                 <Card className="summary-card">
                   <Card.Body>
                     <Card.Title>{key.replace(/([A-Z])/g, ' $1').trim()}</Card.Title>
-                    <Card.Text>{typeof value === 'number' ? value.toFixed(2) : value}</Card.Text>
+                    <Card.Text>
+                      {typeof value === 'number' ? 
+                        key.toLowerCase().includes('spend') ? 
+                          `$${value.toFixed(2)}` : 
+                          value.toFixed(2) 
+                        : value}
+                    </Card.Text>
                   </Card.Body>
                 </Card>
               </Col>
@@ -369,7 +450,48 @@ function Reports() {
 
           <div className="chart-container">
             {activeReport === 'sales' && <Line data={currentData.chartData} />}
-            {activeReport === 'customers' && <Pie data={currentData.chartData} />}
+            {activeReport === 'customers' && (
+              <>
+                <h5 className="mb-3">Customer Spending Distribution</h5>
+                <Pie data={currentData.chartData} />
+                
+                {currentData.customerAnalytics && (
+                  <div className="customer-details mt-4">
+                    <h5 className="mb-3">Detailed Customer Analytics</h5>
+                    <div className="table-responsive">
+                      <Table striped bordered hover>
+                        <thead>
+                          <tr>
+                            <th>Customer Name</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Total Orders</th>
+                            <th>Total Spent</th>
+                            <th>Avg. Order Value</th>
+                            <th>Most Purchased</th>
+                            <th>Last Order</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {currentData.customerAnalytics.map(customer => (
+                            <tr key={customer.id}>
+                              <td>{customer.name}</td>
+                              <td>{customer.email}</td>
+                              <td>{customer.phone}</td>
+                              <td>{customer.totalOrders}</td>
+                              <td>${customer.totalSpent.toFixed(2)}</td>
+                              <td>${customer.averageOrderValue.toFixed(2)}</td>
+                              <td>{customer.mostPurchasedProduct} ({customer.mostPurchasedQuantity})</td>
+                              <td>{customer.lastOrderDate}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </Table>
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
             {activeReport === 'inventory' && <Bar data={currentData.chartData} />}
             {activeReport === 'orders' && <Pie data={currentData.chartData} />}
           </div>
