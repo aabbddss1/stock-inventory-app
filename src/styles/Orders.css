@@ -528,7 +528,7 @@ color: white;
 
 .order-section-header {
   padding: 1rem 1.5rem;
-  background: #03bfa6;
+  background: #3aafa9;
   border-bottom: 1px solid #e9ecef;
   cursor: pointer;
   display: flex;
@@ -538,7 +538,7 @@ color: white;
 }
 
 .order-section-header:hover {
-  background: #e9ecef;
+  background: #10827c;
 }
 
 .header-content {
