@@ -6,28 +6,44 @@ import { utils as XLSXUtils, writeFile as XLSXWriteFile } from 'xlsx'; // For Ex
 
 import '../styles/Inventory.css';
 
-axios.defaults.baseURL = 'http://37.148.210.169:5001/'; // Replace with your backend URL
-axios.defaults.headers.common['Authorization'] = `Bearer ${localStorage.getItem('token')}`;
-
 const UserInventory = () => {
   const [products, setProducts] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredProducts, setFilteredProducts] = useState([]);
 
-  // Fetch inventory from backend
-  useEffect(() => {
-    fetchInventory();
-  }, []);
-
   const fetchInventory = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      console.error('No authentication token found');
+      return;
+    }
+
     try {
-      const response = await axios.get('/api/inventory');
+      const response = await axios.get('http://37.148.210.169:5001/api/inventory', {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
       setProducts(response.data);
       setFilteredProducts(response.data);
     } catch (error) {
       console.error('Error fetching inventory:', error);
     }
   };
+
+  useEffect(() => {
+    fetchInventory();
+    // Set up an interval to check for token and fetch data
+    const intervalId = setInterval(() => {
+      const token = localStorage.getItem('token');
+      if (token && products.length === 0) {
+        fetchInventory();
+      }
+    }, 1000); // Check every second
+
+    // Cleanup interval on component unmount
+    return () => clearInterval(intervalId);
+  }, [products.length]);
 
   // Search functionality
   const handleSearch = (e) => {
