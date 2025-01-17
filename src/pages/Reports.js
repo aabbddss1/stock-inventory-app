@@ -543,7 +543,7 @@ function Reports() {
                       {typeof value === 'number' ? 
                         key.toLowerCase().includes('spend') ? 
                           `$${value.toFixed(2)}` : 
-                          value.toFixed(2) 
+                          Math.floor(value)
                         : value || 'N/A'}
                     </Card.Text>
                   </Card.Body>
