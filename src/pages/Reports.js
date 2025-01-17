@@ -83,8 +83,11 @@ function Reports() {
 
     try {
       const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('No authentication token found');
+      }
+
       let endpoint = '';
-      
       switch (reportType) {
         case 'sales':
           endpoint = 'http://37.148.210.169:5001/api/orders';
@@ -102,20 +105,32 @@ function Reports() {
           throw new Error('Invalid report type');
       }
 
+      console.log(`Fetching ${reportType} data from:`, endpoint);
+
       const response = await fetch(endpoint, {
         headers: {
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
         }
       });
 
+      console.log(`${reportType} response status:`, response.status);
+
       if (!response.ok) {
-        throw new Error(`Failed to fetch ${reportType} data`);
+        const errorText = await response.text();
+        console.error(`Error response:`, errorText);
+        throw new Error(`Failed to fetch ${reportType} data: ${response.status} ${response.statusText}`);
       }
 
       const data = await response.json();
+      console.log(`${reportType} data received:`, data);
+
+      const processedData = processReportData(reportType, data, range);
+      console.log(`${reportType} processed data:`, processedData);
+
       setReportData(prev => ({
         ...prev,
-        [reportType]: processReportData(reportType, data, range)
+        [reportType]: processedData
       }));
     } catch (err) {
       console.error(`Error fetching ${reportType} data:`, err);
@@ -183,10 +198,16 @@ function Reports() {
   };
 
   const processCustomerData = (data) => {
+    console.log('Raw customer data:', data);
+
     // Filter out admin users and group customers by role
-    const filteredCustomers = data.filter(customer => 
-      customer.role?.toLowerCase() === 'user' || !customer.role
-    );
+    const filteredCustomers = data.filter(customer => {
+      console.log('Customer:', customer);
+      console.log('Customer role:', customer.role);
+      return customer.role?.toLowerCase() === 'user' || !customer.role;
+    });
+    
+    console.log('Filtered customers:', filteredCustomers);
 
     // Group by role (or 'Regular' if no role specified)
     const customersByRole = filteredCustomers.reduce((acc, customer) => {
@@ -195,29 +216,44 @@ function Reports() {
       return acc;
     }, {});
 
+    console.log('Customers by role:', customersByRole);
+
+    // Add a default category if no customers are found
+    if (Object.keys(customersByRole).length === 0) {
+      customersByRole['No Customers'] = 0;
+    }
+
+    const chartData = {
+      labels: Object.keys(customersByRole),
+      datasets: [{
+        data: Object.values(customersByRole),
+        backgroundColor: [
+          'rgba(255, 99, 132, 0.5)',
+          'rgba(54, 162, 235, 0.5)',
+          'rgba(255, 206, 86, 0.5)',
+          'rgba(75, 192, 192, 0.5)',
+        ],
+      }]
+    };
+
+    console.log('Chart data:', chartData);
+
+    const summary = {
+      totalCustomers: filteredCustomers.length,
+      activeCustomers: filteredCustomers.length,
+      newCustomers: filteredCustomers.filter(c => {
+        const createdDate = new Date(c.created_at || c.createdAt);
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+        return createdDate >= thirtyDaysAgo;
+      }).length
+    };
+
+    console.log('Summary data:', summary);
+
     return {
-      chartData: {
-        labels: Object.keys(customersByRole),
-        datasets: [{
-          data: Object.values(customersByRole),
-          backgroundColor: [
-            'rgba(255, 99, 132, 0.5)',
-            'rgba(54, 162, 235, 0.5)',
-            'rgba(255, 206, 86, 0.5)',
-            'rgba(75, 192, 192, 0.5)',
-          ],
-        }]
-      },
-      summary: {
-        totalCustomers: filteredCustomers.length,
-        activeCustomers: filteredCustomers.length, // Since all listed customers are active
-        newCustomers: filteredCustomers.filter(c => {
-          const createdDate = new Date(c.created_at || c.createdAt);
-          const thirtyDaysAgo = new Date();
-          thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-          return createdDate >= thirtyDaysAgo;
-        }).length
-      }
+      chartData,
+      summary
     };
   };
 
