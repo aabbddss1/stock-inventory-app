@@ -43,6 +43,17 @@ router.post('/login', (req, res) => {
       return res.status(401).json({ error: 'Invalid email or password' });
     }
 
+    // Update last login time
+    const updateQuery = 'UPDATE customers SET lastLoggedIn = ? WHERE id = ?';
+    const currentTime = new Date().toISOString();
+    
+    db.query(updateQuery, [currentTime, customer.id], (updateErr) => {
+      if (updateErr) {
+        console.error('Error updating last login time:', updateErr);
+        // Continue with login process even if update fails
+      }
+    });
+
     const token = jwt.sign(
       { id: customer.id, email: customer.email, role: customer.role },
       process.env.JWT_SECRET,
@@ -57,7 +68,7 @@ router.post('/login', (req, res) => {
 router.get('/me', authenticate, (req, res) => {
   const { id } = req.user;
   db.query(
-    'SELECT id, name, email, phone FROM customers WHERE id = ?',
+    'SELECT id, name, email, phone, lastLoggedIn FROM customers WHERE id = ?',
     [id],
     (err, results) => {
       if (err) {
