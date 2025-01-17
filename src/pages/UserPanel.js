@@ -77,21 +77,30 @@ const UserPanel = () => {
         }
 
         // Fetch user details
-        const response = await api.get('/api/customers/me', {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
+        const response = await api.get('/api/customers/me');
+        
+        if (!response.data) {
+          throw new Error('No user data received');
+        }
 
         setUser(response.data);
 
         // Fetch orders, inventory, and notifications
-        fetchUserOrders(response.data.id);
-        fetchInventory();
-        fetchNotifications();
+        await Promise.all([
+          fetchUserOrders(response.data.id),
+          fetchInventory(),
+          fetchNotifications()
+        ]);
+
       } catch (error) {
         console.error('Error fetching user:', error);
-        setError('Failed to fetch user data');
+        if (error.response?.status === 500) {
+          setError('Server error: Unable to fetch user data. Please try logging in again.');
+          localStorage.removeItem('token');
+          setTimeout(() => navigate('/'), 2000);
+        } else {
+          setError(error.response?.data?.error || 'Failed to fetch user data');
+        }
       }
     };
 
