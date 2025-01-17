@@ -77,30 +77,21 @@ const UserPanel = () => {
         }
 
         // Fetch user details
-        const response = await api.get('/api/customers/me');
-        
-        if (!response.data) {
-          throw new Error('No user data received');
-        }
+        const response = await api.get('/api/customers/me', {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
 
         setUser(response.data);
 
         // Fetch orders, inventory, and notifications
-        await Promise.all([
-          fetchUserOrders(response.data.id),
-          fetchInventory(),
-          fetchNotifications()
-        ]);
-
+        fetchUserOrders(response.data.id);
+        fetchInventory();
+        fetchNotifications();
       } catch (error) {
         console.error('Error fetching user:', error);
-        if (error.response?.status === 500) {
-          setError('Server error: Unable to fetch user data. Please try logging in again.');
-          localStorage.removeItem('token');
-          setTimeout(() => navigate('/'), 2000);
-        } else {
-          setError(error.response?.data?.error || 'Failed to fetch user data');
-        }
+        setError('Failed to fetch user data');
       }
     };
 
@@ -121,40 +112,12 @@ const UserPanel = () => {
 
   const fetchNotifications = async () => {
     try {
-      const response = await api.get('/api/notifications', {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-      });
-      
-      // Get order status notifications
-      const orderStatusNotifications = orders
-        .filter(order => order.statusChangeDate) // Only get orders with status changes
-        .sort((a, b) => new Date(b.statusChangeDate) - new Date(a.statusChangeDate))
-        .map(order => ({
-          id: `status-${order.id}`,
-          message: `Order #${order.id} status changed to ${order.status}`,
-          date: order.statusChangeDate,
-          type: 'status_change',
-          status: order.status,
-          isRead: false
-        }));
-
-      // Combine with other notifications and sort by date
-      const allNotifications = [...orderStatusNotifications, ...response.data]
-        .sort((a, b) => new Date(b.date) - new Date(a.date));
-
-      setNotifications(allNotifications);
+      const response = await api.get('/api/notifications');
+      setNotifications(response.data);
     } catch (error) {
       console.error('Error fetching notifications:', error);
     }
   };
-
-  // Add useEffect to check for order status changes
-  useEffect(() => {
-    if (orders.length > 0) {
-      // Fetch notifications when orders change (status changes)
-      fetchNotifications();
-    }
-  }, [orders]);
 
   const fetchUserOrders = async (userId) => {
     try {
@@ -355,15 +318,7 @@ const UserPanel = () => {
               <h2>User Details</h2>
               <p><strong>Email:</strong> {user.email}</p>
               <p><strong>Phone:</strong> {user.phone}</p>
-              <p><strong>Last Logged In:</strong> {
-                new Date(user.lastLoggedIn || new Date()).toLocaleString('en-US', {
-                  year: 'numeric',
-                  month: 'short',
-                  day: 'numeric',
-                  hour: '2-digit',
-                  minute: '2-digit'
-                })
-              }</p>
+              <p><strong>Last Logged In:</strong> {user.lastLoggedIn}</p>
             </div>
 
             <div className="quick-order-card" onClick={() => setIsQuickOrderModalOpen(true)}>
