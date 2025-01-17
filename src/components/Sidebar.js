@@ -109,7 +109,7 @@ function Sidebar() {
               className={({ isActive }) => (isActive ? 'active-link' : '')}
               end
             >
-              <FontAwesomeIcon icon={faChartBar} /> <span className="hidingtext">{t('reports')}</span>
+              <FontAwesomeIcon icon={faChartBar} /> <span className="hidingtext">{t('Reports')}</span>
             </NavLink>
           </>
         )}
