@@ -409,6 +409,16 @@ color: white;
 
 /* Mobil için (480px'e kadar) */
 @media screen and (max-width: 480px) {
+  .orders-page {
+    display: block; /* Flex yerine block yaparak tam genişlik kullan */
+  }
+
+  .main-content {
+    margin-left: 0; /* Sol kenar boşluğunu kaldır */
+    width: 100%; /* Tam genişlik */
+    padding-top: 10px; /* Üstten biraz boşluk ekle */
+  }
+
   .orders-table {
     display: block;
     overflow-x: auto;

@@ -132,9 +132,6 @@ function Sidebar() {
             <FontAwesomeIcon icon={faFolderOpen} /> <span className="hidingtext">{t('myDocuments')}</span>
           </NavLink>
         )}
-
-        <h3 className="hidingtext">{t('accounts')}</h3>
-
         {/* Admin-Only Accounts Links */}
         {userRole === 'admin' && (
           <>
