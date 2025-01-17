@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import 'bootstrap/dist/css/bootstrap.min.css';
 import AdminPanel from './pages/AdminPanel';
 import LoginPage from './pages/LoginPage';
 import Customers from './pages/Customers';
