@@ -520,7 +520,10 @@ const Orders = () => {
                           {ordersInGroup.length} {t('orders')}
                         </span>
                       </div>
-                      <i className={`fas fa-chevron-${expandedSections[statusGroup] ? 'up' : 'down'}`} />
+                      <i
+  className={`fas fa-chevron-${expandedSections[statusGroup] ? 'up' : 'down'}`}
+  style={{ color: 'white' }}
+/>
                     </div>
                     
                     <div className={`order-section-content ${expandedSections[statusGroup] ? 'expanded' : ''}`}>

@@ -526,7 +526,7 @@ color: white;
 
 .order-section-header {
   padding: 1rem 1.5rem;
-  background: #f8f9fa;
+  background: #03bfa6;
   border-bottom: 1px solid #e9ecef;
   cursor: pointer;
   display: flex;
@@ -547,7 +547,7 @@ color: white;
 
 .header-content h3 {
   margin: 0;
-  color: #495057;
+  color: #ffffff;
   font-size: 1.1rem;
   font-weight: 600;
 }
