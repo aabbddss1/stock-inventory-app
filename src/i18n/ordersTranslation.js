@@ -1,6 +1,6 @@
 export const ordersTranslation = {
   en: {
-    title: "Orders",
+    Orders: "Orders",
     search: "Search by Client, Product, or Status",
     exportButton: "Export to Excel",
     createOrder: "Create New Order",
@@ -50,7 +50,7 @@ export const ordersTranslation = {
     failedToSave: "Failed to save changes. Please try again.",
   },
   tr: {
-    title: "Siparişler",
+    Orders: "Siparişler",
     search: "Müşteri, Ürün veya Duruma Göre Ara",
     exportButton: "Excel'e Aktar",
     createOrder: "Yeni Sipariş Oluştur",
@@ -100,7 +100,7 @@ export const ordersTranslation = {
     failedToSave: "Değişiklikler kaydedilemedi. Lütfen tekrar deneyin.",
   },
   de: {
-    title: "Bestellungen",
+    Orders: "Bestellungen",
     search: "Nach Kunde, Produkt oder Status suchen",
     exportButton: "Nach Excel exportieren",
     createOrder: "Neue Bestellung erstellen",
@@ -140,7 +140,7 @@ export const ordersTranslation = {
     failedToSave: "Änderungen konnten nicht gespeichert werden. Bitte versuchen Sie es erneut."
   },
   es: {
-    title: "Pedidos",
+    Orders: "Pedidos",
     search: "Buscar por Cliente, Producto o Estado",
     exportButton: "Exportar a Excel",
     createOrder: "Crear Nuevo Pedido",

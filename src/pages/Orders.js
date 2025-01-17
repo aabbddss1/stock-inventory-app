@@ -409,7 +409,7 @@ const Orders = () => {
       <div className="main-content">
         <TopNavbar />
         <div className="orders-container">
-          <h1>{t('title')}</h1>
+          <h1>{t('Orders')}</h1>
 
           {/* Search and Export Actions */}
           <div className="orders-export">
