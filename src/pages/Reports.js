@@ -207,7 +207,6 @@ function Reports() {
   const processCustomerData = async (customerData) => {
     console.log('Processing customer data:', customerData);
 
-    // Fetch orders data for customer analysis
     try {
       const token = localStorage.getItem('token');
       const response = await fetch('http://37.148.210.169:5001/api/orders', {
@@ -255,6 +254,12 @@ function Reports() {
           ? totalSpent / customerOrders.length 
           : 0;
 
+        // Calculate order frequency (orders per month)
+        const orderDates = customerOrders.map(order => new Date(order.orderDate));
+        const orderFrequency = orderDates.length > 0 
+          ? orderDates.length / (Math.max(...orderDates) - Math.min(...orderDates)) * 30 || 0 
+          : 0;
+
         return {
           id: customer.id,
           name: customer.name,
@@ -263,18 +268,20 @@ function Reports() {
           totalOrders: customerOrders.length,
           totalSpent: totalSpent,
           averageOrderValue: averageOrderValue,
+          orderFrequency: orderFrequency,
           mostPurchasedProduct: mostPurchasedProduct[0],
           mostPurchasedQuantity: mostPurchasedProduct[1],
           lastOrderDate: customerOrders.length > 0 
-            ? new Date(Math.max(...customerOrders.map(o => new Date(o.orderDate)))).toLocaleDateString()
-            : 'No orders'
+            ? new Date(Math.max(...orderDates)).toLocaleDateString()
+            : 'No orders',
+          productFrequency: productFrequency
         };
       });
 
       // Sort customers by total spent
       customerAnalytics.sort((a, b) => b.totalSpent - a.totalSpent);
 
-      // Prepare chart data for customer spending distribution
+      // 1. Customer Spending Distribution
       const spendingRanges = {
         '$0-$100': 0,
         '$101-$500': 0,
@@ -289,16 +296,51 @@ function Reports() {
         else spendingRanges['$1000+']++;
       });
 
-      const chartData = {
-        labels: Object.keys(spendingRanges),
+      // 2. Order Frequency Distribution
+      const orderFrequencyData = {
+        labels: customerAnalytics.slice(0, 10).map(c => c.name),
         datasets: [{
-          data: Object.values(spendingRanges),
-          backgroundColor: [
-            'rgba(54, 162, 235, 0.5)',
-            'rgba(75, 192, 192, 0.5)',
-            'rgba(255, 206, 86, 0.5)',
-            'rgba(255, 99, 132, 0.5)',
-          ],
+          label: 'Orders per Month',
+          data: customerAnalytics.slice(0, 10).map(c => c.orderFrequency.toFixed(1)),
+          backgroundColor: 'rgba(75, 192, 192, 0.5)',
+          borderColor: 'rgba(75, 192, 192, 1)',
+          borderWidth: 1
+        }]
+      };
+
+      // 3. Top Products Analysis
+      const allProducts = {};
+      customerAnalytics.forEach(customer => {
+        Object.entries(customer.productFrequency).forEach(([product, quantity]) => {
+          allProducts[product] = (allProducts[product] || 0) + quantity;
+        });
+      });
+
+      const topProducts = Object.entries(allProducts)
+        .sort(([,a], [,b]) => b - a)
+        .slice(0, 5);
+
+      const topProductsData = {
+        labels: topProducts.map(([product]) => product),
+        datasets: [{
+          label: 'Total Purchases',
+          data: topProducts.map(([,quantity]) => quantity),
+          backgroundColor: 'rgba(54, 162, 235, 0.5)',
+          borderColor: 'rgba(54, 162, 235, 1)',
+          borderWidth: 1
+        }]
+      };
+
+      // 4. Customer Lifetime Value Distribution
+      const sortedByValue = [...customerAnalytics].sort((a, b) => a.totalSpent - b.totalSpent);
+      const lifetimeValueData = {
+        labels: sortedByValue.map(c => c.name),
+        datasets: [{
+          label: 'Customer Lifetime Value',
+          data: sortedByValue.map(c => c.totalSpent),
+          borderColor: 'rgba(255, 99, 132, 1)',
+          borderWidth: 2,
+          fill: false
         }]
       };
 
@@ -306,13 +348,31 @@ function Reports() {
       const summary = {
         totalCustomers: filteredCustomers.length,
         activeCustomers: customerAnalytics.filter(c => c.totalOrders > 0).length,
-        averageCustomerSpend: customerAnalytics.reduce((sum, c) => sum + c.totalSpent, 0) / filteredCustomers.length
+        averageCustomerSpend: customerAnalytics.reduce((sum, c) => sum + c.totalSpent, 0) / filteredCustomers.length,
+        totalRevenue: customerAnalytics.reduce((sum, c) => sum + c.totalSpent, 0),
+        averageOrderFrequency: customerAnalytics.reduce((sum, c) => sum + c.orderFrequency, 0) / customerAnalytics.length
       };
 
       return {
-        chartData,
+        chartData: {
+          spending: {
+            labels: Object.keys(spendingRanges),
+            datasets: [{
+              data: Object.values(spendingRanges),
+              backgroundColor: [
+                'rgba(54, 162, 235, 0.5)',
+                'rgba(75, 192, 192, 0.5)',
+                'rgba(255, 206, 86, 0.5)',
+                'rgba(255, 99, 132, 0.5)',
+              ],
+            }]
+          },
+          orderFrequency: orderFrequencyData,
+          topProducts: topProductsData,
+          lifetimeValue: lifetimeValueData
+        },
         summary,
-        customerAnalytics // Include detailed customer data
+        customerAnalytics
       };
     } catch (error) {
       console.error('Error processing customer data:', error);
@@ -460,8 +520,61 @@ function Reports() {
             {activeReport === 'sales' && currentData.chartData && <Line data={currentData.chartData} />}
             {activeReport === 'customers' && currentData.chartData && (
               <>
-                <h5 className="mb-3">Customer Spending Distribution</h5>
-                <Pie data={currentData.chartData} />
+                <Row className="mb-4">
+                  <Col md={6}>
+                    <Card>
+                      <Card.Body>
+                        <h5 className="mb-3">Customer Spending Distribution</h5>
+                        <Pie data={currentData.chartData.spending} />
+                      </Card.Body>
+                    </Card>
+                  </Col>
+                  <Col md={6}>
+                    <Card>
+                      <Card.Body>
+                        <h5 className="mb-3">Top 10 Customer Order Frequency</h5>
+                        <Bar data={currentData.chartData.orderFrequency} />
+                      </Card.Body>
+                    </Card>
+                  </Col>
+                </Row>
+                <Row className="mb-4">
+                  <Col md={6}>
+                    <Card>
+                      <Card.Body>
+                        <h5 className="mb-3">Top 5 Products by Customer Purchases</h5>
+                        <Bar 
+                          data={currentData.chartData.topProducts}
+                          options={{
+                            indexAxis: 'y',
+                            plugins: {
+                              legend: {
+                                display: false
+                              }
+                            }
+                          }}
+                        />
+                      </Card.Body>
+                    </Card>
+                  </Col>
+                  <Col md={6}>
+                    <Card>
+                      <Card.Body>
+                        <h5 className="mb-3">Customer Lifetime Value Distribution</h5>
+                        <Line 
+                          data={currentData.chartData.lifetimeValue}
+                          options={{
+                            plugins: {
+                              legend: {
+                                display: false
+                              }
+                            }
+                          }}
+                        />
+                      </Card.Body>
+                    </Card>
+                  </Col>
+                </Row>
                 
                 {currentData.customerAnalytics && currentData.customerAnalytics.length > 0 ? (
                   <div className="customer-details mt-4">
@@ -476,6 +589,7 @@ function Reports() {
                             <th>Total Orders</th>
                             <th>Total Spent</th>
                             <th>Avg. Order Value</th>
+                            <th>Orders/Month</th>
                             <th>Most Purchased</th>
                             <th>Last Order</th>
                           </tr>
@@ -489,6 +603,7 @@ function Reports() {
                               <td>{customer.totalOrders}</td>
                               <td>${customer.totalSpent.toFixed(2)}</td>
                               <td>${customer.averageOrderValue.toFixed(2)}</td>
+                              <td>{customer.orderFrequency.toFixed(1)}</td>
                               <td>{customer.mostPurchasedProduct} ({customer.mostPurchasedQuantity})</td>
                               <td>{customer.lastOrderDate}</td>
                             </tr>
