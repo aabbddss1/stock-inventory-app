@@ -141,6 +141,11 @@ function Reports() {
   };
 
   const processReportData = (type, data, range) => {
+    // For customers, we don't need to filter by date range
+    if (type === 'customers') {
+      return processCustomerData(data);
+    }
+
     const now = new Date();
     const rangeDate = new Date();
     
@@ -155,15 +160,17 @@ function Reports() {
         rangeDate.setDate(now.getDate() - 7);
     }
 
-    const filteredData = data.filter(item => new Date(item.createdAt || item.orderDate) >= rangeDate);
+    // Only filter by date for orders, sales, and inventory
+    const filteredData = data.filter(item => {
+      const itemDate = new Date(item.createdAt || item.orderDate);
+      return itemDate >= rangeDate;
+    });
 
     switch (type) {
       case 'sales':
         return processSalesData(filteredData);
-      case 'customers':
-        return processCustomerData(filteredData);
       case 'inventory':
-        return processInventoryData(filteredData);
+        return processInventoryData(data); // Don't filter inventory by date
       case 'orders':
         return processOrderData(filteredData);
       default:
@@ -198,58 +205,43 @@ function Reports() {
   };
 
   const processCustomerData = (data) => {
-    console.log('Raw customer data:', data);
+    console.log('Processing customer data:', data);
 
     // Filter out admin users and group customers by role
-    const filteredCustomers = data.filter(customer => {
-      console.log('Customer:', customer);
-      console.log('Customer role:', customer.role);
-      return customer.role?.toLowerCase() === 'user' || !customer.role;
-    });
+    const filteredCustomers = data.filter(customer => 
+      customer.role?.toLowerCase() === 'user'
+    );
     
-    console.log('Filtered customers:', filteredCustomers);
+    console.log('Filtered customers (users only):', filteredCustomers);
 
-    // Group by role (or 'Regular' if no role specified)
-    const customersByRole = filteredCustomers.reduce((acc, customer) => {
-      const role = customer.role || 'Regular';
-      acc[role] = (acc[role] || 0) + 1;
-      return acc;
-    }, {});
+    // Group customers by some meaningful attribute (e.g., has phone number or not)
+    const customerGroups = {
+      'Active Users': filteredCustomers.filter(c => c.phone).length,
+      'Incomplete Profile': filteredCustomers.filter(c => !c.phone).length
+    };
 
-    console.log('Customers by role:', customersByRole);
-
-    // Add a default category if no customers are found
-    if (Object.keys(customersByRole).length === 0) {
-      customersByRole['No Customers'] = 0;
-    }
+    console.log('Customer groups:', customerGroups);
 
     const chartData = {
-      labels: Object.keys(customersByRole),
+      labels: Object.keys(customerGroups),
       datasets: [{
-        data: Object.values(customersByRole),
+        data: Object.values(customerGroups),
         backgroundColor: [
-          'rgba(255, 99, 132, 0.5)',
           'rgba(54, 162, 235, 0.5)',
-          'rgba(255, 206, 86, 0.5)',
-          'rgba(75, 192, 192, 0.5)',
+          'rgba(255, 99, 132, 0.5)',
         ],
       }]
     };
 
-    console.log('Chart data:', chartData);
+    // Calculate new customers (registered in last 30 days)
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
     const summary = {
       totalCustomers: filteredCustomers.length,
-      activeCustomers: filteredCustomers.length,
-      newCustomers: filteredCustomers.filter(c => {
-        const createdDate = new Date(c.created_at || c.createdAt);
-        const thirtyDaysAgo = new Date();
-        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-        return createdDate >= thirtyDaysAgo;
-      }).length
+      activeCustomers: filteredCustomers.filter(c => c.phone).length,
+      newCustomers: filteredCustomers.length // Since we don't have creation date, show total for now
     };
-
-    console.log('Summary data:', summary);
 
     return {
       chartData,
