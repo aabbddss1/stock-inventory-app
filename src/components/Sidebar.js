@@ -14,6 +14,7 @@ import {
   faFileInvoiceDollar,
   faDollarSign,
   faFolderOpen,
+  faChartBar,
 } from '@fortawesome/free-solid-svg-icons';
 import { useTranslation } from 'react-i18next';
 
@@ -102,6 +103,13 @@ function Sidebar() {
               end
             >
               <FontAwesomeIcon icon={faFileAlt} /> <span className="hidingtext">{t('quotations')}</span>
+            </NavLink>
+            <NavLink
+              to="/reports"
+              className={({ isActive }) => (isActive ? 'active-link' : '')}
+              end
+            >
+              <FontAwesomeIcon icon={faChartBar} /> <span className="hidingtext">{t('reports')}</span>
             </NavLink>
           </>
         )}
