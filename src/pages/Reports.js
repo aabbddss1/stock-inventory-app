@@ -2,9 +2,13 @@ import React, { useState } from 'react';
 import { Card, Row, Col, Button, Table } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChartLine, faUsers, faWarehouse, faFileAlt } from '@fortawesome/free-solid-svg-icons';
+import Sidebar from '../components/Sidebar';
+import TopNavbar from '../components/TopNavbar';
 import '../styles/Reports.css';
+import { useTranslation } from 'react-i18next';
 
 function Reports() {
+  const { t } = useTranslation();
   const [activeReport, setActiveReport] = useState('sales');
 
   const reportCards = [
@@ -35,7 +39,6 @@ function Reports() {
   ];
 
   const renderReportContent = () => {
-    // Placeholder for report content
     return (
       <Card className="mt-4">
         <Card.Body>
@@ -72,27 +75,34 @@ function Reports() {
   };
 
   return (
-    <div className="reports-container">
-      <h2 className="page-title">Reports Dashboard</h2>
-      <Row className="report-cards">
-        {reportCards.map((card, index) => (
-          <Col md={3} key={index}>
-            <Card 
-              className={`report-card ${activeReport === card.type ? 'active' : ''}`}
-              onClick={() => setActiveReport(card.type)}
-            >
-              <Card.Body>
-                <div className="report-card-icon">
-                  <FontAwesomeIcon icon={card.icon} />
-                </div>
-                <Card.Title>{card.title}</Card.Title>
-                <Card.Text>{card.description}</Card.Text>
-              </Card.Body>
-            </Card>
-          </Col>
-        ))}
-      </Row>
-      {renderReportContent()}
+    <div className="reports-page">
+      <Sidebar />
+      <div className="main-content">
+        <TopNavbar />
+        <div className="reports-container">
+          <h1 className="page-title">Reports Dashboard</h1>
+          
+          <Row className="report-cards">
+            {reportCards.map((card, index) => (
+              <Col md={3} key={index}>
+                <Card 
+                  className={`report-card ${activeReport === card.type ? 'active' : ''}`}
+                  onClick={() => setActiveReport(card.type)}
+                >
+                  <Card.Body>
+                    <div className="report-card-icon">
+                      <FontAwesomeIcon icon={card.icon} />
+                    </div>
+                    <Card.Title>{card.title}</Card.Title>
+                    <Card.Text>{card.description}</Card.Text>
+                  </Card.Body>
+                </Card>
+              </Col>
+            ))}
+          </Row>
+          {renderReportContent()}
+        </div>
+      </div>
     </div>
   );
 }
