@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Row, Col, Button, Table } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChartLine, faUsers, faWarehouse, faFileAlt } from '@fortawesome/free-solid-svg-icons';
+import { faChartLine, faUsers, faWarehouse, faFileAlt, faFileExcel } from '@fortawesome/free-solid-svg-icons';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -19,6 +19,7 @@ import Sidebar from '../components/Sidebar';
 import TopNavbar from '../components/TopNavbar';
 import '../styles/Reports.css';
 import { useTranslation } from 'react-i18next';
+import { utils as XLSXUtils, writeFile as XLSXWriteFile } from 'xlsx';
 
 // Register ChartJS components
 ChartJS.register(
@@ -467,6 +468,26 @@ function Reports() {
     };
   };
 
+  const exportCustomerAnalytics = (customerData) => {
+    // Prepare data for export
+    const exportData = customerData.map(customer => ({
+      'Customer Name': customer.name,
+      'Email': customer.email,
+      'Phone': customer.phone,
+      'Total Orders': customer.totalOrders,
+      'Total Spent': `$${customer.totalSpent.toFixed(2)}`,
+      'Average Order Value': `$${customer.averageOrderValue.toFixed(2)}`,
+      'Orders per Month': customer.orderFrequency.toFixed(1),
+      'Most Purchased Product': `${customer.mostPurchasedProduct} (${customer.mostPurchasedQuantity})`,
+      'Last Order': customer.lastOrderDate
+    }));
+
+    const worksheet = XLSXUtils.json_to_sheet(exportData);
+    const workbook = XLSXUtils.book_new();
+    XLSXUtils.book_append_sheet(workbook, worksheet, 'Customer Analytics');
+    XLSXWriteFile(workbook, 'customer_analytics.xlsx');
+  };
+
   const renderReportContent = () => {
     if (loading) {
       return <div className="loading-spinner">Loading...</div>;
@@ -628,7 +649,18 @@ function Reports() {
                 
                 {currentData.customerAnalytics && currentData.customerAnalytics.length > 0 ? (
                   <div className="customer-details mt-4">
-                    <h5 className="mb-3">Detailed Customer Analytics</h5>
+                    <div className="d-flex justify-content-between align-items-center mb-3">
+                      <h5 className="mb-0">Detailed Customer Analytics</h5>
+                      <Button 
+                        variant="success" 
+                        size="sm"
+                        onClick={() => exportCustomerAnalytics(currentData.customerAnalytics)}
+                        className="export-button"
+                      >
+                        <FontAwesomeIcon icon={faFileExcel} className="me-2" />
+                        Export to Excel
+                      </Button>
+                    </div>
                     <div className="table-responsive">
                       <Table striped bordered hover>
                         <thead>
