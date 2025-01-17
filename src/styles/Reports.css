@@ -7,7 +7,7 @@
 .main-content {
   flex: 1;
   padding: 20px;
-  margin-left: 250px; /* Adjust based on your sidebar width */
+  margin-left: 250px;
   width: calc(100% - 250px);
   min-height: 100vh;
   overflow-x: hidden;
@@ -16,7 +16,7 @@
 .reports-container {
   padding: 20px;
   width: 100%;
-  min-height: calc(100vh - 80px); /* Adjust based on your navbar height */
+  min-height: calc(100vh - 80px);
 }
 
 .page-title {
@@ -44,14 +44,14 @@
 }
 
 .report-card.active {
-  border-left: 4px solid #007bff;
+  border-left: 4px solid #3bafa9;
   background-color: #f8f9fa;
 }
 
 .report-card-icon {
   font-size: 2rem;
   margin-bottom: 15px;
-  color: #007bff;
+  color: #3bafa9;
 }
 
 .summary-card {
@@ -82,10 +82,38 @@
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
+/* Order reports specific chart container */
+.orders-chart-container {
+  max-width: 600px;
+  margin: 0 auto;
+  height: 400px;
+}
+
 .error-message {
   color: #dc3545;
   text-align: center;
   padding: 20px;
+}
+
+/* Button styles */
+.btn-primary {
+  background-color: #3bafa9;
+  border-color: #3bafa9;
+}
+
+.btn-primary:hover {
+  background-color: #339693;
+  border-color: #339693;
+}
+
+.btn-outline-primary {
+  color: #3bafa9;
+  border-color: #3bafa9;
+}
+
+.btn-outline-primary:hover {
+  background-color: #3bafa9;
+  border-color: #3bafa9;
 }
 
 /* Responsive adjustments */
@@ -105,6 +133,10 @@
 
   .summary-card .card-text {
     font-size: 1.2rem;
+  }
+
+  .orders-chart-container {
+    height: 300px;
   }
 }
 

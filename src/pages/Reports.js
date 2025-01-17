@@ -702,7 +702,21 @@ function Reports() {
               </>
             )}
             {activeReport === 'inventory' && currentData.chartData && <Bar data={currentData.chartData} />}
-            {activeReport === 'orders' && currentData.chartData && <Pie data={currentData.chartData} />}
+            {activeReport === 'orders' && currentData.chartData && (
+              <div className="orders-chart-container">
+                <Pie 
+                  data={currentData.chartData}
+                  options={{
+                    maintainAspectRatio: false,
+                    plugins: {
+                      legend: {
+                        position: 'bottom'
+                      }
+                    }
+                  }}
+                />
+              </div>
+            )}
           </div>
         </Card.Body>
       </Card>
