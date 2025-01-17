@@ -183,18 +183,23 @@ function Reports() {
   };
 
   const processCustomerData = (data) => {
-    // Group customers by their category/type
-    const customersByType = data.reduce((acc, customer) => {
-      const type = customer.type || 'Regular'; // Default to 'Regular' if type is not specified
-      acc[type] = (acc[type] || 0) + 1;
+    // Filter out admin users and group customers by role
+    const filteredCustomers = data.filter(customer => 
+      customer.role?.toLowerCase() === 'user' || !customer.role
+    );
+
+    // Group by role (or 'Regular' if no role specified)
+    const customersByRole = filteredCustomers.reduce((acc, customer) => {
+      const role = customer.role || 'Regular';
+      acc[role] = (acc[role] || 0) + 1;
       return acc;
     }, {});
 
     return {
       chartData: {
-        labels: Object.keys(customersByType),
+        labels: Object.keys(customersByRole),
         datasets: [{
-          data: Object.values(customersByType),
+          data: Object.values(customersByRole),
           backgroundColor: [
             'rgba(255, 99, 132, 0.5)',
             'rgba(54, 162, 235, 0.5)',
@@ -204,24 +209,35 @@ function Reports() {
         }]
       },
       summary: {
-        totalCustomers: data.length,
-        activeCustomers: data.filter(c => c.status === 'active').length,
-        newCustomers: data.filter(c => {
-          const createdDate = new Date(c.created_at);
-          return createdDate >= new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+        totalCustomers: filteredCustomers.length,
+        activeCustomers: filteredCustomers.length, // Since all listed customers are active
+        newCustomers: filteredCustomers.filter(c => {
+          const createdDate = new Date(c.created_at || c.createdAt);
+          const thirtyDaysAgo = new Date();
+          thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+          return createdDate >= thirtyDaysAgo;
         }).length
       }
     };
   };
 
   const processInventoryData = (data) => {
-    // Sort inventory items by quantity to show most critical items
-    const sortedItems = [...data].sort((a, b) => a.quantity - b.quantity).slice(0, 10);
+    // Sort inventory items by quantity (ascending) and take top 10 lowest stock items
+    const sortedItems = [...data]
+      .sort((a, b) => a.quantity - b.quantity)
+      .slice(0, 10);
+
     const stockLevels = {};
-    
     sortedItems.forEach(item => {
-      stockLevels[item.name] = item.quantity;
+      stockLevels[item.name] = parseInt(item.quantity);
     });
+
+    // Count items by status
+    const statusCounts = data.reduce((acc, item) => {
+      const status = getInventoryStatus(item.quantity);
+      acc[status] = (acc[status] || 0) + 1;
+      return acc;
+    }, {});
 
     return {
       chartData: {
@@ -236,10 +252,18 @@ function Reports() {
       },
       summary: {
         totalItems: data.length,
-        lowStock: data.filter(item => item.status === 'Low Stock').length,
-        outOfStock: data.filter(item => item.status === 'Out of Stock').length
+        lowStock: statusCounts['Low Stock'] || 0,
+        outOfStock: statusCounts['Out of Stock'] || 0
       }
     };
+  };
+
+  // Helper function to determine inventory status
+  const getInventoryStatus = (quantity) => {
+    quantity = parseInt(quantity);
+    if (quantity <= 0) return 'Out of Stock';
+    if (quantity < 10) return 'Low Stock';
+    return 'In Stock';
   };
 
   const processOrderData = (data) => {
