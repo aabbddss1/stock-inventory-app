@@ -112,12 +112,40 @@ const UserPanel = () => {
 
   const fetchNotifications = async () => {
     try {
-      const response = await api.get('/api/notifications');
-      setNotifications(response.data);
+      const response = await api.get('/api/notifications', {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+      });
+      
+      // Get order status notifications
+      const orderStatusNotifications = orders
+        .filter(order => order.statusChangeDate) // Only get orders with status changes
+        .sort((a, b) => new Date(b.statusChangeDate) - new Date(a.statusChangeDate))
+        .map(order => ({
+          id: `status-${order.id}`,
+          message: `Order #${order.id} status changed to ${order.status}`,
+          date: order.statusChangeDate,
+          type: 'status_change',
+          status: order.status,
+          isRead: false
+        }));
+
+      // Combine with other notifications and sort by date
+      const allNotifications = [...orderStatusNotifications, ...response.data]
+        .sort((a, b) => new Date(b.date) - new Date(a.date));
+
+      setNotifications(allNotifications);
     } catch (error) {
       console.error('Error fetching notifications:', error);
     }
   };
+
+  // Add useEffect to check for order status changes
+  useEffect(() => {
+    if (orders.length > 0) {
+      // Fetch notifications when orders change (status changes)
+      fetchNotifications();
+    }
+  }, [orders]);
 
   const fetchUserOrders = async (userId) => {
     try {
