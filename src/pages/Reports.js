@@ -402,7 +402,15 @@ function Reports() {
     }
 
     const currentData = reportData[activeReport];
-    if (!currentData) return null;
+    if (!currentData) {
+      return <div className="error-message">No data available for this report type.</div>;
+    }
+
+    // Add null check for summary
+    if (!currentData.summary) {
+      console.error('Summary data is missing for', activeReport);
+      return <div className="error-message">Unable to load report summary.</div>;
+    }
 
     return (
       <Card className="mt-4">
@@ -430,7 +438,7 @@ function Reports() {
           )}
 
           <Row className="mb-4">
-            {Object.entries(currentData.summary).map(([key, value]) => (
+            {Object.entries(currentData.summary || {}).map(([key, value]) => (
               <Col md={4} key={key}>
                 <Card className="summary-card">
                   <Card.Body>
@@ -440,7 +448,7 @@ function Reports() {
                         key.toLowerCase().includes('spend') ? 
                           `$${value.toFixed(2)}` : 
                           value.toFixed(2) 
-                        : value}
+                        : value || 'N/A'}
                     </Card.Text>
                   </Card.Body>
                 </Card>
@@ -449,13 +457,13 @@ function Reports() {
           </Row>
 
           <div className="chart-container">
-            {activeReport === 'sales' && <Line data={currentData.chartData} />}
-            {activeReport === 'customers' && (
+            {activeReport === 'sales' && currentData.chartData && <Line data={currentData.chartData} />}
+            {activeReport === 'customers' && currentData.chartData && (
               <>
                 <h5 className="mb-3">Customer Spending Distribution</h5>
                 <Pie data={currentData.chartData} />
                 
-                {currentData.customerAnalytics && (
+                {currentData.customerAnalytics && currentData.customerAnalytics.length > 0 ? (
                   <div className="customer-details mt-4">
                     <h5 className="mb-3">Detailed Customer Analytics</h5>
                     <div className="table-responsive">
@@ -489,11 +497,15 @@ function Reports() {
                       </Table>
                     </div>
                   </div>
+                ) : (
+                  <div className="mt-4 text-center">
+                    <p>No customer analytics data available.</p>
+                  </div>
                 )}
               </>
             )}
-            {activeReport === 'inventory' && <Bar data={currentData.chartData} />}
-            {activeReport === 'orders' && <Pie data={currentData.chartData} />}
+            {activeReport === 'inventory' && currentData.chartData && <Bar data={currentData.chartData} />}
+            {activeReport === 'orders' && currentData.chartData && <Pie data={currentData.chartData} />}
           </div>
         </Card.Body>
       </Card>
