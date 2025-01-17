@@ -125,7 +125,7 @@ function Reports() {
       const data = await response.json();
       console.log(`${reportType} data received:`, data);
 
-      const processedData = processReportData(reportType, data, range);
+      const processedData = await processReportData(reportType, data, range);
       console.log(`${reportType} processed data:`, processedData);
 
       setReportData(prev => ({
@@ -140,10 +140,10 @@ function Reports() {
     }
   };
 
-  const processReportData = (type, data, range) => {
+  const processReportData = async (type, data, range) => {
     // For customers, we don't need to filter by date range
     if (type === 'customers') {
-      return processCustomerData(data);
+      return await processCustomerData(data);
     }
 
     const now = new Date();
