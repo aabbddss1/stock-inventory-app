@@ -105,6 +105,7 @@
   padding: 5px 10px;
   cursor: pointer;
   border-radius: 4px;
+  font-size: 12px;
 }
 
 .customers-edit-btn:hover {
@@ -114,11 +115,12 @@
 .customers-delete-btn {
   background-color: red;
   color: white;
-  padding: 6px 10px;
+  padding: 5px 10px;
   border: none;
   border-radius: 5px;
   cursor: pointer;
   margin-right: 5px;
+  font-size: 12px;
 }
 
 .customers-delete-btn:hover {
