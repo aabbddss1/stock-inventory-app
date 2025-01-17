@@ -256,7 +256,8 @@ margin-right: 0; /* Son butonun sağında boşluk olmaması için */
 /* Extra small devices */
 @media (max-width: 480px) {
   .inventory-container {
-    padding: 10px;
+    padding: 30px;
+    padding-right: 1px;
   }
 
   .inventory-table {

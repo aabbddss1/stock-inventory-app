@@ -369,7 +369,8 @@ color: white;
   }
 
   .orders-container {
-    padding: 10px;
+    padding: 30px;
+    padding-right: 1px;
   }
 
   .create-order-form input {

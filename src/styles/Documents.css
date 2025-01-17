@@ -172,7 +172,8 @@
   }
 
   .documents-container {
-      padding: 15px;
+      padding: 30px;
+      padding-right: 1px;
   }
 
   .documents-actions {

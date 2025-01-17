@@ -254,7 +254,8 @@
   }
   
   .sales-container {
-    padding: 20px;
+    padding: 30px;
+    padding-right: 1px; 
   }
   
   .sales-form {
