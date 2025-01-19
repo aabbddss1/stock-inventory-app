@@ -496,3 +496,33 @@
     transform: none;
     box-shadow: none;
   }
+  
+  /* Additional adjustments for mobile responsiveness (max-width: 480px) */
+  @media (max-width: 480px) {
+    .main-content {
+        padding: 5px; /* Further reduced padding for smaller screens */
+    }
+
+    .user-info-section {
+        gap: 0.5rem; /* Reduced gap for better spacing */
+    }
+
+    .quick-order-section,
+    .user-details-section {
+        padding: 0.5rem; /* Further reduced padding */
+    }
+
+    .quick-order-card {
+        padding: 1rem; /* Adjusted padding for smaller screens */
+    }
+
+    .order-summary {
+        padding: 0.25rem; /* Adjusted padding for smaller screens */
+    }
+
+    .logout-button {
+        width: 100%; /* Full width for the logout button */
+        padding: 8px; /* Adjusted padding for smaller screens */
+        font-size: 14px; /* Smaller font size for better fit */
+    }
+  }
