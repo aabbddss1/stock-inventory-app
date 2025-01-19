@@ -4,7 +4,7 @@
 .dashboard-main {
   margin-left: 250px; /* Offset for fixed sidebar width */
   height: calc(100vh - 70px); /* Full height minus navbar */
-  overflow-y: auto;
+  overflow-y: hidden; /* Kaydırma çubuğunu kaldır */
   background-color: #f9f9f9;
 }
 
