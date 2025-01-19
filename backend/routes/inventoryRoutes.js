@@ -130,6 +130,53 @@ router.delete('/:id', authenticate, (req, res) => {
   });
 });
 
+// Bulk import inventory items
+router.post('/bulk-import', authenticate, (req, res) => {
+  const { products } = req.body;
+
+  if (!Array.isArray(products) || products.length === 0) {
+    return res.status(400).json({ error: 'Invalid products data' });
+  }
+
+  // Prepare the values for bulk insert
+  const values = products.map(product => [
+    product.name,
+    product.category,
+    parseInt(product.quantity),
+    parseFloat(product.price),
+    getStatus(parseInt(product.quantity))
+  ]);
+
+  const query = `INSERT INTO inventory (name, category, quantity, price, status) VALUES ?`;
+
+  db.query(query, [values], (err, result) => {
+    if (err) {
+      console.error('Error bulk importing inventory items:', err);
+      return res.status(500).json({ error: 'Failed to import inventory items' });
+    }
+
+    // Fetch the newly imported items
+    const newItemIds = Array.from({ length: result.affectedRows }, (_, i) => result.insertId + i);
+    const selectQuery = 'SELECT * FROM inventory WHERE id IN (?)';
+
+    db.query(selectQuery, [newItemIds], (err, results) => {
+      if (err) {
+        console.error('Error fetching imported items:', err);
+        return res.status(500).json({ 
+          message: 'Items imported but failed to fetch details',
+          count: result.affectedRows
+        });
+      }
+
+      res.status(201).json({
+        message: 'Products imported successfully',
+        products: results,
+        count: result.affectedRows
+      });
+    });
+  });
+});
+
 // Helper function to calculate status
 const getStatus = (quantity) => {
   if (quantity <= 0) return 'Out of Stock';
