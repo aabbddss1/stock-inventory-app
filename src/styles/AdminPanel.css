@@ -35,6 +35,7 @@
   .admin-panel {
     display: flex;
     height: 100vh;
+    overflow: hidden; /* Scroll barı kaldırmak için eklenen stil */
   }
   
   /* Sidebar styling */
@@ -84,9 +85,10 @@
   .content {
     padding: 20px;
     margin-top: var(--navbar-height); /* Offset content below the navbar */
-    overflow-y: auto; /* Enables scrolling within the content */
+    overflow: hidden; /* Scroll barı kaldırmak için güncellenen stil */
     box-sizing: border-box;
     flex-grow: 1;
     background-color: #f9f9f9; /* Light background for contrast */
+    scroll-behavior: smooth; /* Yumuşak kaydırma efekti */
   }
   
