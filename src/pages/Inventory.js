@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios'; // For API calls
 import Sidebar from '../components/Sidebar';
 import TopNavbar from '../components/TopNavbar';
-import { utils as XLSXUtils, writeFile as XLSXWriteFile } from 'xlsx'; // For Excel export
+import { utils as XLSXUtils, writeFile as XLSXWriteFile, read as XLSXRead } from 'xlsx'; // For Excel export and read
 import '../styles/Inventory.css';
 import { useTranslation } from 'react-i18next';
 import { inventoryTranslation } from '../i18n/inventoryTranslation';
@@ -20,6 +20,7 @@ const Inventory = () => {
     quantity: '',
     price: '',
   });
+  const [importError, setImportError] = useState('');
 
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredProducts, setFilteredProducts] = useState([]);
@@ -151,6 +152,58 @@ const Inventory = () => {
     console.log('Inventory exported as Excel');
   };
 
+  // Add new function to handle Excel import
+  const handleExcelImport = async (e) => {
+    const file = e.target.files[0];
+    setImportError('');
+
+    if (!file) return;
+
+    try {
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSXRead(data, { type: 'array' });
+        const sheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[sheetName];
+        const jsonData = XLSXUtils.sheet_to_json(worksheet);
+
+        // Validate the data structure
+        const isValidData = jsonData.every(item => 
+          item.name && item.category && 
+          !isNaN(item.quantity) && !isNaN(item.price)
+        );
+
+        if (!isValidData) {
+          setImportError('Invalid Excel format. Please ensure all required fields are present.');
+          return;
+        }
+
+        // Send data to backend
+        try {
+          const response = await axios.post(
+            'http://37.148.210.169:5001/api/inventory/bulk-import',
+            { products: jsonData },
+            {
+              headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+            }
+          );
+          
+          // Refresh the inventory list
+          fetchInventory();
+          alert('Products imported successfully!');
+        } catch (error) {
+          console.error('Error importing products:', error);
+          setImportError('Failed to import products. Please try again.');
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    } catch (error) {
+      console.error('Error reading Excel file:', error);
+      setImportError('Error reading Excel file. Please ensure it\'s a valid Excel file.');
+    }
+  };
+
   return (
     <div className="inventory-page">
       <Sidebar />
@@ -159,7 +212,7 @@ const Inventory = () => {
         <div className="inventory-container">
           <h1>{t('inventoryTranslation.title')}</h1>
 
-          {/* Search and Export */}
+          {/* Search, Import and Export */}
           <div className="inventory-export">
             <input
               type="text"
@@ -167,10 +220,22 @@ const Inventory = () => {
               value={searchTerm}
               onChange={handleSearch}
             />
-            <button onClick={exportAsExcel} className="excel-export-btn">
-            <i className="fa fa-file-excel"></i> {t('inventoryTranslation.exportBtn')}
-            </button>
+            <div className="excel-buttons">
+              <label className="excel-import-btn">
+                <i className="fa fa-file-upload"></i> Import Excel
+                <input
+                  type="file"
+                  accept=".xlsx, .xls"
+                  onChange={handleExcelImport}
+                  style={{ display: 'none' }}
+                />
+              </label>
+              <button onClick={exportAsExcel} className="excel-export-btn">
+                <i className="fa fa-file-excel"></i> {t('inventoryTranslation.exportBtn')}
+              </button>
+            </div>
           </div>
+          {importError && <div className="import-error">{importError}</div>}
 
           {/* Add/Edit Product Form */}
           <form className="inventory-form" onSubmit={handleSubmit}>
