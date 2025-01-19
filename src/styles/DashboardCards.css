@@ -780,3 +780,29 @@
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
+
+/* Yeni pop-up stilleri */
+.popup {
+  position: fixed; /* Sabit konumda kalmasını sağlar */
+  top: 50%; /* Dikey ortalama */
+  left: 50%; /* Yatay ortalama */
+  transform: translate(-50%, -50%); /* Gerçekten ortalamak için */
+  background: white; /* Arka plan rengi */
+  border-radius: 8px; /* Kenar yuvarlama */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Gölge efekti */
+  z-index: 1000; /* Diğer öğelerin üstünde görünmesi için */
+  padding: 20px; /* İçerik için boşluk */
+  max-width: 90%; /* Ekranın %90'ını kaplaması */
+  overflow: auto; /* Taşan içerik için kaydırma çubuğu */
+}
+
+/* Arka plan karartma */
+.popup-overlay {
+  position: fixed; /* Sabit konumda kalmasını sağlar */
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5); /* Yarı saydam karartma */
+  z-index: 999; /* Pop-up'ın arkasında kalması için */
+}

@@ -294,6 +294,10 @@
     border-radius: 5px;
     cursor: pointer;
   }
+
+  .sales-actions button:hover {
+    background-color: #218838;
+  }
   
   .sales-table {
     width: 100%;
