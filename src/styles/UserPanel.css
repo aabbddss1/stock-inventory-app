@@ -40,18 +40,31 @@
   }
   
   @media (max-width: 768px) {
-    :root {
-        --sidebar-width: 45px; /* Mobilde sidebar genişliğini küçült */
-        --navbar-height: 60px;  /* Mobilde navbar yüksekliğini küçült */
-    }
-
     .main-content {
-      visibility: none;
-      flex: 1;
-      padding: 20px;
-      margin-left: 30px;
+        visibility: visible;
+        flex: 1;
+        padding: 10px;
+        margin-left: 0;
     }
 
+    .user-info-section {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .quick-order-section,
+    .user-details-section {
+        width: 100%;
+        padding: 1rem;
+    }
+
+    .quick-order-card {
+        padding: 1.5rem;
+    }
+
+    .order-summary {
+        padding: 0.5rem;
+    }
   }
   
   .analytics-section.two-columns {
