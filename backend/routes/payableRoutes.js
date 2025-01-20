@@ -3,8 +3,15 @@ const router = express.Router();
 const db = require('../db');
 const authenticate = require('../middleware/authenticate');
 
+// Test route to verify payables endpoint is working
+router.get('/test', (req, res) => {
+  res.json({ message: 'Payables route is working' });
+});
+
 // Get all payables
 router.get('/', authenticate, (req, res) => {
+  console.log('Fetching payables...'); // Add this for debugging
+  
   const query = `
     SELECT 
       id,
@@ -19,9 +26,10 @@ router.get('/', authenticate, (req, res) => {
 
   db.query(query, (err, results) => {
     if (err) {
-      console.error('Error fetching payables:', err);
+      console.error('Database error:', err);
       return res.status(500).json({ error: 'Failed to fetch payables' });
     }
+    console.log('Payables fetched:', results); // Add this for debugging
     res.json(results);
   });
 });
