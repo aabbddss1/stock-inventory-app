@@ -26,6 +26,11 @@ const Inventory = () => {
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
 
+  // Sıralama durumları
+  const [sortOrder, setSortOrder] = useState('asc');
+  const [quantitySortOrder, setQuantitySortOrder] = useState('asc');
+  const [statusSortOrder, setStatusSortOrder] = useState('asc');
+
   // Fetch products from backend
   useEffect(() => {
     fetchInventory();
@@ -204,6 +209,34 @@ const Inventory = () => {
     }
   };
 
+  // Sıralama fonksiyonları
+  const toggleSortOrder = () => {
+    const newOrder = sortOrder === 'asc' ? 'desc' : 'asc';
+    setSortOrder(newOrder);
+    const sorted = [...filteredProducts].sort((a, b) => {
+      return newOrder === 'asc' ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name);
+    });
+    setFilteredProducts(sorted);
+  };
+
+  const toggleQuantitySort = () => {
+    const newOrder = quantitySortOrder === 'asc' ? 'desc' : 'asc';
+    setQuantitySortOrder(newOrder);
+    const sorted = [...filteredProducts].sort((a, b) => {
+      return newOrder === 'asc' ? a.quantity - b.quantity : b.quantity - a.quantity;
+    });
+    setFilteredProducts(sorted);
+  };
+
+  const toggleStatusSort = () => {
+    const newOrder = statusSortOrder === 'asc' ? 'desc' : 'asc';
+    setStatusSortOrder(newOrder);
+    const sorted = [...filteredProducts].sort((a, b) => {
+      return newOrder === 'asc' ? a.status.localeCompare(b.status) : b.status.localeCompare(a.status);
+    });
+    setFilteredProducts(sorted);
+  };
+
   return (
     <div className="inventory-page">
       <Sidebar />
@@ -288,11 +321,19 @@ const Inventory = () => {
           <table className="inventory-table">
             <thead>
               <tr>
-                <th>{t('inventoryTranslation.table.productName')}</th>
+                <th onClick={toggleSortOrder} style={{ cursor: 'pointer' }}>
+                  {t('inventoryTranslation.table.productName')} {sortOrder === 'asc' ? '▲' : '▼'}
+                </th>
                 <th>{t('inventoryTranslation.table.category')}</th>
-                <th>{t('inventoryTranslation.table.quantity')}</th>
-                <th>{t('inventoryTranslation.table.price')}</th>
-                <th>{t('inventoryTranslation.table.status')}</th>
+                <th onClick={toggleQuantitySort} style={{ cursor: 'pointer' }}>
+                  {t('inventoryTranslation.table.quantity')} {quantitySortOrder === 'asc' ? '▲' : '▼'}
+                </th>
+                <th onClick={toggleSortOrder} style={{ cursor: 'pointer' }}>
+                  {t('inventoryTranslation.table.price')} {sortOrder === 'asc' ? '▲' : '▼'}
+                </th>
+                <th onClick={toggleStatusSort} style={{ cursor: 'pointer' }}>
+                  {t('inventoryTranslation.table.status')} {statusSortOrder === 'asc' ? '▲' : '▼'}
+                </th>
                 <th>{t('inventoryTranslation.table.actions')}</th>
               </tr>
             </thead>
