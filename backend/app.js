@@ -1,22 +1,19 @@
 const express = require('express');
-const bodyParser = require('body-parser');
 const cors = require('cors');
-const customerRoutes = require('./routes/customerRoutes');
-const adminUserRoutes = require('./routes/adminUserRoutes');
-const path = require('path');
-const payableRoutes = require('./routes/payableRoutes');
-
 const app = express();
 
-app.use(bodyParser.json());
-app.use(cors());
+// Import routes
+console.log('Importing routes...');
+const authRoutes = require('./routes/authRoutes');
+const orderRoutes = require('./routes/orderRoutes');
+const inventoryRoutes = require('./routes/inventoryRoutes');
+const customerRoutes = require('./routes/customerRoutes');
+const payableRoutes = require('./routes/payableRoutes');
+console.log('Routes imported successfully');
 
-// Add CORS headers
-app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
-    next();
-});
+// Middleware
+app.use(cors());
+app.use(express.json());
 
 // Debug middleware - log all requests
 app.use((req, res, next) => {
@@ -24,40 +21,56 @@ app.use((req, res, next) => {
   next();
 });
 
-// Add the customer routes
+// Routes
+console.log('Registering routes...');
+app.use('/api/auth', authRoutes);
+app.use('/api/orders', orderRoutes);
+app.use('/api/inventory', inventoryRoutes);
 app.use('/api/customers', customerRoutes);
-
-// Add the admin routes
-app.use('/api/admin-users', adminUserRoutes);
-
-// Add the payable routes
 app.use('/api/payables', payableRoutes);
-
-// Serve static files
-app.use('/uploads', express.static('/var/www/xcloud-storage/uploads'));
+console.log('Routes registered successfully');
 
 // Test route
 app.get('/api/test', (req, res) => {
-  console.log('Test route hit');
   res.json({ message: 'API is working' });
+});
+
+// Add this right after your middleware setup
+app.get('/test', (req, res) => {
+  res.json({
+    message: 'Server is running',
+    routes: {
+      payables: typeof payableRoutes !== 'undefined',
+      auth: typeof authRoutes !== 'undefined',
+      orders: typeof orderRoutes !== 'undefined',
+      inventory: typeof inventoryRoutes !== 'undefined',
+      customers: typeof customerRoutes !== 'undefined'
+    }
+  });
+});
+
+// Catch-all route for debugging
+app.use('*', (req, res) => {
+  console.log(`404 - Route not found: ${req.method} ${req.originalUrl}`);
+  res.status(404).json({
+    error: 'Route not found',
+    method: req.method,
+    url: req.originalUrl,
+    availableRoutes: [
+      '/api/auth',
+      '/api/orders',
+      '/api/inventory',
+      '/api/customers',
+      '/api/payables',
+      '/api/test'
+    ]
+  });
 });
 
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error('Error:', err);
   res.status(500).json({ error: 'Internal server error', details: err.message });
-});
-
-const PORT = process.env.PORT || 5001;
-
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-  console.log('Registered routes:');
-  console.log('- /api/auth');
-  console.log('- /api/orders');
-  console.log('- /api/inventory');
-  console.log('- /api/customers');
-  console.log('- /api/payables');
 });
 
 module.exports = app;

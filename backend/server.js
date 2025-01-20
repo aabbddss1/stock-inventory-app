@@ -10,6 +10,7 @@ const inventoryRoutes = require('./routes/inventoryRoutes');
 const documentRoutes = require('./routes/documentRoutes');
 const adminUsersRoutes = require('./routes/adminUsers');
 const emailRoutes = require('./routes/emailRoutes');
+const payableRoutes = require('./routes/payableRoutes');
 
 
 dotenv.config();
@@ -77,6 +78,8 @@ app.use('/api/inventory', inventoryRoutes);
 app.use('/api/documents', documentRoutes);
 app.use('/api/admin-users', adminUsersRoutes);
 app.use('/api/email', emailRoutes);
+app.use('/api/payables', payableRoutes);
+
 // Test Root
 app.get('/', (req, res) => {
     res.send('Welcome to the Stock Inventory API!');
@@ -98,4 +101,10 @@ app.use((err, req, res, next) => {
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
+    console.log('Registered routes:');
+    console.log('- /api/auth');
+    console.log('- /api/orders');
+    console.log('- /api/inventory');
+    console.log('- /api/customers');
+    console.log('- /api/payables');
 });
