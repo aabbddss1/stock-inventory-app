@@ -27,76 +27,80 @@
   /* Search and Export Actions */
   .payables-actions {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-  }
-  
-  .payables-actions input {
-    width: 50%;
-    padding: 10px;
-    font-size: 14px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-  }
-  
-  .payables-actions button {
-    padding: 10px 20px;
-    background-color: #3498db;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-  }
-  
-  .payables-actions button:hover {
-    background-color: #2980b9;
-  }
-  
-  /* Form Styling */
-  .payables-form {
-    display: flex;
-    flex-direction: column;
     gap: 10px;
     margin-bottom: 20px;
   }
   
-  .payables-form input {
-    padding: 10px;
-    font-size: 14px;
+  .search-input {
+    padding: 8px;
     border: 1px solid #ddd;
-    border-radius: 5px;
+    border-radius: 4px;
+    width: 300px;
   }
   
-  .payables-form button {
-    padding: 10px 20px;
-    background-color: #00bfa6;
+  .export-btn {
+    padding: 8px 16px;
+    background-color: #4CAF50;
     color: white;
     border: none;
-    border-radius: 5px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  
+  .export-btn:hover {
+    background-color: #45a049;
+  }
+  
+  /* Form Styling */
+  .payables-form {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 10px;
+    margin-bottom: 20px;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 4px;
+  }
+  
+  .payables-form input {
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
+  
+  .submit-btn {
+    padding: 8px 16px;
+    background-color: #2196F3;
+    color: white;
+    border: none;
+    border-radius: 4px;
     cursor: pointer;
   }
   
-  .payables-form button:hover {
-    background-color: #00997e;
+  .submit-btn:hover {
+    background-color: #1976D2;
   }
   
   /* Payables Table */
   .payables-table {
     width: 100%;
     border-collapse: collapse;
+    margin-top: 20px;
   }
   
   .payables-table th,
   .payables-table td {
+    padding: 12px;
     text-align: left;
-    padding: 10px;
     border-bottom: 1px solid #ddd;
   }
   
   .payables-table th {
-    background-color: #3aafa9;
-    color: white;
+    background-color: #f5f5f5;
+    font-weight: bold;
   }
   
   .payables-table td {
@@ -107,46 +111,63 @@
     background-color: #f1f1f1;
   }
   
-  /* Action Buttons in Table */
-  .payables-table button {
-    padding: 5px 10px;
-    background-color: #3498db;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 12px;
-  }
-  
-  .payables-table button:hover {
-    background-color: #2980b9;
-  }
-  
   /* Status Colors */
-  .payables-table td {
-    position: relative;
+  .status-badge {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.9em;
+    font-weight: 500;
   }
   
-  .payables-table td:before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 0;
-    transform: translateY(-50%);
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
+  .status-badge.pending {
+    background-color: #ffd700;
+    color: #000;
   }
   
-  .payables-table td:nth-child(5):before {
-    background-color: #2ecc71; /* Default: Pending */
+  .status-badge.scheduled {
+    background-color: #87ceeb;
+    color: #000;
   }
   
-  .payables-table td:contains('Paid'):before {
-    background-color: #3498db; /* Paid */
+  .status-badge.paid {
+    background-color: #90ee90;
+    color: #000;
   }
   
-  .payables-table td:contains('Overdue'):before {
-    background-color: #e74c3c; /* Overdue */
+  /* Action Buttons in Table */
+  .action-buttons {
+    display: flex;
+    gap: 5px;
+  }
+  
+  .edit-btn,
+  .delete-btn {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    color: white;
+  }
+  
+  .edit-btn {
+    background-color: #2196F3;
+  }
+  
+  .delete-btn {
+    background-color: #f44336;
+  }
+  
+  .status-select {
+    padding: 6px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+    margin-right: 5px;
+  }
+  
+  .loading {
+    text-align: center;
+    padding: 20px;
+    font-size: 1.2em;
+    color: #666;
   }
   

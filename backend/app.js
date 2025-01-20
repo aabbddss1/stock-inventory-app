@@ -4,6 +4,7 @@ const cors = require('cors');
 const customerRoutes = require('./routes/customerRoutes');
 const adminUserRoutes = require('./routes/adminUserRoutes');
 const path = require('path');
+const payableRoutes = require('./routes/payableRoutes');
 
 const app = express();
 
@@ -22,6 +23,9 @@ app.use('/api/customers', customerRoutes);
 
 // Add the admin routes
 app.use('/api/admin-users', adminUserRoutes);
+
+// Add the payable routes
+app.use('/api/payables', payableRoutes);
 
 // Serve static files
 app.use('/uploads', express.static('/var/www/xcloud-storage/uploads'));
