@@ -73,6 +73,12 @@ const Sales = () => {
     Completed: false
   });
 
+  // Sıralama durumları
+  const [sortOrderDate, setSortOrderDate] = useState('asc');
+  const [sortOrderQuantity, setSortOrderQuantity] = useState('asc');
+  const [sortOrderPrice, setSortOrderPrice] = useState('asc');
+  const [sortOrderTotal, setSortOrderTotal] = useState('asc');
+
   // Fetch orders
   useEffect(() => {
     const fetchOrders = async () => {
@@ -118,6 +124,43 @@ const Sales = () => {
 
     fetchOrders();
   }, []);
+
+  // Sıralama fonksiyonları
+  const toggleSortOrderDate = () => {
+    const newOrder = sortOrderDate === 'asc' ? 'desc' : 'asc';
+    setSortOrderDate(newOrder);
+    const sorted = [...sales].sort((a, b) => {
+      return newOrder === 'asc' ? new Date(a.orderDate) - new Date(b.orderDate) : new Date(b.orderDate) - new Date(a.orderDate);
+    });
+    setSales(sorted);
+  };
+
+  const toggleSortOrderQuantity = () => {
+    const newOrder = sortOrderQuantity === 'asc' ? 'desc' : 'asc';
+    setSortOrderQuantity(newOrder);
+    const sorted = [...sales].sort((a, b) => {
+      return newOrder === 'asc' ? a.quantity - b.quantity : b.quantity - a.quantity;
+    });
+    setSales(sorted);
+  };
+
+  const toggleSortOrderPrice = () => {
+    const newOrder = sortOrderPrice === 'asc' ? 'desc' : 'asc';
+    setSortOrderPrice(newOrder);
+    const sorted = [...sales].sort((a, b) => {
+      return newOrder === 'asc' ? a.price - b.price : b.price - a.price;
+    });
+    setSales(sorted);
+  };
+
+  const toggleSortOrderTotal = () => {
+    const newOrder = sortOrderTotal === 'asc' ? 'desc' : 'asc';
+    setSortOrderTotal(newOrder);
+    const sorted = [...sales].sort((a, b) => {
+      return newOrder === 'asc' ? a.total - b.total : b.total - a.total;
+    });
+    setSales(sorted);
+  };
 
   const calculateSalesMetrics = (salesData) => {
     const totalSales = salesData.reduce((sum, sale) => sum + sale.total, 0);
@@ -334,9 +377,9 @@ const Sales = () => {
 
               {/* Export Buttons */}
               <div className="sales-actions">
-              <button onClick={exportAsExcel}>
-  <i className="fa fa-file-excel"></i> {t('exportAsExcel')}
-</button>
+                <button onClick={exportAsExcel}>
+                  <i className="fa fa-file-excel"></i> {t('exportAsExcel')}
+                </button>
                 <button onClick={exportAsPDF}>{t('exportAsPDF')}</button>
               </div>
 
@@ -360,20 +403,24 @@ const Sales = () => {
                     <table className="sales-table">
                       <thead>
                         <tr>
-                          <th>{t('orderDate')}</th>
-                          <th>{t('customerName')}</th>
-                          <th>{t('productName')}</th>
-                          <th>{t('quantity')}</th>
-                          <th>{t('price')}</th>
-                          <th>{t('total')}</th>
+                          <th onClick={toggleSortOrderDate} style={{ cursor: 'pointer' }}>
+                            {t('orderDate')} {sortOrderDate === 'asc' ? '▲' : '▼'}
+                          </th>
+                          <th onClick={toggleSortOrderQuantity} style={{ cursor: 'pointer' }}>
+                            {t('quantity')} {sortOrderQuantity === 'asc' ? '▲' : '▼'}
+                          </th>
+                          <th onClick={toggleSortOrderPrice} style={{ cursor: 'pointer' }}>
+                            {t('price')} {sortOrderPrice === 'asc' ? '▲' : '▼'}
+                          </th>
+                          <th onClick={toggleSortOrderTotal} style={{ cursor: 'pointer' }}>
+                            {t('total')} {sortOrderTotal === 'asc' ? '▲' : '▼'}
+                          </th>
                         </tr>
                       </thead>
                       <tbody>
                         {filterOrdersByStatus(status).map((sale) => (
                           <tr key={sale.id}>
                             <td>{sale.orderDate}</td>
-                            <td>{sale.customerName}</td>
-                            <td>{sale.productName}</td>
                             <td>{sale.quantity}</td>
                             <td>{t('currency')}{sale.price}</td>
                             <td>{t('currency')}{sale.total}</td>
@@ -381,7 +428,7 @@ const Sales = () => {
                         ))}
                         {filterOrdersByStatus(status).length === 0 && (
                           <tr>
-                            <td colSpan="6" className="no-orders">
+                            <td colSpan="4" className="no-orders">
                               {t('noOrders', { status: t(status.toLowerCase()) })}
                             </td>
                           </tr>

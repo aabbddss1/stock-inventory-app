@@ -13,6 +13,10 @@ function Customers() {
   const [editingCustomer, setEditingCustomer] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
 
+  // Sıralama durumları
+  const [sortOrderId, setSortOrderId] = useState('asc');
+  const [sortOrderName, setSortOrderName] = useState('asc');
+
   const token = localStorage.getItem('token');
   const axiosInstance = React.useMemo(() => {
     return axios.create({
@@ -47,6 +51,25 @@ function Customers() {
         setLoading(false);
       });
   }, [token]);
+
+  // Sıralama fonksiyonları
+  const toggleSortOrderId = () => {
+    const newOrder = sortOrderId === 'asc' ? 'desc' : 'asc';
+    setSortOrderId(newOrder);
+    const sorted = [...customers].sort((a, b) => {
+      return newOrder === 'asc' ? a.id - b.id : b.id - a.id;
+    });
+    setCustomers(sorted);
+  };
+
+  const toggleSortOrderName = () => {
+    const newOrder = sortOrderName === 'asc' ? 'desc' : 'asc';
+    setSortOrderName(newOrder);
+    const sorted = [...customers].sort((a, b) => {
+      return newOrder === 'asc' ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name);
+    });
+    setCustomers(sorted);
+  };
 
   // Handle adding a new customer
   const handleAdd = () => {
@@ -162,8 +185,12 @@ function Customers() {
             <table className="customers-table">
               <thead>
                 <tr>
-                  <th>{t('customers.tableHeaders.id')}</th>
-                  <th>{t('customers.tableHeaders.name')}</th>
+                  <th onClick={toggleSortOrderId} style={{ cursor: 'pointer' }}>
+                    {t('customers.tableHeaders.id')} {sortOrderId === 'asc' ? '▲' : '▼'}
+                  </th>
+                  <th onClick={toggleSortOrderName} style={{ cursor: 'pointer' }}>
+                    {t('customers.tableHeaders.name')} {sortOrderName === 'asc' ? '▲' : '▼'}
+                  </th>
                   <th>{t('customers.tableHeaders.email')}</th>
                   <th>{t('customers.tableHeaders.phone')}</th>
                   <th>{t('customers.tableHeaders.password')}</th>

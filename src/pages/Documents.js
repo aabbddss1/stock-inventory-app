@@ -21,6 +21,8 @@ const Documents = () => {
   const [page, setPage] = useState(1); // Current page
   const [totalPages, setTotalPages] = useState(1); // Total pages for pagination
   const [sortOrder, setSortOrder] = useState('desc'); // Add this new state
+  const [sortOrderName, setSortOrderName] = useState('asc'); // Sort order for name
+  const [sortOrderCustomerId, setSortOrderCustomerId] = useState('asc'); // Sort order for customer ID
   const [sendingEmails, setSendingEmails] = useState({}); // Track email sending state for each document
 
   // Get token from localStorage
@@ -168,6 +170,29 @@ const Documents = () => {
       setDocuments(sorted);
     };
 
+  // Sıralama fonksiyonları
+  const toggleSortOrderName = () => {
+    const newOrder = sortOrderName === 'asc' ? 'desc' : 'asc';
+    setSortOrderName(newOrder);
+    const sorted = [...filteredDocuments].sort((a, b) => {
+      return newOrder === 'asc' 
+        ? a.name.localeCompare(b.name)
+        : b.name.localeCompare(a.name);
+    });
+    setDocuments(sorted);
+  };
+
+  const toggleSortOrderCustomerId = () => {
+    const newOrder = sortOrderCustomerId === 'asc' ? 'desc' : 'asc';
+    setSortOrderCustomerId(newOrder);
+    const sorted = [...filteredDocuments].sort((a, b) => {
+      return newOrder === 'asc' 
+        ? a.customer_id - b.customer_id
+        : b.customer_id - a.customer_id;
+    });
+    setDocuments(sorted);
+  };
+
   // Send document via email
   const handleSendEmail = async (id) => {
     try {
@@ -255,10 +280,14 @@ const Documents = () => {
               <table className="documents-table">
                 <thead>
                   <tr>
-                    <th>{t('name')}</th>
+                    <th onClick={toggleSortOrderName} style={{ cursor: 'pointer' }}>
+                      {t('name')} {sortOrderName === 'asc' ? '▲' : '▼'}
+                    </th>
                     <th>{t('category')}</th>
-                    <th>{t('customerIdHeader')}</th>
-                   <th onClick={toggleSortOrder} style={{ cursor: 'pointer' }}>
+                    <th onClick={toggleSortOrderCustomerId} style={{ cursor: 'pointer' }}>
+                      {t('customerIdHeader')} {sortOrderCustomerId === 'asc' ? '▲' : '▼'}
+                    </th>
+                    <th onClick={toggleSortOrder} style={{ cursor: 'pointer' }}>
                       {t('uploadDate')} {sortOrder === 'desc' ? '▼' : '▲'}
                     </th>
                     <th>{t('actions')}</th>
