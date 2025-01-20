@@ -3,14 +3,15 @@ const router = express.Router();
 const db = require('../db');
 const authenticate = require('../middleware/authenticate');
 
-// Test route to verify payables endpoint is working
+// Debug route - no authentication required
 router.get('/test', (req, res) => {
+  console.log('Payables test route hit');
   res.json({ message: 'Payables route is working' });
 });
 
 // Get all payables
 router.get('/', authenticate, (req, res) => {
-  console.log('Fetching payables...'); // Add this for debugging
+  console.log('GET /api/payables - Fetching all payables');
   
   const query = `
     SELECT 
@@ -27,16 +28,30 @@ router.get('/', authenticate, (req, res) => {
   db.query(query, (err, results) => {
     if (err) {
       console.error('Database error:', err);
-      return res.status(500).json({ error: 'Failed to fetch payables' });
+      return res.status(500).json({ 
+        error: 'Failed to fetch payables',
+        details: err.message 
+      });
     }
-    console.log('Payables fetched:', results); // Add this for debugging
+    console.log(`Found ${results.length} payables`);
     res.json(results);
   });
 });
 
 // Create new payable
 router.post('/', authenticate, (req, res) => {
+  console.log('POST /api/payables - Creating new payable:', req.body);
+  
   const { supplierName, invoiceNumber, amountOwed, dueDate } = req.body;
+
+  // Validate input
+  if (!supplierName || !invoiceNumber || !amountOwed || !dueDate) {
+    return res.status(400).json({ 
+      error: 'Missing required fields',
+      required: ['supplierName', 'invoiceNumber', 'amountOwed', 'dueDate'],
+      received: req.body 
+    });
+  }
 
   const query = `
     INSERT INTO payables (supplierName, invoiceNumber, amountOwed, dueDate, status)
@@ -44,10 +59,18 @@ router.post('/', authenticate, (req, res) => {
 
   db.query(query, [supplierName, invoiceNumber, amountOwed, dueDate], (err, result) => {
     if (err) {
-      console.error('Error creating payable:', err);
-      return res.status(500).json({ error: 'Failed to create payable' });
+      console.error('Database error:', err);
+      return res.status(500).json({ 
+        error: 'Failed to create payable',
+        details: err.message 
+      });
     }
-    res.status(201).json({ id: result.insertId, ...req.body, status: 'Pending' });
+    console.log('Created new payable with ID:', result.insertId);
+    res.status(201).json({ 
+      id: result.insertId, 
+      ...req.body, 
+      status: 'Pending' 
+    });
   });
 });
 

@@ -18,6 +18,12 @@ app.use((req, res, next) => {
     next();
 });
 
+// Debug middleware - log all requests
+app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
+  next();
+});
+
 // Add the customer routes
 app.use('/api/customers', customerRoutes);
 
@@ -30,10 +36,28 @@ app.use('/api/payables', payableRoutes);
 // Serve static files
 app.use('/uploads', express.static('/var/www/xcloud-storage/uploads'));
 
+// Test route
+app.get('/api/test', (req, res) => {
+  console.log('Test route hit');
+  res.json({ message: 'API is working' });
+});
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error('Error:', err);
+  res.status(500).json({ error: 'Internal server error', details: err.message });
+});
+
 const PORT = process.env.PORT || 5001;
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
+  console.log('Registered routes:');
+  console.log('- /api/auth');
+  console.log('- /api/orders');
+  console.log('- /api/inventory');
+  console.log('- /api/customers');
+  console.log('- /api/payables');
 });
 
 module.exports = app;
