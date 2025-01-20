@@ -611,4 +611,25 @@ router.put('/:id', authenticate, (req, res) => {
   });
 });
 
+// Update payment status
+router.put('/:id/payment-status', authenticate, (req, res) => {
+  const { id } = req.params;
+  const { paymentStatus } = req.body;
+
+  const query = `UPDATE orders SET paymentStatus = ? WHERE id = ?`;
+
+  db.query(query, [paymentStatus, id], (err, result) => {
+    if (err) {
+      console.error(`Error updating payment status for order ID ${id}:`, err);
+      return res.status(500).json({ error: 'Failed to update payment status' });
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Order not found' });
+    }
+
+    res.json({ message: `Payment status updated successfully for order ID ${id}` });
+  });
+});
+
 module.exports = router;

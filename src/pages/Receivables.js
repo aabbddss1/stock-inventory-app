@@ -1,134 +1,129 @@
 // src/pages/Receivables.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Sidebar from '../components/Sidebar';
 import TopNavbar from '../components/TopNavbar';
 import { utils as XLSXUtils, writeFile as XLSXWriteFile } from 'xlsx'; // For Excel export
 import jsPDF from 'jspdf'; // For PDF export
+import axios from 'axios';
 import '../styles/Receivables.css';
+import { useTranslation } from 'react-i18next';
 
 const Receivables = () => {
-  const [receivables, setReceivables] = useState([
-    {
-      id: 1,
-      clientName: 'John Doe',
-      invoiceNumber: 'INV001',
-      amountDue: 500,
-      dueDate: '2024-11-30',
-      status: 'Pending',
-    },
-    {
-      id: 2,
-      clientName: 'Jane Smith',
-      invoiceNumber: 'INV002',
-      amountDue: 300,
-      dueDate: '2024-11-20',
-      status: 'Overdue',
-    },
-  ]);
-
-  const [formData, setFormData] = useState({
-    clientName: '',
-    invoiceNumber: '',
-    amountDue: '',
-    dueDate: '',
-  });
-
+  const { t } = useTranslation();
+  const [completedOrders, setCompletedOrders] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedReceivable, setSelectedReceivable] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [statusLoading, setStatusLoading] = useState(null);
 
-  // Handle form changes
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
+  const token = localStorage.getItem('token');
+  const userData = JSON.parse(atob(token.split('.')[1]));
+  const userRole = userData.role;
 
-  // Add or update receivable
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  // Fetch completed orders
+  useEffect(() => {
+    const fetchCompletedOrders = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.get('http://37.148.210.169:5001/api/orders', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        
+        // Filter only completed orders and add payment status if not exists
+        const completed = response.data
+          .filter(order => order.status === 'Completed')
+          .map(order => ({
+            ...order,
+            paymentStatus: order.paymentStatus || 'Pending' // Default to 'Pending' if not set
+          }));
+        
+        setCompletedOrders(completed);
+      } catch (error) {
+        console.error('Error fetching completed orders:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    if (selectedReceivable) {
-      // Update receivable
-      const updatedReceivables = receivables.map((receivable) =>
-        receivable.id === selectedReceivable.id
-          ? { ...formData, id: receivable.id, status: receivable.status }
-          : receivable
+    fetchCompletedOrders();
+  }, [token]);
+
+  // Handle payment status change
+  const handlePaymentStatusChange = async (orderId, newStatus) => {
+    try {
+      setStatusLoading(orderId);
+      
+      // Update payment status in the backend
+      await axios.put(
+        `http://37.148.210.169:5001/api/orders/${orderId}/payment-status`,
+        { paymentStatus: newStatus },
+        {
+          headers: { 
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
       );
-      setReceivables(updatedReceivables);
-      setSelectedReceivable(null);
-    } else {
-      // Add new receivable
-      const newReceivable = {
-        ...formData,
-        id: Date.now(),
-        status: 'Pending',
-      };
-      setReceivables([...receivables, newReceivable]);
+
+      // Update local state
+      setCompletedOrders(prevOrders =>
+        prevOrders.map(order =>
+          order.id === orderId ? { ...order, paymentStatus: newStatus } : order
+        )
+      );
+    } catch (error) {
+      console.error('Error updating payment status:', error);
+      alert('Failed to update payment status');
+    } finally {
+      setStatusLoading(null);
     }
-
-    setFormData({ clientName: '', invoiceNumber: '', amountDue: '', dueDate: '' });
-  };
-
-  // Edit receivable
-  const handleEdit = (receivable) => {
-    setSelectedReceivable(receivable);
-    setFormData({
-      clientName: receivable.clientName,
-      invoiceNumber: receivable.invoiceNumber,
-      amountDue: receivable.amountDue,
-      dueDate: receivable.dueDate,
-    });
-  };
-
-  // Delete receivable
-  const handleDelete = (id) => {
-    const updatedReceivables = receivables.filter((receivable) => receivable.id !== id);
-    setReceivables(updatedReceivables);
-  };
-
-  // Mark as Paid
-  const handleMarkAsPaid = (id) => {
-    const updatedReceivables = receivables.map((receivable) =>
-      receivable.id === id ? { ...receivable, status: 'Paid' } : receivable
-    );
-    setReceivables(updatedReceivables);
-  };
-
-  // Search functionality
-  const handleSearch = (e) => {
-    const value = e.target.value.toLowerCase();
-    setSearchTerm(value);
   };
 
   // Export to Excel
-  const exportAsExcel = () => {
-    const worksheet = XLSXUtils.json_to_sheet(receivables);
+  const exportToExcel = () => {
+    const exportData = completedOrders.map(order => ({
+      'Order ID': order.id,
+      'Client Name': order.clientName,
+      'Product Name': order.productName,
+      'Amount': `$${order.price * order.quantity}`,
+      'Order Date': new Date(order.orderDate).toLocaleDateString(),
+      'Payment Status': order.paymentStatus
+    }));
+
+    const worksheet = XLSXUtils.json_to_sheet(exportData);
     const workbook = XLSXUtils.book_new();
     XLSXUtils.book_append_sheet(workbook, worksheet, 'Receivables');
-    XLSXWriteFile(workbook, 'receivables_data.xlsx');
+    XLSXWriteFile(workbook, 'receivables_report.xlsx');
   };
 
   // Export to PDF
-  const exportAsPDF = () => {
+  const exportToPDF = () => {
     const doc = new jsPDF();
     doc.text('Receivables Report', 10, 10);
-    let yPosition = 20;
-
-    receivables.forEach((receivable, index) => {
-      doc.text(
-        `${index + 1}. ${receivable.clientName} - ${receivable.invoiceNumber}`,
-        10,
-        yPosition
-      );
-      doc.text(
-        `   Amount Due: $${receivable.amountDue}, Due Date: ${receivable.dueDate}, Status: ${receivable.status}`,
-        10,
-        yPosition + 10
-      );
-      yPosition += 20;
+    
+    let yPos = 30;
+    completedOrders.forEach((order, index) => {
+      if (yPos > 250) {
+        doc.addPage();
+        yPos = 30;
+      }
+      
+      doc.text(`Order #${order.id}`, 10, yPos);
+      doc.text(`Client: ${order.clientName}`, 10, yPos + 7);
+      doc.text(`Amount: $${order.price * order.quantity}`, 10, yPos + 14);
+      doc.text(`Status: ${order.paymentStatus}`, 10, yPos + 21);
+      
+      yPos += 35;
     });
 
     doc.save('receivables_report.pdf');
   };
+
+  // Filter orders based on search term
+  const filteredOrders = completedOrders.filter(order =>
+    order.clientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    order.productName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    order.paymentStatus.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div className="receivables-page">
@@ -136,95 +131,71 @@ const Receivables = () => {
       <div className="main-content">
         <TopNavbar />
         <div className="receivables-container">
-          <h1>Receivables</h1>
+          <h1>{t('Receivables')}</h1>
 
-          {/* Search and Export */}
           <div className="receivables-actions">
             <input
               type="text"
-              placeholder="Search by client or invoice"
+              placeholder={t('Search receivables...')}
               value={searchTerm}
-              onChange={handleSearch}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="search-input"
             />
-            <button onClick={exportAsExcel}>Export as Excel</button>
-            <button onClick={exportAsPDF}>Export as PDF</button>
+            <button onClick={exportToExcel} className="export-btn">
+              <i className="fas fa-file-excel"></i> {t('Export Excel')}
+            </button>
+            <button onClick={exportToPDF} className="export-btn">
+              <i className="fas fa-file-pdf"></i> {t('Export PDF')}
+            </button>
           </div>
 
-          {/* Add/Edit Receivable Form */}
-          <form className="receivables-form" onSubmit={handleSubmit}>
-            <input
-              type="text"
-              name="clientName"
-              placeholder="Client Name"
-              value={formData.clientName}
-              onChange={handleChange}
-              required
-            />
-            <input
-              type="text"
-              name="invoiceNumber"
-              placeholder="Invoice Number"
-              value={formData.invoiceNumber}
-              onChange={handleChange}
-              required
-            />
-            <input
-              type="number"
-              name="amountDue"
-              placeholder="Amount Due"
-              value={formData.amountDue}
-              onChange={handleChange}
-              required
-            />
-            <input
-              type="date"
-              name="dueDate"
-              value={formData.dueDate}
-              onChange={handleChange}
-              required
-            />
-            <button type="submit">
-              {selectedReceivable ? 'Update Receivable' : 'Add Receivable'}
-            </button>
-          </form>
-
-          {/* Receivables List Table */}
-          <table className="receivables-table">
-            <thead>
-              <tr>
-                <th>Client Name</th>
-                <th>Invoice Number</th>
-                <th>Amount Due</th>
-                <th>Due Date</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {receivables
-                .filter(
-                  (receivable) =>
-                    receivable.clientName.toLowerCase().includes(searchTerm) ||
-                    receivable.invoiceNumber.toLowerCase().includes(searchTerm)
-                )
-                .map((receivable) => (
-                  <tr key={receivable.id}>
-                    <td>{receivable.clientName}</td>
-                    <td>{receivable.invoiceNumber}</td>
-                    <td>${receivable.amountDue}</td>
-                    <td>{receivable.dueDate}</td>
-                    <td>{receivable.status}</td>
+          {loading ? (
+            <div className="loading">{t('Loading...')}</div>
+          ) : (
+            <table className="receivables-table">
+              <thead>
+                <tr>
+                  <th>{t('Order ID')}</th>
+                  <th>{t('Client Name')}</th>
+                  <th>{t('Product')}</th>
+                  <th>{t('Amount')}</th>
+                  <th>{t('Order Date')}</th>
+                  <th>{t('Payment Status')}</th>
+                  {userRole === 'admin' && <th>{t('Actions')}</th>}
+                </tr>
+              </thead>
+              <tbody>
+                {filteredOrders.map((order) => (
+                  <tr key={order.id}>
+                    <td>#{order.id}</td>
+                    <td>{order.clientName}</td>
+                    <td>{order.productName}</td>
+                    <td>${order.price * order.quantity}</td>
+                    <td>{new Date(order.orderDate).toLocaleDateString()}</td>
                     <td>
-                      <button onClick={() => handleEdit(receivable)}>Edit</button>
-                      <button onClick={() => handleDelete(receivable.id)}>Delete</button>
-                      {receivable.status !== 'Paid' && (
-                        <button onClick={() => handleMarkAsPaid(receivable.id)}>Mark as Paid</button>
-                      )}
+                      <span className={`status-badge ${order.paymentStatus.toLowerCase()}`}>
+                        {order.paymentStatus}
+                      </span>
                     </td>
+                    {userRole === 'admin' && (
+                      <td>
+                        <select
+                          value={order.paymentStatus}
+                          onChange={(e) => handlePaymentStatusChange(order.id, e.target.value)}
+                          disabled={statusLoading === order.id}
+                          className="status-select"
+                        >
+                          <option value="Pending">Pending</option>
+                          <option value="Scheduled">Scheduled</option>
+                          <option value="Received">Received</option>
+                        </select>
+                      </td>
+                    )}
                   </tr>
                 ))}
-            </tbody>
-          </table>
+              </tbody>
+            </table>
+          )}
         </div>
       </div>
     </div>
