@@ -44,6 +44,7 @@ router.get('/', authenticate, (req, res) => {
           price,
           clientEmail,
           status,
+          paymentStatus,
           DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') as orderDate 
         FROM orders`
       : `SELECT 
@@ -54,6 +55,7 @@ router.get('/', authenticate, (req, res) => {
           price,
           clientEmail,
           status,
+          paymentStatus,
           DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') as orderDate 
         FROM orders 
         WHERE clientEmail = ?`;
